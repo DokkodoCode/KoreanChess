@@ -191,34 +191,47 @@ def render_chariot_possible_spots(janggi_piece, player, board, window):
 # OUTPUT: All possible jump-to spots will be highlighted
 #-----------------------------------------------------------------------------------
 def render_pawn_possible_spots(janggi_piece, player, board, window):
-	# possible moves for the piece based on current possition (L/R/U)
+	# Possible moves for the piece based on current possition (L/R/U)
+	# view board as vertical (standard) where top of board is beginning of
+	# the 2D list
+	# (-x, y) --> left x spots
+	# (+x, y) --> right x spots
+	# (x, -y) --> up y spots
+	# (x, +y) --> down y spots
+	#				[ (Left) , (Right), (Up)  ]
 	possible_moves = [(-1, 0), (1, 0), (0, -1)]
 
-	# check each spot in the board for valid locations
+	# Check each spot in the board for valid locations where
+	# rank is the row, and file is the spot in that row
+	# i.e Cho King starts at Rank 9/File 5
 	for rank, row in enumerate(board.coordinates):
 		for file, spot in enumerate(row):
 			# find where piece is relative to board
 			if spot == janggi_piece.location:
-				# show where piece can move
+				# Show where piece can move by looking at each of 
+				# the possible locations piece can move
 				for move in possible_moves:
 					new_rank = rank + move[0]
 					new_file = file + move[1]
 
-					# check that move location is in board and put that spot
+					# check that move location is within board
 					if ((0 <= new_rank < len(board.coordinates))
 							and (0 <= new_file < len(row))):
 						# take the coords for the spot to potentially highlight
 						new_rect = board.collisions[new_rank][new_file]
 						
-						# make sure spot is not occupied by another piece of the player
+						# Make sure spot is not occupied by another piece of the player
+						# but exclude the piece being moved from being checked
 						if not any(new_rect.colliderect(piece.collision_rect) 
 													 for piece in player.pieces 
 													 if piece != janggi_piece):
-							# potential jump-to spot, align the rectangle for drawing
+							
+							# potential jump-to spot found, align the rectangle for drawing
 							new_spot = board.coordinates[new_rank][new_file]
 							new_spot = helper_funcs.reformat_spot_collision(new_spot,
-																														board.collisions[new_rank]
-																														[new_file])
+																			board.collisions[new_rank]
+																			[new_file])
+							
 							# rectangle bounds for drawing the spot rectangle
 							rectangle = (new_spot[0], new_spot[1], 
 													 constants.spot_collision_size[0], 
@@ -226,5 +239,29 @@ def render_pawn_possible_spots(janggi_piece, player, board, window):
 							
 							# render the possible spot
 							pygame.draw.rect(window, constants.GREEN, rectangle)
-						
+	return
+
+#-----------------------------------------------------------------------------------
+# Function that will render the palaces for DEBUG purposes
+# INPUT: board object, pygame surface object
+# OUTPUT: Palace is highlighted for debugging purposes
+#-----------------------------------------------------------------------------------
+def render_palace_debug(board, window):
+	# go to each spot in the palace for cho
+	for row in board.cho_palace:
+		for spot in row:
+			# define rectangle bounds
+			rectangle = (spot[0], spot[1], constants.spot_collision_size[0], 
+										constants.spot_collision_size[1])
+			# render the palace spots
+			pygame.draw.rect(window, constants.GREEN, rectangle)
+
+			# go to each spot in the palace for han
+	for row in board.han_palace:
+		for spot in row:
+			# define rectangle bounds
+			rectangle = (spot[0], spot[1], constants.spot_collision_size[0], 
+										constants.spot_collision_size[1])
+			# render the palace spots
+			pygame.draw.rect(window, constants.GREEN, rectangle)
 	return

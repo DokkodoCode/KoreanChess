@@ -196,16 +196,24 @@ def move_chariot(janggi_piece, board, mouse_pos):
 # OUTPUT: Piece is remapped to valid spot
 #-----------------------------------------------------------------------------------
 def move_pawn(janggi_piece, player, board, mouse_pos):
-	# possible moves for the piece based on current possition (L/R/U)
+	# Possible moves for the piece based on current possition (L/R/U)
+	# view board as vertical (standard) where top of board is beginning of
+	# the 2D list
+	# (-x, y) --> left x spots
+	# (+x, y) --> right x spots
+	# (x, -y) --> up y spots
+	# (x, +y) --> down y spots
+	#				[ (Left) , (Right), (Up)  ]
 	possible_moves = [(-1, 0), (1, 0), (0, -1)]
-	
-	# check each spot in the board for valid locations
+
+	# Check each spot in the board for valid locations where
+	# rank is the row, and file is the spot in that row
+	# i.e Cho King starts at Rank 9/File 5
 	for rank, row in enumerate(board.coordinates):
 		for file, spot in enumerate(row):
 			# find where piece is relative to board
 			if spot == janggi_piece.location:
-				# Update coordinates to show the board collision rectangles 
-				# of where the piece can move
+				# Update move coordinates for the piece where it can move
 				for move in possible_moves:
 					new_rank = rank + move[0]
 					new_file = file + move[1]
@@ -218,12 +226,13 @@ def move_pawn(janggi_piece, player, board, mouse_pos):
 						# collision rectangle for the spot
 						new_rect = board.collisions[new_rank][new_file]
 						
-						# now make sure move is not onto another piece owned by player
+						# Make sure spot is not occupied by another piece of the player
+						# but exclude the piece being moved from being checked
 						if (new_rect.collidepoint(mouse_pos)
 							 and not any(new_rect.colliderect(piece.collision_rect) 
 													 for piece in player.pieces 
 													 if piece != janggi_piece)):
-							# update piece location and collision if valid move
+							# update piece location and collision for valid move
 							janggi_piece.location = new_spot
 							janggi_piece.collision_rect.topleft = new_spot
 							return True
