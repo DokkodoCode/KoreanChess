@@ -69,7 +69,7 @@ class SinglePlayerGame(State):
 			# check if the player is currently attempting to move a piece
 			if self.player.is_clicked:
 				# unclick that piece if the move was successful/valid
-				if helper_funcs.attempt_move(self.player, self.board, mouse_pos):
+				if helper_funcs.attempt_move(self.player, self.opponent, self.board, mouse_pos):
 					helper_funcs.player_piece_unclick(self.player)
 				# otherwise the player is clicking another piece or invalid spot
 				else:
@@ -99,7 +99,7 @@ class SinglePlayerGame(State):
 
 		# if player has a piece currently clicked, render where it can go
 		if self.player.is_clicked:
-			render_funcs.render_possible_spots(self.player, self.board, self.window)
+			render_funcs.render_possible_spots(self.player, self.opponent, self.board, self.window)
 		# render collision rectangles for the pieces on both teams
 		render_funcs.render_piece_collisions(self.player, self.opponent, self.window)
 		# load the pieces on the board for both teams
