@@ -240,6 +240,46 @@ def move_cannon(janggi_piece, board, mouse_pos, player, opponent):
 #-----------------------------------------------------------------------------------
 def move_chariot(janggi_piece, board, mouse_pos):
 	# implement piece logic here
+	# Define moves for chariot (up,down,left,right, and diagonal in palace)
+    rook_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    diagonal_moves = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  
+    
+    def is_in_palace(rank, file):
+        # Return rank and file boundaries for if we are in palace coordiantes
+        return ((8 <= rank <= 10 and 4 <= file <= 6) or  # Cho's palace
+                (1 <= rank <= 3 and 4 <= file <= 6))    # Han's palace
+
+    # Get the current location of the piece
+    for rank, row in enumerate(board.coordinates):
+        for file, spot in enumerate(row):
+            # Find where piece is on the board
+            if spot == janggi_piece.location:
+                #Set the only moves possible at this point to be up down left right
+                possible_moves = rook_moves
+                
+                # Call palace function to check if the current piece is in palace
+                if is_in_palace(rank, file):
+                    # If the piece is in palace then add on diagonal moves to possible list
+                    possible_moves += diagonal_moves 
+                
+                # Check each possible move
+                for move in possible_moves:
+                    new_rank = rank + move[0]
+                    new_file = file + move[1]
+
+                    # Ensure the move is within the bounds of the board
+                    if 0 <= new_rank < len(board.coordinates) and 0 <= new_file < len(row):
+                        new_spot = board.coordinates[new_rank][new_file]
+                        new_rect = board.collisions[new_rank][new_file]
+                        
+                        # Ensure the spot is not occupied by another piece of the same player
+                        if (new_rect.collidepoint(mouse_pos) and
+                            not any(new_rect.colliderect(piece.collision_rect) 
+                                    for piece in player.pieces if piece != janggi_piece)):
+                            # Valid move, update the piece location and collision
+                            janggi_piece.location = new_spot
+                            janggi_piece.collision_rect.topleft = new_spot
+                            return True
 	return False
 
 #-----------------------------------------------------------------------------------
