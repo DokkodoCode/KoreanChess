@@ -29,8 +29,52 @@ class Board():
 		self.coordinates = [[(x,y) for y in constants.y_coordinates]
 												for x in constants.x_coordinates]
 		self.cho_palace = [row[-3:] for row in self.coordinates[3:6]]
+		self.cho_palace_collisions = self.cho_assign_palace_collision_spots()
 		self.han_palace = [row[:3] for row in self.coordinates[3:6]]
+		self.han_palace_collisions  = self.han_assign_palace_collision_spots()
 		self.collisions = self.assign_collision_spots()
+
+	def cho_assign_palace_collision_spots(self):
+		collision_rects = [] # hold the collision rectangles
+
+		# create a collision rectangle based on the coordinates of the board
+		for row in self.cho_palace:
+			row_collision_rects = [] # hold the rectangles in the row
+
+			for coordinate in row:
+				# create rectangle
+				collision_rect = pygame.Rect(coordinate[0], coordinate[1],
+																		 constants.spot_collision_size[0],
+																		constants.spot_collision_size[1])
+				# center collision rectangle in its spot
+				collision_rect = helper_funcs.reformat_spot_collision(coordinate, collision_rect)
+				# add to row list
+				row_collision_rects.append(collision_rect)
+			# add row to list
+			collision_rects.append(row_collision_rects)
+
+		return collision_rects
+	
+	def han_assign_palace_collision_spots(self):
+		collision_rects = [] # hold the collision rectangles
+
+		# create a collision rectangle based on the coordinates of the board
+		for row in self.han_palace:
+			row_collision_rects = [] # hold the rectangles in the row
+
+			for coordinate in row:
+				# create rectangle
+				collision_rect = pygame.Rect(coordinate[0], coordinate[1],
+										constants.spot_collision_size[0],
+										constants.spot_collision_size[1])
+				# center collision rectangle in its spot
+				collision_rect = helper_funcs.reformat_spot_collision(coordinate, collision_rect)
+				# add to row list
+				row_collision_rects.append(collision_rect)
+			# add row to list
+			collision_rects.append(row_collision_rects)
+
+		return collision_rects
 
 	# Method to populate the board with collision spots for pieces to jump to
 	# INPUT: None
@@ -56,4 +100,3 @@ class Board():
 			collision_rects.append(row_collision_rects)
 
 		return collision_rects
-
