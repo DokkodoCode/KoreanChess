@@ -106,6 +106,7 @@ def attempt_move(player, opponent, board, mouse_pos):
 							return False
 					case "Cannon":
 						if not move_cannon(janggi_piece, board, mouse_pos, player, opponent):
+							print("false")
 							return False
 					case "Chariot":
 						if not move_chariot(janggi_piece, board, mouse_pos):
@@ -179,58 +180,64 @@ def move_horse(janggi_piece, board, mouse_pos):
 #-----------------------------------------------------------------------------------
 def move_cannon(janggi_piece, board, mouse_pos, player, opponent):
     # Define possible movement directions (up, down, left, right)
-    possible_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+	possible_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
     # Get a list of all the pieces on the board
-    all_pieces = player.pieces + opponent.pieces
+	all_pieces = player.pieces + opponent.pieces
 
     # Iterate over the board to find the current location of the cannon
-    for rank, row in enumerate(board.coordinates):
-        for file, spot in enumerate(row):
-            if spot == janggi_piece.location:
-                # Cannon found, now check possible movement directions
-                for move in possible_moves:
-                    new_rank = rank + move[0]
-                    new_file = file + move[1]
+	for rank, row in enumerate(board.coordinates):
+		for file, spot in enumerate(row):
+			if spot == janggi_piece.location:
+				# Cannon found, now check possible movement directions
+				for move in possible_moves:
+					new_rank = rank + move[0]
+					new_file = file + move[1]
 
                     # Continue moving along the path in the given direction until out of bounds
-                    while (0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)):
-                        # Check if a piece is in the way
-                        piece_in_way = False
-                        for check_piece in all_pieces:
-                            if (new_rank, new_file) == check_piece.location:
-                                # A piece is in the way, cannon jumps over it
-                                piece_in_way = True
-                                break
+					while (0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)):
+						# Check if a piece is in the way
+						piece_in_way = False
+						for check_piece in all_pieces:
+							#print(str((new_rank, new_file)) + "--" + str(check_piece.location))
+							if board.coordinates[new_rank][new_file] == check_piece.location:
+								# A piece is in the way, cannon jumps over it
+								piece_in_way = True
+								break
 
-                        if piece_in_way:
-                            # Jump over the piece
-                            new_rank += move[0]
-                            new_file += move[1]
+						if piece_in_way:
+							# Jump over the piece
+							new_rank += move[0]
+							new_file += move[1]
 
-                            # Check if after jumping the new position is out of bounds
-                            if not (0 <= new_rank < len(board.coordinates)) or not (0 <= new_file < len(row)):
-                                break  # Jump went out of bounds, stop this direction
+							# Check if after jumping the new position is out of bounds
+							if (0 >= new_rank < len(board.coordinates)) and (0 >= new_file < len(row)):
+								break  # Jump went out of bounds, stop this direction
 
-                            # Update the spot and the collision rectangle
-                            new_spot = board.coordinates[new_rank][new_file]
-                            new_rect = board.collisions[new_rank][new_file]
+							# Update the spot and the collision rectangle
+							new_spot = board.coordinates[new_rank][new_file]
+							new_rect = board.collisions[new_rank][new_file]
 
-                            # Check if the spot is valid (not occupied by a player's piece, except for the cannon)
-                            if (new_rect.collidepoint(mouse_pos) and 
-                                not any(new_rect.colliderect(piece.collision_rect) 
-                                        for piece in player.pieces if piece != janggi_piece)):
-                                # Move is valid, update the cannon's location
-                                janggi_piece.location = new_spot
-                                janggi_piece.collision_rect.topleft = new_spot
-                                return True  # Return immediately after valid move
-                        else:
-                            # Continue moving in the current direction if no piece is found
-                            new_rank += move[0]
-                            new_file += move[1]
+							# Check if the spot is valid (not occupied by a player's piece, except for the cannon)
+							if (new_rect.collidepoint(mouse_pos)
+								and not any(new_rect.colliderect(piece.collision_rect) 
+														for piece in player.pieces 
+														if piece != janggi_piece)):
+								# Move is valid, update the cannon's location
+								janggi_piece.location = new_spot
+								janggi_piece.collision_rect.topleft = new_spot
 
-    # Return False if no valid move is found
-    return False
+								return True  # Return immediately after valid move
+							else:
+								break
+							
+						else:
+							# Continue moving in the current direction if no piece is found
+							# print("moving")
+							new_rank += move[0]
+							new_file += move[1]
+	# Return False if no valid move is found
+	return False
 
 
 #-----------------------------------------------------------------------------------
@@ -240,46 +247,7 @@ def move_cannon(janggi_piece, board, mouse_pos, player, opponent):
 #-----------------------------------------------------------------------------------
 def move_chariot(janggi_piece, board, mouse_pos):
 	# implement piece logic here
-	# Define moves for chariot (up,down,left,right, and diagonal in palace)
-    rook_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-    diagonal_moves = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  
-    
-    def is_in_palace(rank, file):
-        # Return rank and file boundaries for if we are in palace coordiantes
-        return ((8 <= rank <= 10 and 4 <= file <= 6) or  # Cho's palace
-                (1 <= rank <= 3 and 4 <= file <= 6))    # Han's palace
-
-    # Get the current location of the piece
-    for rank, row in enumerate(board.coordinates):
-        for file, spot in enumerate(row):
-            # Find where piece is on the board
-            if spot == janggi_piece.location:
-                #Set the only moves possible at this point to be up down left right
-                possible_moves = rook_moves
-                
-                # Call palace function to check if the current piece is in palace
-                if is_in_palace(rank, file):
-                    # If the piece is in palace then add on diagonal moves to possible list
-                    possible_moves += diagonal_moves 
-                
-                # Check each possible move
-                for move in possible_moves:
-                    new_rank = rank + move[0]
-                    new_file = file + move[1]
-
-                    # Ensure the move is within the bounds of the board
-                    if 0 <= new_rank < len(board.coordinates) and 0 <= new_file < len(row):
-                        new_spot = board.coordinates[new_rank][new_file]
-                        new_rect = board.collisions[new_rank][new_file]
-                        
-                        # Ensure the spot is not occupied by another piece of the same player
-                        if (new_rect.collidepoint(mouse_pos) and
-                            not any(new_rect.colliderect(piece.collision_rect) 
-                                    for piece in player.pieces if piece != janggi_piece)):
-                            # Valid move, update the piece location and collision
-                            janggi_piece.location = new_spot
-                            janggi_piece.collision_rect.topleft = new_spot
-                            return True
+	
 	return False
 
 #-----------------------------------------------------------------------------------
