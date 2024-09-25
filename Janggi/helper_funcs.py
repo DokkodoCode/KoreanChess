@@ -318,8 +318,8 @@ def move_cannon(janggi_piece, board, mouse_pos, player, opponent):
 						# Check if a piece is in the way
 						piece_in_way = False
 						for check_piece in all_pieces:
-							#print(str((new_rank, new_file)) + "--" + str(check_piece.location))
-							if board.coordinates[new_rank][new_file] == check_piece.location:
+							# Check here if the piece is a cannon
+							if (board.coordinates[new_rank][new_file] == check_piece.location) and not (check_piece.piece_type.value == "Cannon"):
 								# A piece is in the way, cannon jumps over it
 								piece_in_way = True
 								break
@@ -330,26 +330,26 @@ def move_cannon(janggi_piece, board, mouse_pos, player, opponent):
 							new_file += move[1]
 
 							# Check if after jumping the new position is out of bounds
-							if (0 >= new_rank < len(board.coordinates)) and (0 >= new_file < len(row)):
-								break  # Jump went out of bounds, stop this direction
+							if (0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)):
+								# Update the spot and the collision rectangle
+								new_spot = board.coordinates[new_rank][new_file]
+								new_rect = board.collisions[new_rank][new_file]
 
-							# Update the spot and the collision rectangle
-							new_spot = board.coordinates[new_rank][new_file]
-							new_rect = board.collisions[new_rank][new_file]
+								# Check if the spot is valid (not occupied by a player's piece, except for the cannon)
+								if (new_rect.collidepoint(mouse_pos)
+									and not any(new_rect.colliderect(piece.collision_rect) 
+															for piece in player.pieces 
+															if piece != janggi_piece)):
+									# Move is valid, update the cannon's location
+									janggi_piece.location = new_spot
+									janggi_piece.collision_rect.topleft = new_spot
 
-							# Check if the spot is valid (not occupied by a player's piece, except for the cannon)
-							if (new_rect.collidepoint(mouse_pos)
-								and not any(new_rect.colliderect(piece.collision_rect) 
-														for piece in player.pieces 
-														if piece != janggi_piece)):
-								# Move is valid, update the cannon's location
-								janggi_piece.location = new_spot
-								janggi_piece.collision_rect.topleft = new_spot
-
-								return True  # Return immediately after valid move
+									return True  # Return immediately after valid move
+								
 							else:
 								break
-							
+
+							break
 						else:
 							# Continue moving in the current direction if no piece is found
 							# print("moving")
