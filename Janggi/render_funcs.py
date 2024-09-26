@@ -347,12 +347,9 @@ def render_cannon_possible_spots(janggi_piece, player, opponent, board, window):
 										# A piece is in the way, cannon jumps over it
 										piece_in_way = True
 										break
-								
-								if not piece_in_way:
-									new_rank += move[0]
-									new_file += move[1]
 
-								else:
+								# If after first jump, nothing is there, then keep moving through the open space
+								if not piece_in_way:
 									new_spot = board.coordinates[new_rank][new_file]
 									new_rect = board.collisions[new_rank][new_file]
 
@@ -368,7 +365,14 @@ def render_cannon_possible_spots(janggi_piece, player, opponent, board, window):
 										
 										# render the possible spot
 										pygame.draw.rect(window, constants.GREEN, rectangle)
-										break
+
+									# Keep moving
+									new_rank += move[0]
+									new_file += move[1]
+
+								# There was a piece there, so stop.	
+								else:
+									break
 
 							# Return back to move-in-possible-moves loop so it cant skip pieces
 							break

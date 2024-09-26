@@ -459,7 +459,8 @@ def move_cannon(janggi_piece, board, mouse_pos, player, opponent):
 							new_rank += move[0]
 							new_file += move[1]
 
-							# Check if after jumping the new position is out of bounds
+							# Check if after jumping the new position is out of bounds. Similar to code above
+							# but this is to only keep going if an initial jumpable piece is found.
 							piece_in_way = False
 							while (0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)) and not piece_in_way:
 								piece_in_way = False
@@ -469,11 +470,11 @@ def move_cannon(janggi_piece, board, mouse_pos, player, opponent):
 										piece_in_way = True
 										break
 
+								# If after first jump, nothing is there, then keep moving through the open space
 								if not piece_in_way:
 									new_rank += move[0]
 									new_file += move[1]	
 
-								else:
 									new_spot = board.coordinates[new_rank][new_file]
 									new_rect = board.collisions[new_rank][new_file]
 
@@ -486,6 +487,13 @@ def move_cannon(janggi_piece, board, mouse_pos, player, opponent):
 										janggi_piece.location = new_spot
 										janggi_piece.collision_rect.topleft = new_spot
 										return True  # Return immediately after valid move
+									
+									new_rank += move[0]
+									new_file += move[1]
+									
+								# If there was a piece there, stop
+								else:
+									break
 									
 							# Return back to move-in-possible-moves loop so it cant skip pieces
 							break
