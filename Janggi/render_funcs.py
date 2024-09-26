@@ -339,27 +339,38 @@ def render_cannon_possible_spots(janggi_piece, player, opponent, board, window):
 							new_file += move[1]
 
 							# Check if after jumping the new position is out of bounds
-							if (0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)):
-								# Update the spot and the collision rectangle
-								new_spot = board.coordinates[new_rank][new_file]
-								new_rect = board.collisions[new_rank][new_file]
+							piece_in_way = False
+							while ((0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)) and not piece_in_way):
+								piece_in_way = False
+								for check_piece in all_pieces:
+									if (board.coordinates[new_rank][new_file] == check_piece.location) and not (check_piece.piece_type.value == "Cannon"):
+										# A piece is in the way, cannon jumps over it
+										piece_in_way = True
+										break
+								
+								if not piece_in_way:
+									new_rank += move[0]
+									new_file += move[1]
 
-								# Check if the spot is valid (not occupied by a player's piece, except for the cannon)
-								if not any(new_rect.colliderect(piece.collision_rect) 
-															for piece in player.pieces 
-															if piece != janggi_piece):
-									
-									# rectangle bounds for drawing the spot rectangle
-									rectangle = (new_spot[0], new_spot[1], 
-															constants.spot_collision_size[0], 
-															constants.spot_collision_size[1])
-									
-									# render the possible spot
-									pygame.draw.rect(window, constants.GREEN, rectangle)
+								else:
+									new_spot = board.coordinates[new_rank][new_file]
+									new_rect = board.collisions[new_rank][new_file]
 
-							else:
-								break
+									# Check if the spot is valid (not occupied by a player's piece, except for the cannon)
+									if not any(new_rect.colliderect(piece.collision_rect) 
+																for piece in player.pieces 
+																if piece != janggi_piece):
+										
+										# rectangle bounds for drawing the spot rectangle
+										rectangle = (new_spot[0], new_spot[1], 
+																constants.spot_collision_size[0], 
+																constants.spot_collision_size[1])
+										
+										# render the possible spot
+										pygame.draw.rect(window, constants.GREEN, rectangle)
+										break
 
+							# Return back to move-in-possible-moves loop so it cant skip pieces
 							break
 						else:
 							# Continue moving in the current direction if no piece is found
