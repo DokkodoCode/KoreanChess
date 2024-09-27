@@ -430,79 +430,69 @@ def move_horse(janggi_piece, board, player, opponent, mouse_pos):
 #-----------------------------------------------------------------------------------
 def move_cannon(janggi_piece, board, mouse_pos, player, opponent):
     # Define possible movement directions (up, down, left, right)
-	possible_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    possible_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
     # Get a list of all the pieces on the board
-	all_pieces = player.pieces + opponent.pieces
+    all_pieces = player.pieces + opponent.pieces
 
     # Iterate over the board to find the current location of the cannon
-	for rank, row in enumerate(board.coordinates):
-		for file, spot in enumerate(row):
-			if spot == janggi_piece.location:
-				# Cannon found, now check possible movement directions
-				for move in possible_moves:
-					new_rank = rank + move[0]
-					new_file = file + move[1]
+    for rank, row in enumerate(board.coordinates):
+        for file, spot in enumerate(row):
+            if spot == janggi_piece.location:
+                # Cannon found, now check possible movement directions
+                for move in possible_moves:
+                    new_rank = rank + move[0]
+                    new_file = file + move[1]
+
+                    # Flag to track if the cannon has jumped over one piece
+                    jumped = False
 
                     # Continue moving along the path in the given direction until out of bounds
-					while (0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)):
-						# Check if a piece is in the way
-						piece_in_way = False
-						for check_piece in all_pieces:
-							if (board.coordinates[new_rank][new_file] == check_piece.location) and not (check_piece.piece_type.value == "Cannon"):
-								# A piece is in the way, cannon jumps over it
-								piece_in_way = True
-								break
+                    while (0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)):
+                        # Check if a piece is in the way
+                        piece_in_way = None
+                        for check_piece in all_pieces:
+                            if (board.coordinates[new_rank][new_file] == check_piece.location):
+                                piece_in_way = check_piece
+                                break
 
-						if piece_in_way:
-							# Jump over the piece
-							new_rank += move[0]
-							new_file += move[1]
+                        if piece_in_way and not jumped:
+                            # Jump over the first piece found
+                            jumped = True
+                            new_rank += move[0]
+                            new_file += move[1]
 
-							# Check if after jumping the new position is out of bounds. Similar to code above
-							# but this is to only keep going if an initial jumpable piece is found.
-							piece_in_way = False
-							while (0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)) and not piece_in_way:
-								piece_in_way = False
-								for check_piece in all_pieces:
-									if (board.coordinates[new_rank][new_file] == check_piece.location) and not (check_piece.piece_type.value == "Cannon"):
-										# A piece is in the way, cannon jumps over it
-										piece_in_way = True
-										break
+                            # Continue only if within bounds after jumping
+                            if (0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)):
+                                continue
+                            else:
+                                break
+                        elif jumped:
+                            # After jumping, check if the landing spot is valid (can move through empty spaces)
+                            new_spot = board.coordinates[new_rank][new_file]
+                            new_rect = board.collisions[new_rank][new_file]
 
-								# If after first jump, nothing is there, then keep moving through the open space
-								if not piece_in_way:
-									new_rank += move[0]
-									new_file += move[1]	
-
-									new_spot = board.coordinates[new_rank][new_file]
-									new_rect = board.collisions[new_rank][new_file]
-
-									# Check if the spot is valid (not occupied by a player's piece, except for the cannon)
-									if (new_rect.collidepoint(mouse_pos)
-										and not any(new_rect.colliderect(piece.collision_rect) 
-																for piece in player.pieces 
-																if piece != janggi_piece)):
-										# Move is valid, update the cannon's location
-										janggi_piece.location = new_spot
-										janggi_piece.collision_rect.topleft = new_spot
-										return True  # Return immediately after valid move
-									
-									new_rank += move[0]
-									new_file += move[1]
-									
-								# If there was a piece there, stop
-								else:
-									break
-									
-							# Return back to move-in-possible-moves loop so it cant skip pieces
-							break
-						else:
-							# Continue moving in the current direction if no piece is found
-							new_rank += move[0]
-							new_file += move[1]
-	# Return False if no valid move is found
-	return False
+                            # Check if the spot is either empty or contains an opponent's piece
+                            if (new_rect.collidepoint(mouse_pos) 
+                                and (not any(new_rect.colliderect(piece.collision_rect) 
+                                             for piece in player.pieces if piece != janggi_piece))):
+                                # Move is valid, update the cannon's location
+                                janggi_piece.location = new_spot
+                                janggi_piece.collision_rect.topleft = new_spot
+                                return True  # Return immediately after valid move
+                            elif any(new_rect.colliderect(piece.collision_rect) for piece in all_pieces):
+                                # Stop if the next square contains another piece
+                                break
+                            else:
+                                # Continue moving in the current direction if no piece is found
+                                new_rank += move[0]
+                                new_file += move[1]
+                        else:
+                            # Continue moving if no piece is found and no jump has been made yet
+                            new_rank += move[0]
+                            new_file += move[1]
+    # Return False if no valid move is found
+    return False
 	
 #-----------------------------------------------------------------------------------
 # Function that will move a clicked chariot piece to a valid location
