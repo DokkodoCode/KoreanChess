@@ -2,11 +2,11 @@
 ----------------------state_machine.py----------------------------
 o This file is the actual state machine that will handle the 
 	transitioning between gamestates (Menu,Game, etc...)
-o Last Modified - September 12th 2024
+o Last Modified - September 24th 2024
 ----------------------------------------------------------
 """
 # specific local file importing of the States
-from state import MainMenu, SinglePlayerGame
+from state import MainMenu, SinglePlayerGame, SinglePlayerPreGameSettings
 
 # The State Machine that will transiton the program between states
 class StateManager():
@@ -22,13 +22,14 @@ class StateManager():
 	def __init__(self):
 		self.states = {
 			"Main Menu" : MainMenu, 
+			"Single Player Pre-Game Settings" : SinglePlayerPreGameSettings,
 			"Single Player Game" : SinglePlayerGame
 		}
 		
 		self.states_unitialized = {}
 		self.current_state = None
 		# for debugging reasons, start at gameplay for now
-		self.change_state("Single Player Game")
+		self.change_state("Main Menu")
 
 	# Event handler that will call the event handler for the current given state
 	# INPUT: pygame event object
@@ -52,8 +53,10 @@ class StateManager():
 	# OUTPUT: State of program is changed
 	def change_state(self, new_state):
 		# state to change to
+		#if new_state == "Main Menu":
 		if new_state == "Single Player Game":
 			self.states_unitialized["Single Player Game"] = SinglePlayerGame()
+			#self.states_unitialized["Main Menu"] = MainMenu()
 		# initialize a valid starting state if there is none
 		elif (new_state not in self.states_unitialized and new_state in self.states):
 			self.states_unitialized[new_state] = self.states[new_state]()

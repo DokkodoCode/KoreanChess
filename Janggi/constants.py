@@ -2,7 +2,7 @@
 ----------------------constants.py--------------------------------
 o This file is to hold any global constants to be used by program
 o Place all global constants into here
-o Last Modified - September 17th 2024
+o Last Modified - September 24th 2024
 ------------------------------------------------------------------
 """
 
@@ -19,8 +19,11 @@ large_collision_size = (90, 90) # large piece collision rects
 large_size = (125,125) # large piece images
 
 # rectangle colors
-RED = (165,8,9)
-BLUE = (49,38,132)
+WHITE = (255,255,255)
+BLACK = (0,0,0)
+GREY = (100,100,100)
+RED = (200,16,46)
+BLUE = (0,47,108,)
 GREEN = (30,100,0)
 LIGHT_GREEN = (35,200,0)
 
@@ -39,3 +42,7 @@ board_size = (900, 900)
 # board topleft starting location in window (x, y)
 board_image = (50, 50)
 
+# possible settings for checking if a settings pre-set file is correctly written
+possible_colorside = ("Cho", "Han")
+possible_piece_convention = ("Standard", "International")
+possible_ai_level = ("Easy", "Medium", "Hard")

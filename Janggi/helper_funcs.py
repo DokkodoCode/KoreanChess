@@ -3,7 +3,7 @@
 o This file is to hold any logical/helper functions to be 
 	called by state.py
 o Try to avoid any imports/constants in this file
-o Last Modified - September 17th 2024
+o Last Modified - September 19th 2024
 ------------------------------------------------------------------
 """
 
@@ -460,3 +460,28 @@ def is_in_palace(rank, file):
 	# Return rank and file boundaries for if we are in palace coordiantes
 	return ((8 <= rank <= 10 and 4 <= file <= 6) or  # Cho's palace
     		(1 <= rank <= 3 and 4 <= file <= 6))    # Han's palace
+
+#-----------------------------------------------------------------------------------
+# Function that will update the player's chosen settings to form a pre-game template
+# INPUT: Player object
+# OUTPUT: a text file is created or up to date with the player's latest settings
+#-----------------------------------------------------------------------------------
+def update_player_settings(player):
+	settings_file = "Settings/settings.txt"
+
+	# these are the settings that will be written to file
+	setting_options = [player.color, player.piece_convention, player.ai_level]
+
+	# write the new file if not found
+	try:
+		with open(settings_file, 'x') as outfile:
+			settings = '|'.join(setting_options)
+			outfile.write(settings)
+
+	# file already is present, write over it, updating the new settings
+	except:
+		FileExistsError
+		print("Player's settings file already exists, updating player's settings...")
+		with open(settings_file, 'w') as outfile:
+			settings = '|'.join(setting_options)
+			outfile.write(settings)

@@ -1,7 +1,7 @@
 """
 -----------------------piece.py-----------------------------------
 o This file is to hold the data for each piece in Janggi
-o Last Modified - September 17th 2024
+o Last Modified - September 30th 2024
 ------------------------------------------------------------------
 """
 
@@ -78,6 +78,16 @@ class OpponentPiecePosition(Enum):
 	CANNON = [(179,219),(761,219)]
 	CHARIOT = [(82,37),(858,37)]
 	PAWN = [(82,312),(276,312),(470,312),(664,312),(858,312)]
+
+# Enumeration type for the pregame settings menu display of the player's pieces
+class PreGamePieceDisplay(Enum):
+	KING = (constants.x_coordinates[6],constants.y_coordinates[1])
+	ADVISOR = (constants.x_coordinates[6],constants.y_coordinates[2])
+	ELEPHANT = (constants.x_coordinates[6],constants.y_coordinates[3])
+	HORSE = (constants.x_coordinates[6],constants.y_coordinates[4])
+	CANNON = (constants.x_coordinates[6],constants.y_coordinates[5])
+	CHARIOT = (constants.x_coordinates[6],constants.y_coordinates[6])
+	PAWN = (constants.x_coordinates[6],constants.y_coordinates[7])
 
 # Class object for the Piece
 class Piece():
