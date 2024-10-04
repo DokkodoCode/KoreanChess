@@ -2,7 +2,7 @@
 ----------------------state.py----------------------------
 o This file is to manage the current game mode (state) the
 	program is in
-o Last Modified - October 3rd 2024
+o Last Modified - October 4th 2024
 ----------------------------------------------------------
 """
 
@@ -242,6 +242,11 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		self.window = pygame.display.set_mode(
 			(constants.window_width, constants.window_height))
 		pygame.display.set_caption("Janggi")
+
+		if self.player.color == "Cho":
+			self.player.is_turn = True
+		else:
+			self.opponent.is_turn = True
 
 	# Listen for and handle any event ticks (clicks/buttons)
 	# INPUT: pygame event object

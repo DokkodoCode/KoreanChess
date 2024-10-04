@@ -1,7 +1,7 @@
 """
 ----------------------opponent.py-----------------------------------
 o This file is to hold the data for the human/ai (TBD) player
-o Last Modified - September 12th 2024
+o Last Modified - October 4th 2024
 ------------------------------------------------------------------
 """
 
@@ -21,6 +21,7 @@ class Opponent():
 	# 				their Piece objects need for the game
 	def __init__(self, color="Han"):
 		self.color = color
+		self.is_turn = False
 		self.pieces = self.fill_pieces()
 
 	# Method to populate the player's pieces for Janggi

@@ -1,7 +1,7 @@
 """
 ----------------------player.py-----------------------------------
 o This file is to hold the data for the human player
-o Last Modified - October 3rd 2024
+o Last Modified - October 4th 2024
 ------------------------------------------------------------------
 """
 # libraries
@@ -26,6 +26,7 @@ class Player():
 		self.piece_convention = "Standard"
 		self.ai_level = "Easy"
 		self.is_clicked = False
+		self.is_turn = False
 		self.pieces = self.fill_pieces()
 		self.settings = self.initialize_settings()
 
@@ -60,8 +61,9 @@ class Player():
 
 	# Method to populate the player's settings used last game played
 	# INPUT: None
-	# OUTPUT: Either a new text file is created containing the basic settings
-	#		  or the existing text file that is valid is used to populate the player's settings
+	# OUTPUT: Either a new text file is created containing the basic settings, where 
+	# 		  each setting is seperated by the delimiter character '|' or the existing
+	# 		  text file folowing same delimiter and is valid is used to populate the player's settings
 	def initialize_settings(self):
 		settings_file = "Settings/settings.txt"
 

@@ -3,7 +3,7 @@
 o This file is to hold any logical/helper functions to be 
 	called by state.py
 o Try to avoid any imports/constants in this file
-o Last Modified - September 19th 2024
+o Last Modified - October 4th 2024
 ------------------------------------------------------------------
 """
 
@@ -93,10 +93,10 @@ def attempt_move(player, opponent, board, mouse_pos):
 				# check which piece it is
 				match janggi_piece.piece_type.value:
 					case "King":
-						if not move_king(janggi_piece, board, mouse_pos, player):
+						if not move_king(janggi_piece, board, mouse_pos, player, opponent):
 							return False
 					case "Advisor":
-						if not move_advisor(janggi_piece, board, mouse_pos, player):
+						if not move_advisor(janggi_piece, board, mouse_pos, player, opponent):
 							return False
 					case "Elephant":
 						if not move_elephant(janggi_piece, board, player, opponent, mouse_pos):
@@ -111,7 +111,7 @@ def attempt_move(player, opponent, board, mouse_pos):
 						if not move_chariot(janggi_piece, board, mouse_pos, player):
 							return False
 					case "Pawn":
-						if not move_pawn(janggi_piece, board, mouse_pos, player):
+						if not move_pawn(janggi_piece, board, mouse_pos, player, opponent):
 							return False
 					case _:
 						raise ValueError("Invalid piece type")
@@ -141,7 +141,7 @@ def attempt_move(player, opponent, board, mouse_pos):
 # INPUT: piece object, board object, mouse position on window
 # OUTPUT: Piece is remapped to valid spot
 #-----------------------------------------------------------------------------------
-def move_king(janggi_piece, board, mouse_pos, player):
+def move_king(janggi_piece, board, mouse_pos, player, opponent):
 	# Possible moves for the piece based on current possition (L/R/U)
 	# view board as vertical (standard) where top of board is beginning of
 	# the 2D list
@@ -202,6 +202,10 @@ def move_king(janggi_piece, board, mouse_pos, player):
 							# update piece location and collision for valid move
 							janggi_piece.location = new_spot
 							janggi_piece.collision_rect.topleft = new_spot
+
+							# check if move resulted in a capture
+							detect_capture(player, opponent, janggi_piece)
+
 							return True
 	return False
 
@@ -210,7 +214,7 @@ def move_king(janggi_piece, board, mouse_pos, player):
 # INPUT: piece object, board object, mouse position on window
 # OUTPUT: Piece is remapped to valid spot
 #-----------------------------------------------------------------------------------
-def	move_advisor(janggi_piece, board, mouse_pos, player):
+def	move_advisor(janggi_piece, board, mouse_pos, player, opponent):
 	# Possible moves for the piece based on current possition (L/R/U)
 	# view board as vertical (standard) where top of board is beginning of
 	# the 2D list
@@ -271,6 +275,10 @@ def	move_advisor(janggi_piece, board, mouse_pos, player):
 							# update piece location and collision for valid move
 							janggi_piece.location = new_spot
 							janggi_piece.collision_rect.topleft = new_spot
+
+							# check if move resulted in a capture
+							detect_capture(player, opponent, janggi_piece)
+
 							return True
 	return False
 
@@ -545,7 +553,7 @@ def move_chariot(janggi_piece, board, mouse_pos, player):
 # INPUT: piece object, board object, mouse position on window
 # OUTPUT: Piece is remapped to valid spot
 #-----------------------------------------------------------------------------------
-def move_pawn(janggi_piece, board, mouse_pos, player):
+def move_pawn(janggi_piece, board, mouse_pos, player, opponent):
 	# Possible moves for the piece based on current possition (L/R/U)
 	# view board as vertical (standard) where top of board is beginning of
 	# the 2D list
@@ -585,6 +593,10 @@ def move_pawn(janggi_piece, board, mouse_pos, player):
 							# update piece location and collision for valid move
 							janggi_piece.location = new_spot
 							janggi_piece.collision_rect.topleft = new_spot
+
+							# check if move resulted in a capture
+							detect_capture(player, opponent, janggi_piece)
+	
 							return True
 	return False
 
@@ -597,6 +609,59 @@ def is_in_palace(rank, file):
 	# Return rank and file boundaries for if we are in palace coordiantes
 	return ((8 <= rank <= 10 and 4 <= file <= 6) or  # Cho's palace
     		(1 <= rank <= 3 and 4 <= file <= 6))    # Han's palace
+
+#-----------------------------------------------------------------------------------
+# Function that will check if capture occurs. This occurs when a piece is moved onto
+# the opponent's piece and visa versa
+# INPUT: Player object, Opponent object, piece that was moved
+# OUTPUT: Boolean value returned, True if Bikjang, False if not
+#-----------------------------------------------------------------------------------
+def detect_capture(player, opponent, piece):
+	# detect if player captured a piece if they moved piece
+	if player.is_turn:
+		for janggi_piece in opponent.pieces:
+			if piece.collision_rect.colliderect(janggi_piece.collision_rect):
+				print(f"Player's {piece.piece_type.value} captured Opponent's {janggi_piece.piece_type.value}")
+				opponent.pieces.remove(janggi_piece)
+
+	# detect if opponent captured a piece if they moved piece
+	else:
+		for janggi_piece in player.pieces:
+			print("opponent captures")
+			if piece.collision_rect.colliderect(janggi_piece.collision_rect):
+				print(f"Opponent's {piece.piece_type.value} captured Player's {janggi_piece.piece_type.value}")
+				player.pieces.remove(janggi_piece)
+	return False
+#-----------------------------------------------------------------------------------
+# Function that will check if Bikjang occurs. This occurs when the two King pieces
+# are facing each other in the same row with no pieces in the way
+# INPUT: Player object, Opponent object
+# OUTPUT: Boolean value returned, True if Bikjang, False if not
+#-----------------------------------------------------------------------------------
+def detect_bikjang(player, opponent):
+	player_king_location = None
+	opponent_king_location = None
+
+	# find player's king
+	for janggi_piece in player.pieces:
+		if janggi_piece.piece_type == "King":
+			player_king_location = janggi_piece.location
+
+	# find opponent's king
+	for janggi_piece in opponent.pieces:
+		if janggi_piece.piece_type == "King":
+			opponent_king_location = janggi_piece.location
+
+	# search for any blocking pieces
+	for janggi_piece in player.pieces + opponent.pieces:
+		if (player_king_location 
+	  		and opponent_king_location
+	  		and janggi_piece.location[0] == player_king_location[0] 
+	  		and opponent_king_location[1] < janggi_piece.location < player_king_location[1]):
+			return False
+		
+	# kings are facing each other
+	return True
 
 #-----------------------------------------------------------------------------------
 # Function that will update the player's chosen settings to form a pre-game template
