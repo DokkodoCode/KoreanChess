@@ -206,7 +206,10 @@ def move_king(janggi_piece, board, mouse_pos, player, opponent):
 							# check if move resulted in a capture
 							detect_capture(player, opponent, janggi_piece)
 
+							# valid move was made
 							return True
+						
+	# no valid move was made
 	return False
 
 #-----------------------------------------------------------------------------------
@@ -236,7 +239,7 @@ def	move_advisor(janggi_piece, board, mouse_pos, player, opponent):
 	# piece can move diagonally if on any of these spots within the palace
 	diagonal_spots = ((0, 0),	  		   (2, 0),
 				   				 (1, 1),
-				   	  (0, 2),			   (2, 2)  )
+				   	  (0, 2),			   (2, 2))
 	
 
 	# Check each spot in the board for valid locations where
@@ -279,7 +282,10 @@ def	move_advisor(janggi_piece, board, mouse_pos, player, opponent):
 							# check if move resulted in a capture
 							detect_capture(player, opponent, janggi_piece)
 
+							# valid move was made
 							return True
+						
+	# no valid move was made
 	return False
 
 #-----------------------------------------------------------------------------------
@@ -507,7 +513,6 @@ def move_cannon(janggi_piece, board, mouse_pos, player, opponent):
 # INPUT: piece object, board object, mouse position on window
 # OUTPUT: Piece is remapped to valid spot
 #-----------------------------------------------------------------------------------
-
 def move_chariot(janggi_piece, board, mouse_pos, player):
 	# implement piece logic here
 	# Define moves for chariot (up,down,left,right, and diagonal in palace)
@@ -561,43 +566,162 @@ def move_pawn(janggi_piece, board, mouse_pos, player, opponent):
 	# (+x, y) --> right x spots
 	# (x, -y) --> up y spots
 	# (x, +y) --> down y spots
-	#				[ (Left) , (Right), (Up)  ]
-	possible_moves = [(-1, 0), (1, 0), (0, -1)]
+	#				 ((Left),   (Up),  (Right))
+	possible_moves = ((-1, 0), (0, -1), (1, 0))
+
 
 	# Check each spot in the board for valid locations where
 	# rank is the row, and file is the spot in that row
 	# i.e Cho King starts at Rank 9/File 5
 	for rank, row in enumerate(board.coordinates):
 		for file, spot in enumerate(row):
+
 			# find where piece is relative to board
 			if spot == janggi_piece.location:
-				# Update move coordinates for the piece where it can move
+				
+				# if the pawn is in a palace, it can take palace moves
+				if can_use_palace_diagonals(janggi_piece, board):
+					if move_pawn_palace(player, opponent, janggi_piece, board, mouse_pos):
+						# valid palace move was made
+						return True
+					
+				# normal moves (outside of palace diagonals)
+				# update move coordinates for the piece where it can move
 				for move in possible_moves:
+						new_rank = rank + move[0]
+						new_file = file + move[1]
+
+						# check that move location is in board
+						if ((0 <= new_rank < len(board.coordinates))
+								and (0 <= new_file < len(row))):
+							# spot in board
+							new_spot = board.coordinates[new_rank][new_file]
+							# collision rectangle for the spot
+							new_rect = board.collisions[new_rank][new_file]
+
+							# Make sure spot is not occupied by another piece of the player
+							# but exclude the piece being moved from being checked
+							if (new_rect.collidepoint(mouse_pos)
+								and not any(new_rect.colliderect(piece.collision_rect) 
+														for piece in player.pieces 
+														if piece != janggi_piece)):
+								# update piece location and collision for valid move
+								janggi_piece.location = new_spot
+								janggi_piece.collision_rect.topleft = new_spot
+
+								# check if move resulted in a capture
+								detect_capture(player, opponent, janggi_piece)
+
+								# valid move made
+								return True
+							
+	# no valid move made
+	return False
+
+#-----------------------------------------------------------------------------------
+# Function that will move a clicked pawn piece to a valid location given it can make
+# a move diagonally within palace
+# INPUT: player object, opponent object, piece object, board object, mouse position
+# OUTPUT: Piece is remapped to valid spot
+#-----------------------------------------------------------------------------------
+def move_pawn_palace(player, opponent, janggi_piece, board, mouse_pos):
+	#			   ((UpLeft),       (UpRight))
+	palace_moves = ((-1, -1),		(1, -1))
+
+	# find piece location relative to palace
+	for rank, row in enumerate(board.han_palace):
+		for file, spot in enumerate(row):
+			if spot == janggi_piece.location:
+				# verify the palace diagonal piece can make
+				for move in palace_moves:
 					new_rank = rank + move[0]
 					new_file = file + move[1]
 
 					# check that move location is in board
-					if ((0 <= new_rank < len(board.coordinates))
-							and (0 <= new_file < len(row))):
-						# spot in board
-						new_spot = board.coordinates[new_rank][new_file]
+					if ((0 <= new_rank < len(board.han_palace))
+						and (0 <= new_file < len(row))
+						and (is_inside_palace(board, new_rank, new_file))):
+						# spot in palace
+						new_spot = board.han_palace[new_rank][new_file]
 						# collision rectangle for the spot
-						new_rect = board.collisions[new_rank][new_file]
-						
+						new_rect = board.han_palace_collisions[new_rank][new_file]
+									
 						# Make sure spot is not occupied by another piece of the player
 						# but exclude the piece being moved from being checked
 						if (new_rect.collidepoint(mouse_pos)
-							 and not any(new_rect.colliderect(piece.collision_rect) 
-													 for piece in player.pieces 
-													 if piece != janggi_piece)):
+							and not any(new_rect.colliderect(piece.collision_rect) 
+										for piece in player.pieces 
+										if piece != janggi_piece)):
 							# update piece location and collision for valid move
+							print(f"NS: {new_spot}")
 							janggi_piece.location = new_spot
 							janggi_piece.collision_rect.topleft = new_spot
 
 							# check if move resulted in a capture
 							detect_capture(player, opponent, janggi_piece)
-	
+
+							# valid move was made		
 							return True
+						
+	# no valid move was made
+	return False
+
+#-----------------------------------------------------------------------------------
+# Function that will determine if a move resides within the palace boundaries
+# INPUT: board object, x coord of move, y coord of move
+# OUTPUT: Boolean returned of whther move resides in a palace
+#-----------------------------------------------------------------------------------
+def is_inside_palace(board, new_rank, new_file):
+	# han palace
+	for rank, row in enumerate(board.han_palace):
+		for file, spot in enumerate(row):
+			if (new_rank, new_file) == (rank, file):
+				return True 
+			
+	# cho palace
+	for rank, row in enumerate(board.cho_palace):
+		for file, spot in enumerate(row):
+			if (new_rank, new_file) == (rank, file):
+				return True
+			
+	# outside of palace		
+	return False
+
+#-----------------------------------------------------------------------------------
+# Function that will determine if the piece is in the diagonal spots of the palace,
+# meaning that the piece can now move diagonally along the palace in given spots 
+# INPUT: Piece object being moved, board object
+# OUTPUT: Boolean representing spot check result for that piece
+#-----------------------------------------------------------------------------------		
+def can_use_palace_diagonals(piece, board):
+	# cho palace diagonals
+	cho_diagonal_move_spots = (
+								board.cho_palace[0][0],			board.cho_palace[0][2],
+
+											    board.cho_palace[1][1],
+
+								board.cho_palace[2][0], 			board.cho_palace[2][2]
+							  )
+
+	# han palace diagonals
+	han_diagonal_move_spots = (
+								board.han_palace[0][0],			board.han_palace[0][2],
+
+											    board.han_palace[1][1],
+												
+								board.han_palace[2][0], 			board.han_palace[2][2]
+							  )
+
+	# determine if piece is in a diagonal spot in either palace
+	for spot in cho_diagonal_move_spots:
+		if spot == piece.location:
+			return True
+			
+	for spot in han_diagonal_move_spots:
+		if spot == piece.location:
+			return True
+	
+	# piece not in a palace diagonal
 	return False
 
 #-----------------------------------------------------------------------------------
@@ -608,7 +732,7 @@ def move_pawn(janggi_piece, board, mouse_pos, player, opponent):
 def is_in_palace(rank, file):
 	# Return rank and file boundaries for if we are in palace coordiantes
 	return ((8 <= rank <= 10 and 4 <= file <= 6) or  # Cho's palace
-    		(1 <= rank <= 3 and 4 <= file <= 6))    # Han's palace
+				(1 <= rank <= 3 and 4 <= file <= 6))    # Han's palace
 
 #-----------------------------------------------------------------------------------
 # Function that will check if capture occurs. This occurs when a piece is moved onto
@@ -631,7 +755,8 @@ def detect_capture(player, opponent, piece):
 			if piece.collision_rect.colliderect(janggi_piece.collision_rect):
 				print(f"Opponent's {piece.piece_type.value} captured Player's {janggi_piece.piece_type.value}")
 				player.pieces.remove(janggi_piece)
-	return False
+
+	return
 #-----------------------------------------------------------------------------------
 # Function that will check if Bikjang occurs. This occurs when the two King pieces
 # are facing each other in the same row with no pieces in the way
@@ -652,7 +777,7 @@ def detect_bikjang(player, opponent):
 		if janggi_piece.piece_type == "King":
 			opponent_king_location = janggi_piece.location
 
-	# search for any blocking pieces
+	# search for any blocking pieces between kings
 	for janggi_piece in player.pieces + opponent.pieces:
 		if (player_king_location 
 	  		and opponent_king_location
@@ -660,8 +785,30 @@ def detect_bikjang(player, opponent):
 	  		and opponent_king_location[1] < janggi_piece.location < player_king_location[1]):
 			return False
 		
-	# kings are facing each other
+	# kings are facing each other, bikjang ON
 	return True
+
+#-----------------------------------------------------------------------------------
+#(WIP TODO)
+# Function that will check if a piece moved cause a check state
+# INPUT: Player object, opponent object, piece that was moved
+# OUTPUT: Boolean returned for check state
+#-----------------------------------------------------------------------------------
+def detect_check(player, opponent, piece):
+
+	if player.is_turn:
+		# find opponent's king
+		for janggi_piece in opponent.pieces:
+			if janggi_piece.piece_type == "King":
+				opponent_king_location = janggi_piece.location
+
+	else:
+		# find player's king
+		for janggi_piece in player.pieces:
+			if janggi_piece.piece_type == "King":
+				player_king_location = janggi_piece.location
+
+	return
 
 #-----------------------------------------------------------------------------------
 # Function that will update the player's chosen settings to form a pre-game template

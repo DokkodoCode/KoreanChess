@@ -541,9 +541,9 @@ def render_pawn_possible_spots(janggi_piece, player, board, window):
 	# (+x, y) --> right x spots
 	# (x, -y) --> up y spots
 	# (x, +y) --> down y spots
-	#				[ (Left) , (Right), (Up)  ]
-	possible_moves = [(-1, 0), (1, 0), (0, -1)]
-
+	#				 ((Left),   (Up),  (Right))
+	possible_moves = ((-1, 0), (0, -1), (1, 0))
+	
 	# Check each spot in the board for valid locations where
 	# rank is the row, and file is the spot in that row
 	# i.e Cho King starts at Rank 9/File 5
@@ -551,7 +551,11 @@ def render_pawn_possible_spots(janggi_piece, player, board, window):
 		for file, spot in enumerate(row):
 			# find where piece is relative to board
 			if spot == janggi_piece.location:
-				# Show where piece can move by looking at each of 
+				# check if piece can also use palace diagonals, then render those as well
+				if helper_funcs.can_use_palace_diagonals(janggi_piece, board):
+					render_pawn_possible_palace_spots(player, window, janggi_piece, board)
+				
+				# Show where piece can move normaly by looking at each of 
 				# the possible locations piece can move
 				for move in possible_moves:
 					new_rank = rank + move[0]
@@ -582,6 +586,55 @@ def render_pawn_possible_spots(janggi_piece, player, board, window):
 							
 							# render the possible spot
 							pygame.draw.rect(window, constants.GREEN, rectangle)
+	return
+
+#-----------------------------------------------------------------------------------
+# Function that will render the possible move spots on the board for the pawn piece
+# given that the piece is inside the palace
+# INPUT: Player object, pygame surface object, piece object, board object
+# OUTPUT: All possible jump-to spots will be highlighted within the palace
+#-----------------------------------------------------------------------------------
+def render_pawn_possible_palace_spots(player, window, janggi_piece, board):
+	#			   ((UpLeft),       (UpRight))
+	palace_moves = ((-1, -1),		(1, -1))
+
+	# if the pawn is in a palace diagonal , it can take palace moves
+	if helper_funcs.can_use_palace_diagonals(janggi_piece, board):
+		for rank, row in enumerate(board.han_palace):
+			for file, spot in enumerate(row):
+				# find the piece's location relative to palace
+				if spot == janggi_piece.location:
+					# look at each potential palace diagonal move
+					for move in palace_moves:
+						new_rank = rank + move[0]
+						new_file = file + move[1]
+
+						# check that move location is in palace
+						if ((0 <= new_rank < len(board.han_palace))
+								and (0 <= new_file < len(row))
+								and (helper_funcs.is_inside_palace(board, new_rank, new_file))):
+							# take the coords for the spot to potentially highlight
+							new_rect = board.han_palace_collisions[new_rank][new_file]
+										
+							# Make sure spot is not occupied by another piece of the player
+							# but exclude the piece being moved from being checked
+							if not any(new_rect.colliderect(piece.collision_rect) 
+														for piece in player.pieces 
+														if piece != janggi_piece):
+								# potential jump-to spot found, align the rectangle for drawing
+								new_spot = board.han_palace[new_rank][new_file]
+								new_spot = helper_funcs.reformat_spot_collision(new_spot,
+																				board.han_palace_collisions[new_rank]
+																				[new_file])
+											
+								# rectangle bounds for drawing the spot rectangle
+								rectangle = (new_spot[0], new_spot[1], 
+											constants.spot_collision_size[0], 
+											constants.spot_collision_size[1])
+											
+								# render the possible spot
+								pygame.draw.rect(window, constants.GREEN, rectangle)
+	
 	return
 
 #-----------------------------------------------------------------------------------
