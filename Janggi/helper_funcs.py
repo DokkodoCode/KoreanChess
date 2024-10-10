@@ -108,7 +108,7 @@ def attempt_move(player, opponent, board, mouse_pos):
 						if not move_cannon(janggi_piece, board, mouse_pos, player, opponent):
 							return False
 					case "Chariot":
-						if not move_chariot(janggi_piece, board, mouse_pos, player):
+						if not move_chariot(janggi_piece, board, mouse_pos, player, opponent):
 							return False
 					case "Pawn":
 						if not move_pawn(janggi_piece, board, mouse_pos, player, opponent):
@@ -517,45 +517,61 @@ def move_cannon(janggi_piece, board, mouse_pos, player, opponent):
 # INPUT: piece object, board object, mouse position on window
 # OUTPUT: Piece is remapped to valid spot
 #-----------------------------------------------------------------------------------
-def move_chariot(janggi_piece, board, mouse_pos, player):
-	# implement piece logic here
-	# Define moves for chariot (up,down,left,right, and diagonal in palace)
-	rook_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-	diagonal_moves = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  
+def move_chariot(janggi_piece, board, mouse_pos, player, opponent):
+    # Define rook-like moves for chariot (up, down, left, right)
+    rook_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    diagonal_moves = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
 
-
-	# Get the current location of the piece
-	for rank, row in enumerate(board.coordinates):
-		for file, spot in enumerate(row):
-            # Find where piece is on the board
-			if spot == janggi_piece.location:
-				#Set the only moves possible at this point to be up down left right
-				possible_moves = rook_moves
+    # Get the current location of the piece
+    for rank, row in enumerate(board.coordinates):
+        for file, spot in enumerate(row):
+            # Find where the chariot is on the board
+            if spot == janggi_piece.location:
+                # Set initial possible moves (up, down, left, right)
+                possible_moves = rook_moves
                 
-                # Call palace function to check if the current piece is in palace
-				if is_in_palace(rank, file):
-                    # If the piece is in palace then add on diagonal moves to possible list
-					possible_moves += diagonal_moves 
+                # Check if the chariot is in the palace (to allow diagonal moves)
+                if is_inside_palace(board, rank, file):
+                    possible_moves += diagonal_moves
                 
-                # Check each possible move
-				for move in possible_moves:
-					new_rank = rank + move[0]
-					new_file = file + move[1]
+                # Check each possible direction for continuous movement
+                for move in possible_moves:
+                    new_rank = rank
+                    new_file = file
 
-					# Ensure the move is within the bounds of the board
-					if 0 <= new_rank < len(board.coordinates) and 0 <= new_file < len(row):
-						new_spot = board.coordinates[new_rank][new_file]
-						new_rect = board.collisions[new_rank][new_file]
-                        
-                        # Ensure the spot is not occupied by another piece of the same player
-						if (new_rect.collidepoint(mouse_pos) and
-                            not any(new_rect.colliderect(piece.collision_rect) 
-                                    for piece in player.pieces if piece != janggi_piece)):
-                            # Valid move, update the piece location and collision
-							janggi_piece.location = new_spot
-							janggi_piece.collision_rect.topleft = new_spot
-							return True
-	return False
+                    # Continue moving in the current direction until you hit a boundary or another piece
+                    while True:
+                        new_rank += move[0]
+                        new_file += move[1]
+
+                        # Ensure the move is within the bounds of the board
+                        if 0 <= new_rank < len(board.coordinates) and 0 <= new_file < len(row):
+                            new_spot = board.coordinates[new_rank][new_file]
+                            new_rect = board.collisions[new_rank][new_file]
+                            
+                            # Check if the spot is occupied by a piece from the same player
+                            if any(new_rect.colliderect(piece.collision_rect) 
+                                   for piece in player.pieces if piece != janggi_piece):
+                                break  # Stop if there's a piece blocking the way
+                            
+                            # Check if this is the destination (the spot clicked by the mouse)
+                            if new_rect.collidepoint(mouse_pos):
+                                # Update the chariot's location and collision rect
+                                janggi_piece.location = new_spot
+                                janggi_piece.collision_rect.topleft = new_spot
+
+                                # Check for capture
+                                detect_capture(player, opponent, janggi_piece)
+
+                                return True
+
+                            # Stop if there's an opponent's piece (can move here but not beyond)
+                            if any(new_rect.colliderect(piece.collision_rect) 
+                                   for piece in opponent.pieces):
+                                break
+                        else:
+                            break  # Out of board bounds, stop in this direction
+    return False
 
 #-----------------------------------------------------------------------------------
 # Function that will move a clicked pawn piece to a valid location

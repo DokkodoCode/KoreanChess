@@ -258,7 +258,7 @@ def render_possible_spots(player, opponent, board, window):
 					render_cannon_possible_spots(janggi_piece, player,opponent,  board, window)
 	
 				case "Chariot":
-					render_chariot_possible_spots(janggi_piece, player,  board, window)
+					render_chariot_possible_spots(janggi_piece, player, opponent,  board, window)
 	
 				case "Pawn":
 					render_pawn_possible_spots(janggi_piece, player,  board, window)
@@ -659,9 +659,68 @@ def render_cannon_possible_spots(janggi_piece, player, opponent, board, window):
 # INPUT: Player object, Opponent Object, board object, pygame surface object
 # OUTPUT: All possible jump-to spots will be highlighted
 #-----------------------------------------------------------------------------------
-def render_chariot_possible_spots(janggi_piece, player, board, window):
-	# implement logic here
-	return
+def render_chariot_possible_spots(janggi_piece, player, opponent, board, window):
+    # Define rook-like moves (up, down, left, right)
+    rook_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    # Diagonal moves if inside the palace
+    diagonal_moves = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+    
+    # Combine all pieces from both players
+    all_pieces = player.pieces + opponent.pieces
+
+    # Iterate over the board to find the current location of the chariot
+    for rank, row in enumerate(board.coordinates):
+        for file, spot in enumerate(row):
+            if spot == janggi_piece.location:
+                # Chariot found, now set the movement directions
+                possible_moves = rook_moves
+
+                # If the chariot is in the palace, allow diagonal movement
+                if helper_funcs.is_in_palace(rank, file):
+                    possible_moves += diagonal_moves
+                
+                # Check movement in all possible directions
+                for move in possible_moves:
+                    new_rank = rank
+                    new_file = file
+                    
+                    while True:
+                        new_rank += move[0]
+                        new_file += move[1]
+                        
+                        # Ensure the move is within the bounds of the board
+                        if not (0 <= new_rank < len(board.coordinates) and 0 <= new_file < len(row)):
+                            break  # Out of board bounds, stop in this direction
+
+                        new_spot = board.coordinates[new_rank][new_file]
+                        new_rect = board.collisions[new_rank][new_file]
+                        
+                        # Check if the new spot is occupied by any piece
+                        if any(new_rect.colliderect(piece.collision_rect) for piece in all_pieces):
+                            # If it collides with an opponent's piece, highlight for capture
+                            if any(new_rect.colliderect(piece.collision_rect) 
+                                   for piece in opponent.pieces):
+                                # Rectangle bounds for drawing the capture move
+                                rectangle = (new_spot[0], new_spot[1],
+                                             constants.spot_collision_size[0], 
+                                             constants.spot_collision_size[1])
+                                
+                                # Render the capture spot
+                                pygame.draw.rect(window, constants.GREEN, rectangle)
+                            break  # Stop if there's any piece blocking the way
+
+                        # If the spot is valid for the player (not occupied by their own pieces)
+                        if not any(new_rect.colliderect(piece.collision_rect) 
+                                   for piece in player.pieces if piece != janggi_piece):
+                            # Rectangle bounds for drawing the possible move
+                            rectangle = (new_spot[0], new_spot[1],
+                                         constants.spot_collision_size[0], 
+                                         constants.spot_collision_size[1])
+                            
+                            # Render the possible move spot
+                            pygame.draw.rect(window, constants.GREEN, rectangle)
+
+    return
 
 #-----------------------------------------------------------------------------------
 # Function that will render the possible move spots on the board for the pawn piece
