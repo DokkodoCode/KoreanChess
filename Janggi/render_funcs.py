@@ -557,6 +557,10 @@ def render_chariot_possible_spots(janggi_piece, player, opponent, board, window)
                         if not (0 <= new_rank < len(board.coordinates) and 0 <= new_file < len(row)):
                             break  # Out of board bounds, stop in this direction
 
+						# If moving diagonally, ensure the move stays inside the palace
+                        if move in diagonal_moves and not helper_funcs.is_in_palace(new_rank, new_file):
+                            break  # Stop diagonal movement if it exits the palace
+
                         new_spot = board.coordinates[new_rank][new_file]
                         new_rect = board.collisions[new_rank][new_file]
                         

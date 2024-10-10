@@ -527,7 +527,7 @@ def move_chariot(janggi_piece, board, mouse_pos, player, opponent):
                 possible_moves = rook_moves
                 
                 # Check if the chariot is in the palace (to allow diagonal moves)
-                if is_inside_palace(board, rank, file):
+                if is_in_palace(rank, file):
                     possible_moves += diagonal_moves
                 
                 # Check each possible direction for continuous movement
@@ -542,6 +542,10 @@ def move_chariot(janggi_piece, board, mouse_pos, player, opponent):
 
                         # Ensure the move is within the bounds of the board
                         if 0 <= new_rank < len(board.coordinates) and 0 <= new_file < len(row):
+							# If moving diagonally, ensure that the move stays inside the palace
+                            if move in diagonal_moves and not is_in_palace(new_rank, new_file):
+                                break  # Stop diagonal movement if it exits the palace
+
                             new_spot = board.coordinates[new_rank][new_file]
                             new_rect = board.collisions[new_rank][new_file]
                             
@@ -747,8 +751,8 @@ def can_use_palace_diagonals(piece, board):
 #-----------------------------------------------------------------------------------		
 def is_in_palace(rank, file):
 	# Return rank and file boundaries for if we are in palace coordiantes
-	return ((8 <= rank <= 10 and 4 <= file <= 6) or  # Cho's palace
-				(1 <= rank <= 3 and 4 <= file <= 6))    # Han's palace
+	return ((7 <= file <= 9 and 3 <= rank <= 5) or  # Cho's palace
+				(0 <= file <= 2 and 3 <= rank <= 5))    # Han's palace
 
 #-----------------------------------------------------------------------------------
 # Function that will check if capture occurs. This occurs when a piece is moved onto
