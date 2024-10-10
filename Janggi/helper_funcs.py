@@ -368,6 +368,8 @@ def move_elephant(janggi_piece, board, player, opponent, mouse_pos):
 							# update piece location and collision for valid move
 							janggi_piece.location = new_spot
 							janggi_piece.collision_rect.topleft = new_spot
+							# capture
+							detect_capture(player, opponent, janggi_piece)
 							return True
 	return False
 
@@ -434,6 +436,8 @@ def move_horse(janggi_piece, board, player, opponent, mouse_pos):
 							# update piece location and collision for valid move
 							janggi_piece.location = new_spot
 							janggi_piece.collision_rect.topleft = new_spot
+							# capture
+							detect_capture(player, opponent, janggi_piece)
 							return True
 	return False
 
