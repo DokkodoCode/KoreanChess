@@ -7,6 +7,68 @@ o Last Modified - October 4th 2024
 ------------------------------------------------------------------
 """
 
+import json
+
+#-----------------------------------------------------------------------------------
+# Function that will send player's board data to other player for synchronization
+# INPUT: 
+# OUTPUT: 
+#-----------------------------------------------------------------------------------
+def send_move_over_network(move_data):
+	# Send the JSON data to the other user
+    pass
+
+#-----------------------------------------------------------------------------------
+# Function that will receive board data from other player for synchronization
+# INPUT: 
+# OUTPUT: 
+#-----------------------------------------------------------------------------------
+def get_move_from_network(move_data, player, opponent, board):
+	# Deserialize the JSON data
+    try:
+        move_info = json.loads(move_data)
+    except json.JSONDecodeError:
+        print("Received invalid move data")
+        return
+
+    piece_type = move_info.get("piece_type")
+    image_location = move_info.get("image_location")
+    collision_rect_topleft = move_info.get("collision_rect.topleft")
+    from_pos = move_info.get("from")
+    to_pos = move_info.get("to")
+
+	# Validate and update the board
+    if piece_type and image_location and from_pos and to_pos:
+        from_rank, from_file = from_pos
+        to_rank, to_file = to_pos
+
+		# Find the piece that needs to be moved
+        piece_to_move = next((p for p in opponent.pieces if p.piece_type.value == piece_type and p.location == (from_rank, from_file)), None)
+        if piece_to_move:
+            # Here you might want to add specific logic to validate the move
+            # For example, check if the move is valid according to game rules
+            # This would typically involve calling the same move functions you used earlier
+
+            # Update the piece's location
+            piece_to_move.location = (to_rank, to_file)
+            # Update collision rectangle and image location if necessary
+            piece_to_move.collision_rect.topleft = collision_rect_topleft
+            piece_to_move.image_location = image_location
+            # (this would depend on how you're managing piece graphics)
+
+            # Update the piece's collision rectangle based on the new location
+            # (Assuming you have a way to convert the location back to a collision rectangle)
+			# update_collision_rect(piece_to_move, board)
+
+            # You may also need to handle removing opponent pieces if they are captured
+            print(f"Moved {piece_type} from {from_pos} to {to_pos}")
+        else:
+            print("Piece to move not found or move invalid.")
+    else:
+        print("Received incomplete move data.")
+    pass
+
+
 #-----------------------------------------------------------------------------------
 # Function that will center the piece image in its spot on the board
 # INPUT: coordinate of the piece object, image path asssociated with the object
@@ -130,8 +192,19 @@ def attempt_move(player, opponent, board, mouse_pos):
 				center_x = collision[0] + 22 - collision.width // 2
 				center_y = collision[1] + 22 - collision.height // 2
 				janggi_piece.image_location = (center_x, center_y)
+				original_location = janggi_piece.location
 				janggi_piece.location = board.coordinates[rank][file]
 				
+				# Send move details over the network
+				move_data = {
+                    "piece_type": janggi_piece.piece_type.value,
+					"collision_rect.topleft": janggi_piece.collision_rect.topleft,
+					"image_location": janggi_piece.image_location,
+                    "from": (original_location[0], original_location[1]),
+                    "to": (rank, file)
+                }
+				#send_move_over_network(json.dumps(move_data))
+
 				return True
 				
 	return False
