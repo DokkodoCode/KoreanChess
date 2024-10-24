@@ -615,7 +615,7 @@ def render_cannon_possible_spots(janggi_piece, player, opponent, board, window):
 							while ((0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)) and not piece_in_way):
 								piece_in_way = False
 								for check_piece in all_pieces:
-									if (board.coordinates[new_rank][new_file] == check_piece.location) and not (check_piece.piece_type.value == "Cannon"):
+									if (board.coordinates[new_rank][new_file] == check_piece.location):
 										# A piece is in the way, cannon jumps over it
 										piece_in_way = True
 										break
@@ -642,8 +642,21 @@ def render_cannon_possible_spots(janggi_piece, player, opponent, board, window):
 									new_rank += move[0]
 									new_file += move[1]
 
-								# There was a piece there, so stop.	
+								# There was a piece there, so try to capture it.	
 								else:
+									new_spot = board.coordinates[new_rank][new_file]
+									new_rect = board.collisions[new_rank][new_file]
+									for check_piece in all_pieces:
+										if ((not any(new_rect.colliderect(piece.collision_rect) for piece in player.pieces if piece != janggi_piece)) 
+																				and (check_piece.piece_type.value != "Cannon")
+																				and (board.coordinates[new_rank][new_file] == check_piece.location)):
+											# rectangle bounds for drawing the spot rectangle
+											rectangle = (new_spot[0], new_spot[1], 
+																	constants.spot_collision_size[0], 
+																	constants.spot_collision_size[1])
+										
+											# render the possible spot
+											pygame.draw.rect(window, constants.GREEN, rectangle)
 									break
 
 							# Return back to move-in-possible-moves loop so it cant skip pieces
@@ -652,6 +665,7 @@ def render_cannon_possible_spots(janggi_piece, player, opponent, board, window):
 							# Continue moving in the current direction if no piece is found
 							new_rank += move[0]
 							new_file += move[1]
+							break
 	return
 
 #-----------------------------------------------------------------------------------
