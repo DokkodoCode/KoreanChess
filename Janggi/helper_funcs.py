@@ -610,7 +610,7 @@ def move_cannon(janggi_piece, board, mouse_pos, player, opponent):
 							# Continue moving in the current direction if no piece is found
 							new_rank += move[0]
 							new_file += move[1]
-							break
+							
 	return False
 
 

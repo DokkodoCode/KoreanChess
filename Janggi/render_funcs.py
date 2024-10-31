@@ -665,7 +665,7 @@ def render_cannon_possible_spots(janggi_piece, player, opponent, board, window):
 							# Continue moving in the current direction if no piece is found
 							new_rank += move[0]
 							new_file += move[1]
-							break
+							
 	return
 
 #-----------------------------------------------------------------------------------
