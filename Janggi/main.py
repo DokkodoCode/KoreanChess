@@ -21,7 +21,8 @@ def main():
 
 	# initialize pygame instance
 	pygame.init()
-
+	info = pygame.display.Info()
+	print(f"{info}")
 	# frames
 	clock = pygame.time.Clock()
 	fps = 60

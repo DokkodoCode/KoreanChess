@@ -6,6 +6,68 @@ o Last Modified - October 31st 2024
 ------------------------------------------------------------------
 """
 
+import json
+
+#-----------------------------------------------------------------------------------
+# Function that will send player's board data to other player for synchronization
+# INPUT: 
+# OUTPUT: 
+#-----------------------------------------------------------------------------------
+def send_move_over_network(move_data):
+	# Send the JSON data to the other user
+	pass
+
+#-----------------------------------------------------------------------------------
+# Function that will receive board data from other player for synchronization
+# INPUT: 
+# OUTPUT: 
+#-----------------------------------------------------------------------------------
+def get_move_from_network(move_data, player, opponent, board):
+	# Deserialize the JSON data
+	try:
+		move_info = json.loads(move_data)
+	except json.JSONDecodeError:
+		print("Received invalid move data")
+		return
+
+	piece_type = move_info.get("piece_type")
+	image_location = move_info.get("image_location")
+	collision_rect_topleft = move_info.get("collision_rect.topleft")
+	from_pos = move_info.get("from")
+	to_pos = move_info.get("to")
+
+	# Validate and update the board
+	if piece_type and image_location and from_pos and to_pos:
+		from_rank, from_file = from_pos
+		to_rank, to_file = to_pos
+
+		# Find the piece that needs to be moved
+		piece_to_move = next((p for p in opponent.pieces if p.piece_type.value == piece_type and p.location == (from_rank, from_file)), None)
+		if piece_to_move:
+			# Here you might want to add specific logic to validate the move
+			# For example, check if the move is valid according to game rules
+			# This would typically involve calling the same move functions you used earlier
+
+			# Update the piece's location
+			piece_to_move.location = (to_rank, to_file)
+			# Update collision rectangle and image location if necessary
+			piece_to_move.collision_rect.topleft = collision_rect_topleft
+			piece_to_move.image_location = image_location
+			# (this would depend on how you're managing piece graphics)
+
+			# Update the piece's collision rectangle based on the new location
+			# (Assuming you have a way to convert the location back to a collision rectangle)
+			# update_collision_rect(piece_to_move, board)
+
+			# You may also need to handle removing opponent pieces if they are captured
+			print(f"Moved {piece_type} from {from_pos} to {to_pos}")
+		else:
+			print("Piece to move not found or move invalid.")
+	else:
+		print("Received incomplete move data.")
+	pass
+
+
 #-----------------------------------------------------------------------------------
 # Function that will center the piece image in its spot on the board
 # INPUT: coordinate of the piece object, image path asssociated with the object
@@ -107,7 +169,7 @@ def attempt_move(player, opponent, board, mouse_pos):
 						if not move_cannon(janggi_piece, board, mouse_pos, player, opponent):
 							return False
 					case "Chariot":
-						if not move_chariot(janggi_piece, board, mouse_pos, player):
+						if not move_chariot(janggi_piece, board, mouse_pos, player, opponent):
 							return False
 					case "Pawn":
 						if not move_pawn(janggi_piece, board, mouse_pos, player, opponent):
@@ -129,8 +191,19 @@ def attempt_move(player, opponent, board, mouse_pos):
 				center_x = collision[0] + 22 - collision.width // 2
 				center_y = collision[1] + 22 - collision.height // 2
 				janggi_piece.image_location = (center_x, center_y)
+				original_location = janggi_piece.location
 				janggi_piece.location = board.coordinates[rank][file]
 				
+				# Send move details over the network
+				move_data = {
+					"piece_type": janggi_piece.piece_type.value,
+					"collision_rect.topleft": janggi_piece.collision_rect.topleft,
+					"image_location": janggi_piece.image_location,
+					"from": (original_location[0], original_location[1]),
+					"to": (rank, file)
+				}
+				#send_move_over_network(json.dumps(move_data))
+
 				return True
 				
 	return False
@@ -156,7 +229,7 @@ def move_king(janggi_piece, board, mouse_pos, player, opponent):
 				  (-1, 1),   (0, 1),   (1, 1), )
 	
 	orthogonal_moves = (	      (0, -1),	    
-				   	    (-1, 0),		    (1,0),
+				   		(-1, 0),		    (1,0),
 								  (0, 1),		   )
 	
 	# piece can move diagonally if on any of these spots within the palace
@@ -232,7 +305,7 @@ def	move_advisor(janggi_piece, board, mouse_pos, player, opponent):
 				  (-1, 1),   (0, 1),   (1, 1), )
 	
 	orthogonal_moves = (	      (0, -1),	    
-				   	    (-1, 0),		    (1,0),
+				   		(-1, 0),		    (1,0),
 								  (0, 1),		   )
 	
 	# piece can move diagonally if on any of these spots within the palace
@@ -355,18 +428,20 @@ def move_elephant(janggi_piece, board, player, opponent, mouse_pos):
 							 and not any(path_to_check[0].colliderect(piece.collision_rect) 
 													 for piece in player.pieces 
 													 if piece != janggi_piece)
-						     and not any(path_to_check[0].colliderect(piece.collision_rect) 
+							 and not any(path_to_check[0].colliderect(piece.collision_rect) 
 													 for piece in opponent.pieces 
 													 if piece != janggi_piece)
 							 and not any(path_to_check[1].colliderect(piece.collision_rect) 
 													 for piece in player.pieces 
 													 if piece != janggi_piece)
-						     and not any(path_to_check[1].colliderect(piece.collision_rect) 
+							 and not any(path_to_check[1].colliderect(piece.collision_rect) 
 													 for piece in opponent.pieces 
 													 if piece != janggi_piece)):
 							# update piece location and collision for valid move
 							janggi_piece.location = new_spot
 							janggi_piece.collision_rect.topleft = new_spot
+							# capture
+							detect_capture(player, opponent, janggi_piece)
 							return True
 	return False
 
@@ -427,12 +502,14 @@ def move_horse(janggi_piece, board, player, opponent, mouse_pos):
 							 and not any(path_to_check.colliderect(piece.collision_rect) 
 													 for piece in player.pieces 
 													 if piece != janggi_piece)
-						     and not any(path_to_check.colliderect(piece.collision_rect) 
+							 and not any(path_to_check.colliderect(piece.collision_rect) 
 													 for piece in opponent.pieces 
 													 if piece != janggi_piece)):
 							# update piece location and collision for valid move
 							janggi_piece.location = new_spot
 							janggi_piece.collision_rect.topleft = new_spot
+							# capture
+							detect_capture(player, opponent, janggi_piece)
 							return True
 	return False
 
@@ -442,114 +519,164 @@ def move_horse(janggi_piece, board, player, opponent, mouse_pos):
 # OUTPUT: Piece is remapped to valid spot
 #-----------------------------------------------------------------------------------
 def move_cannon(janggi_piece, board, mouse_pos, player, opponent):
-    # Define possible movement directions (up, down, left, right)
-    possible_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+	print("cannon clicked help")
+	# implement logic here
+	possible_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
     # Get a list of all the pieces on the board
-    all_pieces = player.pieces + opponent.pieces
+	all_pieces = player.pieces + opponent.pieces
 
     # Iterate over the board to find the current location of the cannon
-    for rank, row in enumerate(board.coordinates):
-        for file, spot in enumerate(row):
-            if spot == janggi_piece.location:
-                # Cannon found, now check possible movement directions
-                for move in possible_moves:
-                    new_rank = rank + move[0]
-                    new_file = file + move[1]
-
-                    # Flag to track if the cannon has jumped over one piece
-                    jumped = False
+	for rank, row in enumerate(board.coordinates):
+		for file, spot in enumerate(row):
+			if spot == janggi_piece.location:
+				# Cannon found, now check possible movement directions
+				for move in possible_moves:
+					new_rank = rank + move[0]
+					new_file = file + move[1]
 
                     # Continue moving along the path in the given direction until out of bounds
-                    while (0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)):
-                        # Check if a piece is in the way
-                        piece_in_way = None
-                        for check_piece in all_pieces:
-                            if (board.coordinates[new_rank][new_file] == check_piece.location):
-                                piece_in_way = check_piece
-                                break
+					while (0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)):
+						piece_in_way = False
 
-                        if piece_in_way and not jumped:
-                            # Jump over the first piece found
-                            jumped = True
-                            new_rank += move[0]
-                            new_file += move[1]
+						for check_piece in all_pieces:
+							# Check here if the piece is a cannon
+							if (board.coordinates[new_rank][new_file] == check_piece.location) and not (check_piece.piece_type.value == "Cannon"):
+								# A piece is in the way, cannon jumps over it
+								piece_in_way = True
+								break
 
-                            # Continue only if within bounds after jumping
-                            if (0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)):
-                                continue
-                            else:
-                                break
-                        elif jumped:
-                            # After jumping, check if the landing spot is valid (can move through empty spaces)
-                            new_spot = board.coordinates[new_rank][new_file]
-                            new_rect = board.collisions[new_rank][new_file]
+						if piece_in_way:
+							# Jump over the piece
+							new_rank += move[0]
+							new_file += move[1]
 
-                            # Check if the spot is either empty or contains an opponent's piece
-                            if (new_rect.collidepoint(mouse_pos) 
-                                and (not any(new_rect.colliderect(piece.collision_rect) 
-                                             for piece in player.pieces if piece != janggi_piece))):
-                                # Move is valid, update the cannon's location
-                                janggi_piece.location = new_spot
-                                janggi_piece.collision_rect.topleft = new_spot
-                                return True  # Return immediately after valid move
-                            elif any(new_rect.colliderect(piece.collision_rect) for piece in all_pieces):
-                                # Stop if the next square contains another piece
-                                break
-                            else:
-                                # Continue moving in the current direction if no piece is found
-                                new_rank += move[0]
-                                new_file += move[1]
-                        else:
-                            # Continue moving if no piece is found and no jump has been made yet
-                            new_rank += move[0]
-                            new_file += move[1]
-    # Return False if no valid move is found
-    return False
+							# Check if after jumping the new position is out of bounds
+							piece_in_way = False
+							while ((0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)) and not piece_in_way):
+								piece_in_way = False
+								for check_piece in all_pieces:
+									if (board.coordinates[new_rank][new_file] == check_piece.location):
+										# A piece is in the way, cannon jumps over it
+										piece_in_way = True
+										break
+
+								# If after first jump, nothing is there, then keep moving through the open space
+								if not piece_in_way:
+									new_spot = board.coordinates[new_rank][new_file]
+									new_rect = board.collisions[new_rank][new_file]
+
+									# Check if the spot is valid (not occupied by a player's piece, except for the cannon)
+									if not any(new_rect.colliderect(piece.collision_rect) 
+																for piece in player.pieces 
+																if piece != janggi_piece):
+										
+										# Check if this is the destination (the spot clicked by the mouse)
+										if new_rect.collidepoint(mouse_pos):
+											# Update the chariot's location and collision rect
+											janggi_piece.location = new_spot
+											janggi_piece.collision_rect.topleft = new_spot
+
+											return True
+
+									# Keep moving
+									new_rank += move[0]
+									new_file += move[1]
+
+								# There was a piece there, so try to capture it.	
+								else:
+									new_spot = board.coordinates[new_rank][new_file]
+									new_rect = board.collisions[new_rank][new_file]
+									for check_piece in all_pieces:
+										if ((not any(new_rect.colliderect(piece.collision_rect) for piece in player.pieces if piece != janggi_piece)) 
+																				and (check_piece.piece_type.value != "Cannon")
+																				and (board.coordinates[new_rank][new_file] == check_piece.location)):
+											# Check if this is the destination (the spot clicked by the mouse)
+											if new_rect.collidepoint(mouse_pos):
+												# Update the chariot's location and collision rect
+												janggi_piece.location = new_spot
+												janggi_piece.collision_rect.topleft = new_spot
+
+												# Check for capture
+												detect_capture(player, opponent, janggi_piece)
+
+												return True
+									break		
+
+							# Return back to move-in-possible-moves loop so it cant skip pieces
+							break
+						else:
+							# Continue moving in the current direction if no piece is found
+							new_rank += move[0]
+							new_file += move[1]
+							
+	return False
+
+
 	
 #-----------------------------------------------------------------------------------
 # Function that will move a clicked chariot piece to a valid location
 # INPUT: piece object, board object, mouse position on window
 # OUTPUT: Piece is remapped to valid spot
 #-----------------------------------------------------------------------------------
-def move_chariot(janggi_piece, board, mouse_pos, player):
-	# implement piece logic here
-	# Define moves for chariot (up,down,left,right, and diagonal in palace)
+def move_chariot(janggi_piece, board, mouse_pos, player, opponent):
+	# Define rook-like moves for chariot (up, down, left, right)
 	rook_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-	diagonal_moves = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  
-
+	diagonal_moves = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
 
 	# Get the current location of the piece
 	for rank, row in enumerate(board.coordinates):
 		for file, spot in enumerate(row):
-            # Find where piece is on the board
+			# Find where the chariot is on the board
 			if spot == janggi_piece.location:
-				#Set the only moves possible at this point to be up down left right
+				# Set initial possible moves (up, down, left, right)
 				possible_moves = rook_moves
-                
-                # Call palace function to check if the current piece is in palace
+				
+				# Check if the chariot is in the palace (to allow diagonal moves)
 				if is_in_palace(rank, file):
-                    # If the piece is in palace then add on diagonal moves to possible list
-					possible_moves += diagonal_moves 
-                
-                # Check each possible move
+					possible_moves += diagonal_moves
+				
+				# Check each possible direction for continuous movement
 				for move in possible_moves:
-					new_rank = rank + move[0]
-					new_file = file + move[1]
+					new_rank = rank
+					new_file = file
 
-					# Ensure the move is within the bounds of the board
-					if 0 <= new_rank < len(board.coordinates) and 0 <= new_file < len(row):
-						new_spot = board.coordinates[new_rank][new_file]
-						new_rect = board.collisions[new_rank][new_file]
-                        
-                        # Ensure the spot is not occupied by another piece of the same player
-						if (new_rect.collidepoint(mouse_pos) and
-                            not any(new_rect.colliderect(piece.collision_rect) 
-                                    for piece in player.pieces if piece != janggi_piece)):
-                            # Valid move, update the piece location and collision
-							janggi_piece.location = new_spot
-							janggi_piece.collision_rect.topleft = new_spot
-							return True
+					# Continue moving in the current direction until you hit a boundary or another piece
+					while True:
+						new_rank += move[0]
+						new_file += move[1]
+
+						# Ensure the move is within the bounds of the board
+						if 0 <= new_rank < len(board.coordinates) and 0 <= new_file < len(row):
+							# If moving diagonally, ensure that the move stays inside the palace
+							if move in diagonal_moves and not is_in_palace(new_rank, new_file):
+								break  # Stop diagonal movement if it exits the palace
+
+							new_spot = board.coordinates[new_rank][new_file]
+							new_rect = board.collisions[new_rank][new_file]
+							
+							# Check if the spot is occupied by a piece from the same player
+							if any(new_rect.colliderect(piece.collision_rect) 
+								   for piece in player.pieces if piece != janggi_piece):
+								break  # Stop if there's a piece blocking the way
+							
+							# Check if this is the destination (the spot clicked by the mouse)
+							if new_rect.collidepoint(mouse_pos):
+								# Update the chariot's location and collision rect
+								janggi_piece.location = new_spot
+								janggi_piece.collision_rect.topleft = new_spot
+
+								# Check for capture
+								detect_capture(player, opponent, janggi_piece)
+
+								return True
+
+							# Stop if there's an opponent's piece (can move here but not beyond)
+							if any(new_rect.colliderect(piece.collision_rect) 
+								   for piece in opponent.pieces):
+								break
+						else:
+							break  # Out of board bounds, stop in this direction
 	return False
 
 #-----------------------------------------------------------------------------------
@@ -698,7 +825,7 @@ def can_use_palace_diagonals(piece, board):
 	cho_diagonal_move_spots = (
 								board.cho_palace[0][0],			board.cho_palace[0][2],
 
-											    board.cho_palace[1][1],
+												board.cho_palace[1][1],
 
 								board.cho_palace[2][0], 			board.cho_palace[2][2]
 							  )
@@ -707,7 +834,7 @@ def can_use_palace_diagonals(piece, board):
 	han_diagonal_move_spots = (
 								board.han_palace[0][0],			board.han_palace[0][2],
 
-											    board.han_palace[1][1],
+												board.han_palace[1][1],
 												
 								board.han_palace[2][0], 			board.han_palace[2][2]
 							  )
@@ -731,8 +858,8 @@ def can_use_palace_diagonals(piece, board):
 #-----------------------------------------------------------------------------------		
 def is_in_palace(rank, file):
 	# Return rank and file boundaries for if we are in palace coordiantes
-	return ((8 <= rank <= 10 and 4 <= file <= 6) or  # Cho's palace
-				(1 <= rank <= 3 and 4 <= file <= 6))    # Han's palace
+	return ((7 <= file <= 9 and 3 <= rank <= 5) or  # Cho's palace
+				(0 <= file <= 2 and 3 <= rank <= 5))    # Han's palace
 
 #-----------------------------------------------------------------------------------
 # Function that will check if capture occurs. This occurs when a piece is moved onto
