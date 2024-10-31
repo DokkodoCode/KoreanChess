@@ -2,8 +2,7 @@
 ----------------------helper_funcs.py-----------------------------
 o This file is to hold any logical/helper functions to be 
 	called by state.py
-o Try to avoid any imports/constants in this file
-o Last Modified - October 4th 2024
+o Last Modified - October 31st 2024
 ------------------------------------------------------------------
 """
 
@@ -575,7 +574,8 @@ def move_pawn(janggi_piece, board, mouse_pos, player, opponent):
 	# i.e Cho King starts at Rank 9/File 5
 	for rank, row in enumerate(board.coordinates):
 		for file, spot in enumerate(row):
-
+			#print(f"SPOT: {spot}")
+			#print(f"JP: {janggi_piece.location}")
 			# find where piece is relative to board
 			if spot == janggi_piece.location:
 				

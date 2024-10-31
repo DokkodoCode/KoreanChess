@@ -2,7 +2,7 @@
 ----------------------render_funcs.py-----------------------------
 o This file is solely for rendering-based functions to be 
 	used by state.py
-o Last Modified - October 3rd 2024
+o Last Modified - October 31st 2024
 ------------------------------------------------------------------
 """
 
@@ -12,7 +12,7 @@ import pygame
 # local file imports
 import constants
 import helper_funcs
-from piece import PieceType, PreGamePieceDisplay
+from piece import PieceType, PreGamePieceDisplay, GuestPreGamePieceDisplay
 
 
 #-----------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ from piece import PieceType, PreGamePieceDisplay
 # INPUT: Pygame surface object, player object
 # OUTPUT: Piece line-up is rendered during pre-game set-up
 #-----------------------------------------------------------------------------------
-def PreGame_render_piece_display(window, player):
+def PreGame_render_piece_display(window, player, opponent):
 	# load Han-side piece images
 	han_piece_images = {
 		PieceType.KING: pygame.image.load("Pieces/Han_King.png").convert_alpha(),
@@ -86,7 +86,15 @@ def PreGame_render_piece_display(window, player):
 		PieceType.CHARIOT: PreGamePieceDisplay.CHARIOT.value,
 		PieceType.PAWN: PreGamePieceDisplay.PAWN.value
 	}
-	
+	guest_piece_display = {
+		PieceType.KING: GuestPreGamePieceDisplay.KING.value,
+		PieceType.ADVISOR: GuestPreGamePieceDisplay.ADVISOR.value,
+		PieceType.ELEPHANT: GuestPreGamePieceDisplay.ELEPHANT.value,
+		PieceType.HORSE: GuestPreGamePieceDisplay.HORSE.value,
+		PieceType.CANNON: GuestPreGamePieceDisplay.CANNON.value,
+		PieceType.CHARIOT: GuestPreGamePieceDisplay.CHARIOT.value,
+		PieceType.PAWN: GuestPreGamePieceDisplay.PAWN.value
+	}
 	# iterate through the player's pieces
 	# and render the approiprotae piece by unpacking
 	# the player.pieces into the following:
@@ -107,6 +115,28 @@ def PreGame_render_piece_display(window, player):
 		# center the image correctly to its spot
 		piece_image_pos = helper_funcs.reformat_piece(piece_display[janggi_piece.piece_type], piece_image)
 		window.blit(piece_image, piece_image_pos)
+
+	# iterate through the player's pieces
+	# and render the approiprotae piece by unpacking
+	# the player.pieces into the following:
+	# for PieceType in player's active pieces
+	if opponent is not None:
+		for janggi_piece in opponent.pieces:
+			if opponent.color == "Han":
+				if opponent.piece_convention == "International":
+					piece_image = I_han_piece_images[janggi_piece.piece_type]
+				else:
+					piece_image = han_piece_images[janggi_piece.piece_type]
+			else:
+				if opponent.piece_convention == "International":
+					piece_image = I_cho_piece_images[janggi_piece.piece_type]
+				else:
+					piece_image = cho_piece_images[janggi_piece.piece_type]
+			piece_image = pygame.transform.scale(piece_image,
+												piece_sizes[janggi_piece.piece_type])
+			# center the image correctly to its spot
+			piece_image_pos = helper_funcs.reformat_piece(guest_piece_display[janggi_piece.piece_type], piece_image)
+			window.blit(piece_image, piece_image_pos)
 
 
 #-----------------------------------------------------------------------------------

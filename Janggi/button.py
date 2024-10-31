@@ -2,7 +2,7 @@
 ----------------------state.py----------------------------
 o This file is to manage the button class for the button
     objects for player to interact with
-o Last Modified - September 26th 2024
+o Last Modified - October 31st 2024
 ----------------------------------------------------------
 """
 import pygame
@@ -64,28 +64,6 @@ class Button:
         if self.rect.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0] == 1:
             return True
         
-"""
-# FUTURE IMPLEMENTATION IF DIGIT AI LEVELS ARE DESIRED
-# Function to create the buttons in mass for the ai level setting
-# INPUT: No input
-# OUTPUT: list of the ai levels is created (0 --> 9)
-def create_ai_level_buttons():
-    ai_level_buttons = []
-
-    font = pygame.font.SysFont("Arial", 35)
-
-     10 buttons
-    for i in range(10):
-        new_button = Button(200 + (25*i),525,25,50, 
-													font=font,
-													text=f"{i}", 
-													foreground_color = constants.BLACK,
-													background_color = constants.WHITE,
-													hover_color = constants.LIGHT_GREEN)
-        ai_level_buttons.append(new_button)
-        
-    return ai_level_buttons
-    """
 # Function to create the buttons in mass for the ai level setting
 # INPUT: No input
 # OUTPUT: list of the ai levels is created (0 --> 9)
@@ -97,7 +75,7 @@ def create_ai_level_buttons():
 
     # 3 buttons
     for i in range(3):
-        new_button = Button(175 + (150*i),645,125,50, 
+        new_button = Button(x=(750 + (150*i)),y=645,width=125,height=50, 
 													font=font,
 													text=f"{ai_level[i]}", 
 													foreground_color = constants.BLACK,

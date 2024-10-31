@@ -1,7 +1,7 @@
 """
 -----------------------piece.py-----------------------------------
 o This file is to hold the data for each piece in Janggi
-o Last Modified - September 30th 2024
+o Last Modified - October 31st 2024
 ------------------------------------------------------------------
 """
 
@@ -61,37 +61,64 @@ class PieceCollisionSize(Enum):
 
 # Enumeration type for each player-side piece's starting position
 class PlayerPiecePosition(Enum):
-	KING = [(470,770)]
-	ADVISOR = [(373,862),(567,862)]
-	ELEPHANT = [(276,862),(761,862)]
-	HORSE = [(179,862),(664,862)]
-	CANNON = [(179,677),(761,677)]
-	CHARIOT = [(82,862),(858,862)]
-	PAWN = [(82,586),(276,586),(470,586),(664,586),(858,586)]
+	KING = [(constants.x_coordinates[4],constants.y_coordinates[8])]
+	ADVISOR = [(constants.x_coordinates[3],constants.y_coordinates[9]),
+				(constants.x_coordinates[5],constants.y_coordinates[9])]
+	ELEPHANT = [(constants.x_coordinates[2],constants.y_coordinates[9]),
+			 	(constants.x_coordinates[7],constants.y_coordinates[9])]
+	HORSE = [(constants.x_coordinates[1],constants.y_coordinates[9]),
+		  	(constants.x_coordinates[6],constants.y_coordinates[9])]
+	CANNON = [(constants.x_coordinates[1],constants.y_coordinates[7]),
+		   	(constants.x_coordinates[7],constants.y_coordinates[7])]
+	CHARIOT = [(constants.x_coordinates[0],constants.y_coordinates[9]),
+				(constants.x_coordinates[8],constants.y_coordinates[9])]
+	PAWN = [(constants.x_coordinates[0],constants.y_coordinates[6]),
+		 	(constants.x_coordinates[2],constants.y_coordinates[6]),
+			(constants.x_coordinates[4],constants.y_coordinates[6]),
+			(constants.x_coordinates[6],constants.y_coordinates[6]),
+			(constants.x_coordinates[8],constants.y_coordinates[6])]
 
 # Enumeration type for each opponent's piece's starting position
 class OpponentPiecePosition(Enum):
-	KING = [(470,128)]
-	ADVISOR = [(373,37),(567,37)]
-	ELEPHANT = [(276,37),(664,37)]
-	HORSE = [(179,37),(761,37)]
-	CANNON = [(179,219),(761,219)]
-	CHARIOT = [(82,37),(858,37)]
-	PAWN = [(82,312),(276,312),(470,312),(664,312),(858,312)]
+	KING = [(constants.x_coordinates[4],constants.y_coordinates[1])]
+	ADVISOR = [(constants.x_coordinates[3],constants.y_coordinates[0]),
+				(constants.x_coordinates[5],constants.y_coordinates[0])]
+	ELEPHANT = [(constants.x_coordinates[2],constants.y_coordinates[0]),
+			 	(constants.x_coordinates[7],constants.y_coordinates[0])]
+	HORSE = [(constants.x_coordinates[1],constants.y_coordinates[0]),
+		  	 (constants.x_coordinates[6],constants.y_coordinates[0])]
+	CANNON = [(constants.x_coordinates[1],constants.y_coordinates[2]),
+		   	  (constants.x_coordinates[7],constants.y_coordinates[2])]
+	CHARIOT = [(constants.x_coordinates[0],constants.y_coordinates[0]),
+				(constants.x_coordinates[8],constants.y_coordinates[0])]
+	PAWN = [(constants.x_coordinates[0],constants.y_coordinates[3]),
+		 (constants.x_coordinates[2],constants.y_coordinates[3]),
+		 (constants.x_coordinates[4],constants.y_coordinates[3]),
+		 (constants.x_coordinates[6],constants.y_coordinates[3]),
+		 (constants.x_coordinates[8],constants.y_coordinates[3])]
+
+# Enumeration type for the pregame settings menu display of the player's pieces
+class GuestPreGamePieceDisplay(Enum):
+	KING = (constants.x_coordinates[7],constants.y_coordinates[1])
+	ADVISOR = (constants.x_coordinates[7],constants.y_coordinates[2])
+	ELEPHANT = (constants.x_coordinates[7],constants.y_coordinates[3])
+	HORSE = (constants.x_coordinates[7],constants.y_coordinates[4])
+	CANNON = (constants.x_coordinates[7],constants.y_coordinates[5])
+	CHARIOT = (constants.x_coordinates[7],constants.y_coordinates[6])
+	PAWN = (constants.x_coordinates[7],constants.y_coordinates[7])
 
 # Enumeration type for the pregame settings menu display of the player's pieces
 class PreGamePieceDisplay(Enum):
-	KING = (constants.x_coordinates[6],constants.y_coordinates[1])
-	ADVISOR = (constants.x_coordinates[6],constants.y_coordinates[2])
-	ELEPHANT = (constants.x_coordinates[6],constants.y_coordinates[3])
-	HORSE = (constants.x_coordinates[6],constants.y_coordinates[4])
-	CANNON = (constants.x_coordinates[6],constants.y_coordinates[5])
-	CHARIOT = (constants.x_coordinates[6],constants.y_coordinates[6])
-	PAWN = (constants.x_coordinates[6],constants.y_coordinates[7])
+	KING = (constants.x_coordinates[1],constants.y_coordinates[1])
+	ADVISOR = (constants.x_coordinates[1],constants.y_coordinates[2])
+	ELEPHANT = (constants.x_coordinates[1],constants.y_coordinates[3])
+	HORSE = (constants.x_coordinates[1],constants.y_coordinates[4])
+	CANNON = (constants.x_coordinates[1],constants.y_coordinates[5])
+	CHARIOT = (constants.x_coordinates[1],constants.y_coordinates[6])
+	PAWN = (constants.x_coordinates[1],constants.y_coordinates[7])
 
 # Class object for the Piece
 class Piece():
-
 	# Class initializer
 	# INPUT: piece type, where it resides on the board, where its collision rectangle
 	#				 is, how many points the piece is worth

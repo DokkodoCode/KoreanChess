@@ -1,7 +1,7 @@
 """
 ----------------------player.py-----------------------------------
 o This file is to hold the data for the human player
-o Last Modified - October 4th 2024
+o Last Modified - October 31st 2024
 ------------------------------------------------------------------
 """
 # libraries

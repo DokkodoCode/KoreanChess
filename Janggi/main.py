@@ -1,11 +1,12 @@
 """
 ------------------------main.py-----------------------------------
 o This file is to hold the entry point to the program
-o Last Modified - September 12th 2024
+o Last Modified - October 31st 2024
 ------------------------------------------------------------------
 """
 
 # libraries
+import os
 import pygame
 import sys
 
@@ -14,6 +15,10 @@ import constants
 import state_machine
 
 def main():
+
+	# use user's machine's screen size as reference to screen width/height
+	os.environ['SDL_VIDEO_CENTERED'] = '1'
+
 	# initialize pygame instance
 	pygame.init()
 
@@ -21,22 +26,32 @@ def main():
 	clock = pygame.time.Clock()
 	fps = 60
 
-	# display the window
-	window = pygame.display.set_mode((constants.window_width, constants.window_height))
+	# create logo for window
+	icon = pygame.image.load("Pieces/Cho_King.png")
+	pygame.display.set_icon(icon)
+
+	# create the window
+	window = pygame.display.set_mode((constants.window_width, constants.window_height), pygame.FULLSCREEN, pygame.RESIZABLE)
+
+	pygame.display.update()
 	pygame.display.set_caption("Janggi")
 
 	# create state machine
-	state_manager = state_machine.StateManager()
+	state_manager = state_machine.StateManager(window)
 	
 	# core loop
-	running = True
-	while running:
+	#running = True
+	while constants.running:
+		#print(f"{constants.info}")
 		# find matching event calls by player to pygame event calls
 		for event in pygame.event.get():
 			# if player closes window
 			if event.type == pygame.QUIT:
 				# halt execution
-				running = False
+				constants.running = False
+			# if player resizes the window via dragging border
+			elif event.type == pygame.VIDEORESIZE:
+				window = pygame.display.set_mode(event.size, pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
 
 			# otherwise call the state machine
 			else:
@@ -49,7 +64,7 @@ def main():
 		state_manager.render(window)
 
 		# state manager logic
-		state_manager.update()
+		state_manager.update(window)
 		
 		# update the window with any drawing methods that were called
 		pygame.display.flip()
