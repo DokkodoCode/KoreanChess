@@ -7,7 +7,28 @@ o Last Modified - October 4th 2024
 ------------------------------------------------------------------
 """
 
+import socket
 import json
+
+#-----------------------------------------------------------------------------------
+# Function that will create a server for the peer-to-peer structure
+# INPUT:
+# OUTPUT:
+#-----------------------------------------------------------------------------------
+def start_server(opponent):
+	if __name__ == "__main__":
+		start_server()
+	server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	server_socket.bind(('localhost', 12345))
+	server_socket.listen(1)
+	print('Server listening on port 12345...')
+	while True:
+		conn, addr = server_socket.accept()
+		data = conn.recv(1024)  # Receive data from the client
+		if data:
+			json_data = json.loads(data.decode('utf-8'))
+			get_move_from_network(json_data, opponent)  # Call the function to process data
+		conn.close()
 
 #-----------------------------------------------------------------------------------
 # Function that will send player's board data to other player for synchronization
@@ -16,14 +37,17 @@ import json
 #-----------------------------------------------------------------------------------
 def send_move_over_network(move_data):
 	# Send the JSON data to the other user
-	pass
+	client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	client_socket.connect(('localhost', 12345))
+	client_socket.sendall(move_data.encode('utf-8'))
+	client_socket.close()
 
 #-----------------------------------------------------------------------------------
 # Function that will receive board data from other player for synchronization
 # INPUT: 
 # OUTPUT: 
 #-----------------------------------------------------------------------------------
-def get_move_from_network(move_data, player, opponent, board):
+def get_move_from_network(move_data, opponent):
 	# Deserialize the JSON data
 	try:
 		move_info = json.loads(move_data)
@@ -203,7 +227,7 @@ def attempt_move(player, opponent, board, mouse_pos):
 					"from": (original_location[0], original_location[1]),
 					"to": (rank, file)
 				}
-				#send_move_over_network(json.dumps(move_data))
+				send_move_over_network(json.dumps(move_data))
 
 				return True
 				
