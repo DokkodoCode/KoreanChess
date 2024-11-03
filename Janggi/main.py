@@ -13,6 +13,7 @@ import sys
 # local file imports
 import constants
 import state_machine
+from network import Network
 
 def main():
 
@@ -23,6 +24,7 @@ def main():
 	pygame.init()
 	info = pygame.display.Info()
 	print(f"{info}")
+
 	# frames
 	clock = pygame.time.Clock()
 	fps = 60
