@@ -1,6 +1,7 @@
 import subprocess
 import board
 import pygame
+import numpy as np
 
 from piece import Piece, PieceCollisionSize, PieceType, OpponentPiecePosition
 from helper_funcs import reformat_piece_collision
@@ -24,6 +25,12 @@ class OpponentAI:
 		self.active_player = color
 		self.is_turn = False
 		self.pieces = self.fill_pieces()
+
+		# Initialize UCI mode and set the variant to Janggi.
+		# This is just formality stuff
+		self.send_command("uci")
+		self.send_command("setoption name UCI_Variant value janggi")
+		self.send_command("position startpos")
 
 	# Method to populate the player's pieces for Janggi
 	# INPUT: None
@@ -59,8 +66,6 @@ class OpponentAI:
 	# to find the one labeled "bestmove", which we will use to update the board.
 	# Best move will come out in a coordinate format similar to chess. eg. i3h3. 
 	# which means move the piece at coordinate i3 to h3.
-
-
 	def get_engine_move(self):
 		while True:
 			output = self.engine.stdout.readline().strip()
@@ -71,7 +76,54 @@ class OpponentAI:
 	# Function for sending commands to the engine.
 	def send_command(self, command):
 		self.engine.stdin.write(command + '\n')
-		self.engine.stdin.flush()
+		self.engine.stdin.flush()\
+		
+	def convert_board(self, board, player):
+		new_board = np.array([
+			[".", ".", ".", ".", ".", ".", ".", ".", "."],
+			[".", ".", ".", ".", ".", ".", ".", ".", "."],
+			[".", ".", ".", ".", ".", ".", ".", ".", "."],
+			[".", ".", ".", ".", ".", ".", ".", ".", "."],
+			[".", ".", ".", ".", ".", ".", ".", ".", "."],
+			[".", ".", ".", ".", ".", ".", ".", ".", "."],
+			[".", ".", ".", ".", ".", ".", ".", ".", "."],
+			[".", ".", ".", ".", ".", ".", ".", ".", "."],
+			[".", ".", ".", ".", ".", ".", ".", ".", "."],
+			[".", ".", ".", ".", ".", ".", ".", ".", "."] ])
+		
+		# Some pieces need alias for stockfish
+		piece_type_mapping = {
+			"Chariot": "R",
+			"Elephant": "N",
+			"Horse": "B",
+			"Pawn": "P",
+			"King": "K",
+			"Advisor": "A",
+			"Cannon": "C"
+		}
+		
+		new_board = self.add_player_pieces(new_board, player, board, piece_type_mapping)
+		new_board = self.add_opponent_pieces(new_board, board, piece_type_mapping)
+
+		return new_board
+	
+	def add_player_pieces(self, new_board, player, board, piece_type_mapping):
+		for row in range(len(board.coordinates)):
+			for column in range(len(board.coordinates[row])):
+				for piece in player.pieces:
+					if board.coordinates[row][column] == piece.location:
+						new_board[column][row] = piece_type_mapping.get(piece.piece_type.value)
+		return new_board
+
+	# Opponent is self here, I know the name may be confusing
+	def add_opponent_pieces(self, new_board, board, piece_type_mapping):
+		for row in range(len(board.coordinates)):
+			for column in range(len(board.coordinates[row])):
+				for piece in self.pieces:
+					if board.coordinates[row][column] == piece.location:
+						new_board[column][row] = piece_type_mapping.get(piece.piece_type.value).lower()
+		return new_board
+
 
 	# Function to generate FEN string from the board state
 	# The FEN string is a way of recording the current board state in string format.
@@ -92,9 +144,10 @@ class OpponentAI:
 			if empty_count > 0:
 				fen_row += str(empty_count)
 			fen_rows.append(fen_row)
+		
 		fen_string = "/".join(fen_rows) + " " + active_player
-		print(fen_string)
 		return fen_string
+
 
 
 

@@ -273,6 +273,22 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			self.player.is_turn = True
 		else:
 			self.opponent.is_turn = True
+		
+		# This is for testing the ai moves
+		########################################################################################################################
+		# new_board = self.opponent.convert_board(self.board, self.player)
+		# fen = self.opponent.generate_fen(new_board, self.opponent.active_player)
+
+		# self.opponent.send_command(f"position fen {fen}")
+		# self.opponent.send_command("go depth 1")	# Pick based on difficulty
+
+		# # Retrieve the engine's move
+		# try:
+		# 	best_move = self.opponent.get_engine_move()
+		# 	print(f"Engine's move: {best_move}")
+		# except Exception as e:
+		# 	print(f"Error retrieving move: {e}")
+		#######################################################################################################################
 
 	# Listen for and handle any event ticks (clicks/buttons)
 	# INPUT: pygame event object
@@ -309,7 +325,8 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 
 		# Handle AI Opponent's turn
 		if self.opponent.is_turn:
-			fen = self.opponent.generate_fen(self.board, self.opponent.active_player)
+			new_board = self.opponent.convert_board(self.board, self.player)
+			fen = self.opponent.generate_fen(new_board, self.opponent.active_player)
 
 			self.opponent.send_command(f"position fen {fen}")
 			self.opponent.send_command("go depth 1")	# Pick based on difficulty
@@ -323,21 +340,16 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 
 			# This code tranlates the stockfish best move "i3h3" into
 			# numbers that we can use for the actual move.
-
-			####################################
-			# We need to after this, actually update the move of the oppenent 
-			########################################
-			starting_col = 0
-			starting_row = 0
-			ending_col = 0
-			ending_row = 0
+			starting_col, starting_row, ending_col, ending_row = 0
 
 			starting_col = ord(best_move[0].lower()) - 96
 			starting_row = int(best_move[1])
 			ending_col = ord(best_move[2].lower()) - 96
 			ending_row = int(best_move[3])
 
-				
+			####################################
+			# We need to after this, actually update the move of the oppenent 
+			########################################	
 			
 			# Apply the move
 			#self.apply_move(best_move)
