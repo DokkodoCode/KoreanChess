@@ -1,0 +1,125 @@
+import subprocess
+import board
+import pygame
+
+from piece import Piece, PieceCollisionSize, PieceType, OpponentPiecePosition
+from helper_funcs import reformat_piece_collision
+
+class OpponentAI:
+	def __init__(self, difficulty="easy", color="Han"):
+		self.difficulty = difficulty
+		# Start the engine process
+		# Formality stuff
+		self.engine = subprocess.Popen(
+			["./fairy-stockfish-largeboard_x86-64"],
+			stdin=subprocess.PIPE,
+			stdout=subprocess.PIPE,
+			stderr=subprocess.PIPE,
+			text=True
+		)
+		if color == "Han":
+			color = "w"
+		else:
+			color = "b"
+		self.active_player = color
+		self.is_turn = False
+		self.pieces = self.fill_pieces()
+
+	# Method to populate the player's pieces for Janggi
+	# INPUT: None
+	# OUTPUT: A list of the piece objects
+	def fill_pieces(self):
+		pieces = [] # store the piece objects
+	
+		# for each piece in PieceType(enum) list
+		for piece_type in PieceType:
+			# lookup the list of starting positions based on the enum PieceType
+			positions = OpponentPiecePosition[piece_type.name].value
+			# iterate through that list of starting positions
+			for pos in positions:
+				# assign point value to current piece based on PieceType(enum)
+				point_value = PieceType[piece_type.name].value
+				# assign the location that piece will be and where to display its image
+				location = pos
+				image_location = pos
+				# create a collision rectangle using the enum size for collisions based
+				collision_rect = pygame.Rect(pos[0], pos[1],
+																		 PieceCollisionSize[piece_type.name].value[0], 
+																		 PieceCollisionSize[piece_type.name].value[1])
+				# center the rectangle to fit appropriately onto the board
+				collision_rect = reformat_piece_collision(location, collision_rect)
+				# create the piece based on those parameters
+				piece = Piece(piece_type, location, image_location, collision_rect, point_value)
+				# add to the list to return
+				pieces.append(piece)
+		return pieces
+	
+	# Function to get the best move from the engine.
+	# The engine will output several lines. This searches the lines
+	# to find the one labeled "bestmove", which we will use to update the board.
+	# Best move will come out in a coordinate format similar to chess. eg. i3h3. 
+	# which means move the piece at coordinate i3 to h3.
+	def get_engine_move(self):
+		while True:
+			output = self.engine.stdout.readline().strip()
+			if "bestmove" in output:
+				best_move = output.split()[1]
+				return best_move
+	
+	# Function for sending commands to the engine.
+	def send_command(self, command):
+		self.engine.stdin.write(command + '\n')
+		self.engine.stdin.flush()
+
+	# Function to generate FEN string from the board state
+	# The FEN string is a way of recording the current board state in string format.
+	# This string format is what is passed to stockfish so that it can make a move.
+	def generate_fen(self, board, active_player):
+		fen_rows = []
+		for row in board:
+			fen_row = ""
+			empty_count = 0
+			for piece in row:
+				if piece == ".":
+					empty_count += 1
+				else:
+					if empty_count > 0:
+						fen_row += str(empty_count)
+						empty_count = 0
+					fen_row += piece
+			if empty_count > 0:
+				fen_row += str(empty_count)
+			fen_rows.append(fen_row)
+		fen_string = "/".join(fen_rows) + " " + active_player
+		print(fen_string)
+		return fen_string
+
+
+
+
+
+
+
+
+
+
+# Example board state
+# We need to import the current board state and convert it into this format.
+janggi_board = [
+	["r", "n", "b", "a", "k", "a", "b", "n", "r"],
+	[".", "c", ".", ".", ".", ".", ".", "c", "."],
+	["p", ".", "p", ".", "p", ".", "p", ".", "p"],
+	[".", ".", ".", ".", ".", ".", ".", ".", "."],
+	[".", ".", ".", ".", ".", ".", ".", ".", "."],
+	[".", ".", ".", ".", ".", ".", ".", ".", "."],
+	[".", ".", ".", ".", ".", ".", ".", ".", "."],
+	["P", ".", "P", ".", "P", ".", "P", ".", "P"],
+	[".", "C", ".", ".", ".", ".", ".", "C", "."],
+	["R", "N", "B", "A", "K", "A", "B", "N", "R"],
+]
+# w means white in chess terms, in this case w = red.
+# b meand black in chess terms, in this case b = blue
+# This should be set to the opposite of what was chosen in the start
+# menu by the player.
+
+
