@@ -347,9 +347,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			ending_col = ord(best_move[2].lower()) - 96
 			ending_row = int(best_move[3])
 
-			####################################
-			# We need to after this, actually update the move of the oppenent 
-			########################################	
+			# Update the move of the oppenent 	
 			
 			# Apply the move
 			#self.apply_move(best_move)
