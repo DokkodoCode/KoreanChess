@@ -321,6 +321,24 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			except Exception as e:
 				print(f"Error retrieving move: {e}")
 
+			# This code tranlates the stockfish best move "i3h3" into
+			# numbers that we can use for the actual move.
+
+			####################################
+			# We need to after this, actually update the move of the oppenent 
+			########################################
+			starting_col = 0
+			starting_row = 0
+			ending_col = 0
+			ending_row = 0
+
+			starting_col = ord(best_move[0].lower()) - 96
+			starting_row = int(best_move[1])
+			ending_col = ord(best_move[2].lower()) - 96
+			ending_row = int(best_move[3])
+
+				
+			
 			# Apply the move
 			#self.apply_move(best_move)
 

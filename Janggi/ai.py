@@ -59,6 +59,8 @@ class OpponentAI:
 	# to find the one labeled "bestmove", which we will use to update the board.
 	# Best move will come out in a coordinate format similar to chess. eg. i3h3. 
 	# which means move the piece at coordinate i3 to h3.
+
+
 	def get_engine_move(self):
 		while True:
 			output = self.engine.stdout.readline().strip()
@@ -106,17 +108,18 @@ class OpponentAI:
 # Example board state
 # We need to import the current board state and convert it into this format.
 janggi_board = [
-	["r", "n", "b", "a", "k", "a", "b", "n", "r"],
+	["r", "n", "b", "a", ".", "a", "b", "n", "r"],
+	[".", ".", ".", ".", "k", ".", ".", ".", "."],
 	[".", "c", ".", ".", ".", ".", ".", "c", "."],
 	["p", ".", "p", ".", "p", ".", "p", ".", "p"],
 	[".", ".", ".", ".", ".", ".", ".", ".", "."],
 	[".", ".", ".", ".", ".", ".", ".", ".", "."],
-	[".", ".", ".", ".", ".", ".", ".", ".", "."],
-	[".", ".", ".", ".", ".", ".", ".", ".", "."],
-	["P", ".", "P", ".", "P", ".", "P", ".", "P"],
-	[".", "C", ".", ".", ".", ".", ".", "C", "."],
-	["R", "N", "B", "A", "K", "A", "B", "N", "R"],
+	["p", ".", "p", ".", "p", ".", "p", ".", "p"],
+	[".", "c", ".", ".", ".", ".", ".", "c", "."],
+	[".", ".", ".", ".", "k", ".", ".", ".", "."],
+	["r", "n", "b", "a", ".", "a", "b", "n", "r"],
 ]
+
 # w means white in chess terms, in this case w = red.
 # b meand black in chess terms, in this case b = blue
 # This should be set to the opposite of what was chosen in the start
