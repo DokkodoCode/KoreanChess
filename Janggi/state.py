@@ -17,6 +17,7 @@ import helper_funcs
 import opponent
 import player
 import render_funcs
+import ai
 
 #--------------------------------------------------------------------------------
 # Parent State to act as a base class to be inherited by 
@@ -261,7 +262,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		# create game objects
 		self.board = board.Board()
 		self.player = self.player
-		self.opponent = self.opponent
+		self.opponent = ai.OpponentAI()
 
 		# load then display board image
 		menu_background = pygame.image.load("Board/Janggi_Board.png").convert_alpha()
@@ -305,6 +306,28 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		# escape from game to main menu
 		elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 			self.next_state = "Main Menu"
+
+		# Handle AI Opponent's turn
+		if self.opponent.is_turn:
+			fen = self.opponent.generate_fen(self.board, self.opponent.active_player)
+
+			self.opponent.send_command(f"position fen {fen}")
+			self.opponent.send_command("go depth 1")	# Pick based on difficulty
+
+			# Retrieve the engine's move
+			try:
+				best_move = self.opponent.get_engine_move()
+				print(f"Engine's move: {best_move}")
+			except Exception as e:
+				print(f"Error retrieving move: {e}")
+
+			# Apply the move
+			#self.apply_move(best_move)
+
+			self.opponent.send_command("quit")
+
+			self.opponent.is_turn = False
+			self.player.is_turn = True
 			
 	# Handle any rendering that needs to be done
 	# INPUT: pygame surface object (window to display to)
