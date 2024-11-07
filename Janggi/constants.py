@@ -5,6 +5,29 @@ o Place all global constants into here
 o Last Modified - September 24th 2024
 ------------------------------------------------------------------
 """
+<<<<<<< Updated upstream
+=======
+import pygame
+
+# initialize pygame instance
+pygame.init()
+
+
+running = True
+
+# create window size based on user's machine
+info = pygame.display.Info()
+screen_width, screen_height = info.current_w, info.current_h
+window_width, window_height = screen_width-50, screen_height-50
+
+
+# board size (L, W)
+board_size = (window_height - 50, window_height - 50)
+
+# board topleft starting location in window (x, y)
+board_image = (round(screen_width/5), 50)
+print(f"board start (x,y): {board_image}")
+>>>>>>> Stashed changes
 
 # collision sizes for...
 spot_collision_size = (60, 60) # board spots

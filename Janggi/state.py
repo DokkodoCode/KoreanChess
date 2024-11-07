@@ -17,6 +17,8 @@ import helper_funcs
 import opponent
 import player
 import render_funcs
+import network
+import server
 
 #--------------------------------------------------------------------------------
 # Parent State to act as a base class to be inherited by 
@@ -293,4 +295,165 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		# render collision rectangles for the pieces on both teams
 		#render_funcs.render_piece_collisions(self.player, self.opponent, self.window)
 		# load the pieces on the board for both teams
+<<<<<<< Updated upstream
 		render_funcs.render_pieces(self.player, self.opponent, self.window)
+=======
+		render_funcs.render_pieces(self.player, self.opponent, window)
+
+#--------------------------------------------------------------------------------
+# THIS STATE WILL HANDLE SETTINGS FOR SETTING UP GAME AGAINST ANOTHER A PLAYER
+#--------------------------------------------------------------------------------
+class MultiPlayerPreGameSettings(State):
+	# initialize the settings for the game
+	# INPUT: No Input	
+	# OUTPUT: Settings menu is ready to be interacted with by player
+	def __init__(self, window):
+		super().__init__() # inherit the parent initializer
+		self.next_state = None
+		self.font = pygame.font.SysFont("Arial",35)
+		self.is_connected = False
+		# players will be created here to be inherited
+		self.player_host = player.Player()
+		self.player_guest = None
+		self.isHost = True
+
+		# DECLARE BUTTONS FOR PRE-GAME SETTINGS
+		self.cho_side_button = (button.Button(x=750,y=225,width=100,height=50, 
+									font=self.font,
+							  		text="Cho", 
+									foreground_color = constants.BLACK,
+									background_color = constants.WHITE,
+									hover_color = constants.LIGHT_GREEN))
+		
+		self.han_side_button = (button.Button(x=915, y=225,width=100,height=50, 
+									font=self.font,
+							  		text="Han", 
+									foreground_color = constants.BLACK,
+									background_color = constants.WHITE,
+									hover_color = constants.LIGHT_GREEN))
+		
+		self.standard_piece_convention_button = (button.Button(x=700,y=425,width=175,height=50, 
+													font=self.font,
+													text="Standard", 
+													foreground_color = constants.BLACK,
+													background_color = constants.WHITE,
+													hover_color = constants.LIGHT_GREEN))
+		
+		self.internat_piece_convention_button = (button.Button(x=900,y=425,width=175,height=50, 
+													font=self.font,
+													text="International", 
+													foreground_color = constants.BLACK,
+													background_color = constants.WHITE,
+													hover_color = constants.LIGHT_GREEN))
+
+		self.host_button = (button.Button(x=942,y=675,width=200,height=50, 
+										font=self.font,
+										text="Host Game", 
+										foreground_color = constants.BLACK,
+										background_color = constants.WHITE,
+										hover_color = constants.LIGHT_GREEN))
+		self.client_button = (button.Button(x=692,y=675,width=200,height=50, #672.5, 575, 425, 200
+										font=self.font,
+										text="Join Game", 
+										foreground_color = constants.BLACK,
+										background_color = constants.WHITE,
+										hover_color = constants.LIGHT_GREEN))
+		
+		self.play_button = (button.Button(x=820,y=850,width=125,height=50, 
+									font=self.font,
+							  		text="Play", 
+									foreground_color = constants.BLACK,
+									background_color = constants.WHITE,
+									hover_color = constants.LIGHT_GREEN))
+		
+		self.menu_background = pygame.image.load("Board/Janggi_Board.png").convert_alpha()
+		self.menu_background = pygame.transform.scale(self.menu_background, constants.board_size)
+
+	# Listen for and handle any event ticks (clicks/buttons)
+	# INPUT: pygame event object
+	# OUTPUT: settings are set accordingly
+	def handle_event(self, event):
+		# on left mouse click, determine which button if any were clicked
+		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+			# PLAY AS CHO
+			if self.cho_side_button.is_clicked():
+				self.player_host.color ="Cho"
+				if self.player_guest is not None:
+					self.player_guest.color = "Han"
+			# PLAY AS HAN
+			elif self.han_side_button.is_clicked():
+				self.player_host.color = "Han"
+				if self.player_guest is not None:
+					self.player_guest.color = "Cho"
+			# PLAY WITH STANDARD PIECE LOGOS
+			elif self.standard_piece_convention_button.is_clicked():
+				self.player_host.piece_convention = "Standard"
+			# PLAY WITH INTERNATIONAL PIECE LOGOS
+			elif self.internat_piece_convention_button.is_clicked():
+				self.player_host.piece_convention = "International"
+			# ESTABLISH SELF AS HOST
+			elif self.host_button.is_clicked():
+				self.isHost = True
+			# ESTABLISH SELF AS CLIENT
+			elif self.client_button.is_clicked():
+				self.isHost = True
+			# CLICK CONFIRM SETTINGS IF ALL ARE SET
+			elif (self.play_button.is_clicked() 
+		 		  and self.player_guest is not None):
+				helper_funcs.update_player_settings(self.player_host)
+				self.next_state = "Main Menu"
+			# OTHERWISE FIND IF ANY OF THE AI LEVELS WERE SET
+			else: # multiplayer connecting stuff here
+				pass
+	# escape to main menu
+		elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+			self.next_state = "Main Menu"
+				
+	# Handle any rendering that needs to be done
+	# INPUT: pygame surface object (window to display to)
+	# OUTPUT: All pre-game settings attributes/actions are rendered
+	def render(self, window):
+		# USE BOARD AS BACKGROUND
+		window.blit(self.menu_background, constants.board_image)
+
+		# SELECT PIECE SIDE TO PLAY AS (CHO/HAN)
+		#								 (x, y, size_x, size_y)
+		self.side_button_background_rect = (720, 165, 325, 125)
+		pygame.draw.rect(window, color=constants.BLACK, rect=self.side_button_background_rect)
+		self.draw_text(window, text="Select Side to Play as", x=750, y=175, font_size=35)
+		self.cho_side_button.draw_button(window)
+		self.han_side_button.draw_button(window)
+
+		# SELECT PIECE TYPE CONVENTION TO PLAY WITH (STANDARD/INTERNATIONAL)
+		#										(x,	y, size_x, size_y)
+		self.piece_type_button_background_rect = (672, 365, 425, 125)
+		pygame.draw.rect(window, color=constants.BLACK, rect=self.piece_type_button_background_rect)
+		self.draw_text(window, text="Select Piece Convention", x=725, y=365, font_size=35)
+		self.standard_piece_convention_button.draw_button(window)
+		self.internat_piece_convention_button.draw_button(window)
+
+		# MATCHMAKE TEXT BOX
+		#							(x,	y, size_x, size_y)
+		self.matchmake_button_rect = (672.5, 575, 425, 200)
+		pygame.draw.rect(window, color=constants.BLACK, rect=self.matchmake_button_rect)
+		self.draw_text(window, text="Send an Invite Link Via E-mail", x=700, y=575, font_size=35)
+		self.host_button.draw_button(window)
+		self.client_button.draw_button(window)
+
+		# CONFIRM SETTINGS BUTTON
+		#									(x,	y, size_x, size_y)
+		self.play_button_background_rect = (805.5, 825, 150, 100)
+		pygame.draw.rect(window, color=constants.BLACK, rect=self.play_button_background_rect)
+		self.play_button.draw_button(window)
+
+		# DISPLAY PREVIEW OF THE PIECES ON HOW THEY WILL LOOK	
+		if self.player_guest is not None:
+			#										(x,	y, size_x, size_y)
+			self.guest_piece_display_background_rect = (1150.5, 120, 100, 700)
+			pygame.draw.rect(window, color=constants.BLACK, rect=self.guest_piece_display_background_rect)
+		if self.player_host is not None:
+			#											(x,	y, size_x, size_y)
+			self.host_piece_display_background_rect = (517.5, 120, 100, 700)
+			pygame.draw.rect(window, color=constants.BLACK, rect=self.host_piece_display_background_rect)
+			render_funcs.PreGame_render_piece_display(window, self.player_host, self.player_guest)
+>>>>>>> Stashed changes
