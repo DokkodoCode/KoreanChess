@@ -126,7 +126,7 @@ class SinglePlayerPreGameSettings(State):
 		self.ai_level = "Easy"
 		# player and opponent will be created here to be inherited
 		self.player = player.Player()
-		self.opponent = opponent.Opponent()
+		self.opponent = ai.OpponentAI()
 
 		# DECLARE BUTTONS FOR PRE-GAME SETTINGS
 		self.cho_side_button = (button.Button(x=750,y=225,width=100,height=50, 
@@ -262,7 +262,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		# create game objects
 		self.board = board.Board()
 		self.player = self.player
-		self.opponent = ai.OpponentAI()
+		self.opponent = self.opponent
 
 		# load then display board image
 		menu_background = pygame.image.load("Board/Janggi_Board.png").convert_alpha()
