@@ -274,7 +274,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		else:
 			self.opponent.is_turn = True
 		
-		# This is for testing the ai moves
+		# This is for testing the ai moves. Right now, the AI give the player moves to do.
 		########################################################################################################################
 		# new_board = self.opponent.convert_board(self.board, self.player)
 		# fen = self.opponent.generate_fen(new_board, self.opponent.active_player)

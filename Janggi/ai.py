@@ -6,6 +6,14 @@ import numpy as np
 from piece import Piece, PieceCollisionSize, PieceType, OpponentPiecePosition
 from helper_funcs import reformat_piece_collision
 
+#######		Please Read		########
+# Update if changed
+
+# Class functionality is used in the SinglePlayerGame class in state.py in an if-statement.
+# To read the AI move, 'a-f' is read from right to left with 'a' being on the right. '1-9' is read 
+# from bottom to top, with '1' being at the bottom and '9' at the top. 
+# The AI currently gives moves for the player to do, which can be changed by changing colors.
+
 class OpponentAI:
 	def __init__(self, difficulty="easy", color="Han"):
 		self.difficulty = difficulty
@@ -79,6 +87,7 @@ class OpponentAI:
 		self.engine.stdin.flush()\
 		
 	def convert_board(self, board, player):
+		# Create a template for the board
 		new_board = np.array([
 			[".", ".", ".", ".", ".", ".", ".", ".", "."],
 			[".", ".", ".", ".", ".", ".", ".", ".", "."],
@@ -102,7 +111,9 @@ class OpponentAI:
 			"Cannon": "C"
 		}
 		
+		# Add the player's pieces to the template
 		new_board = self.add_player_pieces(new_board, player, board, piece_type_mapping)
+		# Add the opponent's pieces to the template
 		new_board = self.add_opponent_pieces(new_board, board, piece_type_mapping)
 
 		return new_board
@@ -152,12 +163,6 @@ class OpponentAI:
 
 
 
-
-
-
-
-
-
 # Example board state
 # We need to import the current board state and convert it into this format.
 janggi_board = [
@@ -167,10 +172,10 @@ janggi_board = [
 	["p", ".", "p", ".", "p", ".", "p", ".", "p"],
 	[".", ".", ".", ".", ".", ".", ".", ".", "."],
 	[".", ".", ".", ".", ".", ".", ".", ".", "."],
-	["p", ".", "p", ".", "p", ".", "p", ".", "p"],
-	[".", "c", ".", ".", ".", ".", ".", "c", "."],
+	["P", ".", "P", ".", "P", ".", "P", ".", "P"],
+	[".", "C", ".", ".", ".", ".", ".", "C", "."],
 	[".", ".", ".", ".", "k", ".", ".", ".", "."],
-	["r", "n", "b", "a", ".", "a", "b", "n", "r"],
+	["R", "R", "R", "R", ".", "R", "B", "N", "R"],
 ]
 
 # w means white in chess terms, in this case w = red.
