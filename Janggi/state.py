@@ -160,18 +160,16 @@ class SinglePlayerPreGameSettings(State):
 		self.ai_level = "Easy"
 		# player and opponent will be created here to be inherited
 		self.player = player.Player(is_host=True, board_perspective="Bottom")
-		self.player_ai = player.Player(is_host=False, board_perspective="Top")
+		# self.player_ai = player.Player(is_host=False, board_perspective="Top")
+		self.opponent = ai.OpponentAI(is_host=False, board_perspective="Top")
 
 		# host retains last settings, guest is opposite
 		if self.player.color == "Cho":
-			self.player_ai.color = "Han"
+			self.opponent.color = "Han"
 		else:
-			self.player_ai.color = "Cho"
-		#self.player = player.Player()
-		#self.opponent = ai.OpponentAI()
+			self.opponent.color = "Cho"
 
 		# DECLARE BUTTONS FOR PRE-GAME SETTINGS
-
 		# cho button
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["cho_button"]["location"]
 		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["cho_button"]["size"]
@@ -324,19 +322,19 @@ class SinglePlayerPreGameSettings(State):
 			# PLAY AS CHO
 			if self.cho_side_button.is_clicked():
 				self.player.color ="Cho"
-				self.player_ai.color = "Han"
+				self.opponent.color = "Han"
 			# PLAY AS HAN
 			elif self.han_side_button.is_clicked():
 				self.player.color = "Han"
-				self.player_ai.color = "Cho"
+				self.opponent.color = "Cho"
 			# PLAY WITH STANDARD PIECE LOGOS
 			elif self.standard_piece_convention_button.is_clicked():
 				self.player.piece_convention = "Standard"
-				self.player_ai.piece_convention = "Standard"
+				self.opponent.piece_convention = "Standard"
 			# PLAY WITH INTERNATIONAL PIECE LOGOS
 			elif self.internat_piece_convention_button.is_clicked():
 				self.player.piece_convention = "International"
-				self.player_ai.piece_convention = "International"
+				self.opponent.piece_convention = "International"
 			# CLICK CONFIRM SETTINGS IF ALL ARE SET
 			elif (self.play_button.is_clicked() 
 		 		  and self.player is not None):
@@ -348,7 +346,7 @@ class SinglePlayerPreGameSettings(State):
 					if button.is_clicked():
 						self.ai_level = button.text
 						self.player.ai_level = button.text
-						self.player_ai.ai_level = button.text
+						self.opponent.ai_level = button.text
 						
 	# escape to main menu
 		elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -401,7 +399,7 @@ class SinglePlayerPreGameSettings(State):
 			button.draw_button(window)
 				
 		# DISPLAY PREVIEW OF THE PIECES ON HOW THEY WILL LOOK	
-		if self.player is not None and self.player_ai is not None:
+		if self.player is not None and self.opponent is not None:
 
 			# player header to notify which display is player's
 			window.blit(self.player_header_background, 
@@ -424,7 +422,7 @@ class SinglePlayerPreGameSettings(State):
 			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["opponent_piece_display"]["location"])
 
 			# render pieces
-			render_funcs.PreGame_render_piece_display(window, self.player, self.player_ai)
+			render_funcs.PreGame_render_piece_display(window, self.player, self.opponent)
 
 
 		# PLAY BUTTON
@@ -519,31 +517,16 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		# create game objects
 		self.board = board.Board()
 		self.player = self.player
-		self.player_ai = self.player_ai
+		self.opponent = self.opponent
 		self.active_player = None
 		self.waiting_player = None
 
 		# pre-set ai if it goes first
 		# Han player chooses first horse swaps
-		if self.player_ai.color == "Han":
-			self.waiting_player = self.player_ai
+		if self.opponent.color == "Han":
+			self.waiting_player = self.opponent
 			helper_funcs.choose_ai_lineup(self.waiting_player)
 		
-		# This is for testing the ai moves. Right now, the AI give the player moves to do.
-		########################################################################################################################
-		# new_board = self.opponent.convert_board(self.board, self.player)
-		# fen = self.opponent.generate_fen(new_board, self.opponent.active_player)
-
-		# self.opponent.send_command(f"position fen {fen}")
-		# self.opponent.send_command("go depth 1")	# Pick based on difficulty
-
-		# # Retrieve the engine's move
-		# try:
-		# 	best_move = self.opponent.get_engine_move()
-		# 	print(f"Engine's move: {best_move}")
-		# except Exception as e:
-		# 	print(f"Error retrieving move: {e}")
-		#######################################################################################################################
 
 	# Listen for and handle any event ticks (clicks/buttons)
 	# INPUT: pygame event object
@@ -573,15 +556,12 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 					helper_funcs.swap_pieces(self.player.pieces[5], self.player.pieces[3])
 				elif self.confirm_swap_button.is_clicked():
 					self.opening_turn = False
-					if self.player_ai.color == "Cho":
-						helper_funcs.choose_ai_lineup(self.player_ai)
+					if self.opponent.color == "Cho":
+						helper_funcs.choose_ai_lineup(self.opponent)
 						self.waiting_player = self.player
-						self.waiting_player.is_turn = False
-						self.active_player = self.player_ai
-						self.active_player.is_turn = True
+						self.active_player = self.opponent
 					else:
 						self.active_player = self.player
-						self.active_player.is_turn = True
 
 			# check if the player is currently attempting to move a piece
 			elif self.active_player.is_clicked and not self.opening_turn:
@@ -638,15 +618,21 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 
 #--------------------------------------------------------------------------------
 # AI STUFF IS HERE
-		"""# Handle AI Opponent's turn
-		if self.opponent.is_turn:
+		# Handle AI Opponent's turn
+		if self.active_player == self.opponent:
 			new_board = self.opponent.convert_board(self.board, self.player)
-			print(new_board)
-			fen = self.opponent.generate_fen(new_board, self.opponent.active_player)
+			# print(new_board)
+			fen = self.opponent.generate_fen(new_board)
 
 			# Send some commands to stockfish
 			self.opponent.send_command(f"position fen {fen}")
-			self.opponent.send_command("go depth 1")	# Pick based on difficulty
+			# Pick based on difficulty
+			if self.ai_level == "Easy":
+				self.opponent.send_command("go depth 1")	
+			if self.ai_level == "Medium":
+				self.opponent.send_command("go depth 3")	
+			if self.ai_level == "Hard":
+				self.opponent.send_command("go depth 5")	
 
 			# Retrieve the engine's move
 			try:
@@ -658,12 +644,14 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			# Move the piece based on the stockfish answer using helper function
 			helper_funcs.ai_move(self.player, self.opponent, self.board, best_move)
 
+
+
+			self.active_player = self.player
+			self.waiting_player = self.opponent
+
 			# Quitting early will crash because the engine needs to be remade
 			# self.opponent.send_command("quit")
 
-			# Update whose turn it is
-			self.opponent.is_turn = False
-			self.player.is_turn = True"""
 #--------------------------------------------------------------------------------
 
 	# Handle any rendering that needs to be done
@@ -710,7 +698,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 
 		# COVER CASE WHERE NO PLAYER HAS STARTED THEIR TURN YET
 		else:
-			render_funcs.render_pieces(self.player, self.player_ai, window)
+			render_funcs.render_pieces(self.player, self.opponent, window)
 
 		# DISPLAY END GAME CONDITIONS/GAME_STATES
 		# BIKJANG CONDITION

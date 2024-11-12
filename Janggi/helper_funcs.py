@@ -200,7 +200,7 @@ def ai_move(player, opponent, board, best_move):
 	destination = opponent.notation_to_coordinates(destination)
 
 	# Find the correct piece using the initial location coordinate
-	selected_piece = opponent.find_piece_on_board(board, initial)
+	selected_piece = opponent.find_piece_on_board(player, board, initial)
 	if selected_piece:
 		print("Moving Piece: ", selected_piece.piece_type.value, " to ", destination)
 	else:

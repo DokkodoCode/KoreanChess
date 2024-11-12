@@ -16,9 +16,21 @@ from helper_funcs import reformat_piece_collision
 # The AI currently gives moves for the player to do, which can be changed by changing colors.
 
 class OpponentAI:
-	def __init__(self, difficulty="easy", color="Han"):
+	def __init__(self, is_host=False, board_perspective="Top", difficulty="easy", color="Han"):
 		self.difficulty = difficulty
 		self.color = color
+		self.color = color
+		self.is_host = is_host
+		self.board_perspective = board_perspective
+		self.piece_convention = "International"
+		self.ai_level = None
+		self.is_ready = False
+		self.is_clicked = False
+		self.is_turn = False
+		self.initiated_bikjang = False
+		self.pieces = self.fill_pieces()
+		# self.settings = self.initialize_settings()
+
 		# Start the engine process
 		# Formality stuff
 		self.engine = subprocess.Popen(
@@ -29,9 +41,9 @@ class OpponentAI:
 			text=True
 		)
 		if color == "Han":
-			self.active_player = "w"
+			self.fen_color = "w"
 		else:
-			self.active_player = "b"
+			self.fen_color = "b"
 		self.is_turn = False
 		self.pieces = self.fill_pieces()
 
@@ -98,15 +110,20 @@ class OpponentAI:
 		
 		return (column, row)
 
-	# Function to find the piece at the given position in the Stockfish notation
-	def find_piece_on_board(self, board, location):
+	# Function to find the piece at the position given by the Stockfish notation
+	def find_piece_on_board(self, player,  board, location):
 		# 'location' is a rank and file
 		# Find the piece by checking every self(opponent) piece location
 		# against the location of the stockfish move.
+
+		##### 
+		# The self pieces and player pieces are flipped and its a problem
+		#####
 		for rank, row in enumerate(board.coordinates):
 			for file, spot in enumerate(row):
 				if (rank, file) == location:
 					for piece in self.pieces:
+						print(piece.location, " vs ", spot)
 						if piece.location == spot:
 							return piece
 		return
@@ -167,7 +184,7 @@ class OpponentAI:
 	# Function to generate FEN string from the board state
 	# The FEN string is a way of recording the current board state in string format.
 	# This string format is what is passed to stockfish so that it can make a move.
-	def generate_fen(self, board, active_player):
+	def generate_fen(self, board):
 		fen_rows = []
 		for row in board:
 			fen_row = ""
@@ -184,7 +201,7 @@ class OpponentAI:
 				fen_row += str(empty_count)
 			fen_rows.append(fen_row)
 		
-		fen_string = "/".join(fen_rows) + " " + active_player
+		fen_string = "/".join(fen_rows) + " " + self.fen_color
 		return fen_string
 
 
