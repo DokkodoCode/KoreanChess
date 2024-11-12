@@ -13,6 +13,7 @@ import sys
 # local file imports, see individ file for details
 import constants
 import state_machine
+from network import Network
 
 def main():
 

@@ -71,6 +71,13 @@ def get_move_from_network(move_data, player, opponent, board):
 		print("Received incomplete move data.")
 	pass
 
+def read_move(str):
+	str = str.split(",")
+	return int(str[0]), int(str[1])
+
+def make_move(tup):
+	return str(tup[0] + "," + tup[1])
+
 
 #-----------------------------------------------------------------------------------
 # Function that will center the piece image in its spot on the board

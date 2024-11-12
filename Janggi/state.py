@@ -16,6 +16,7 @@ import constants
 import helper_funcs
 import player
 import render_funcs
+import ai
 
 #--------------------------------------------------------------------------------
 # Parent State to act as a base class to be inherited by 
@@ -166,6 +167,8 @@ class SinglePlayerPreGameSettings(State):
 			self.player_ai.color = "Han"
 		else:
 			self.player_ai.color = "Cho"
+		#self.player = player.Player()
+		#self.opponent = ai.OpponentAI()
 
 		# DECLARE BUTTONS FOR PRE-GAME SETTINGS
 
@@ -525,6 +528,22 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		if self.player_ai.color == "Han":
 			self.waiting_player = self.player_ai
 			helper_funcs.choose_ai_lineup(self.waiting_player)
+		
+		# This is for testing the ai moves. Right now, the AI give the player moves to do.
+		########################################################################################################################
+		# new_board = self.opponent.convert_board(self.board, self.player)
+		# fen = self.opponent.generate_fen(new_board, self.opponent.active_player)
+
+		# self.opponent.send_command(f"position fen {fen}")
+		# self.opponent.send_command("go depth 1")	# Pick based on difficulty
+
+		# # Retrieve the engine's move
+		# try:
+		# 	best_move = self.opponent.get_engine_move()
+		# 	print(f"Engine's move: {best_move}")
+		# except Exception as e:
+		# 	print(f"Error retrieving move: {e}")
+		#######################################################################################################################
 
 	# Listen for and handle any event ticks (clicks/buttons)
 	# INPUT: pygame event object
@@ -616,6 +635,40 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		# escape from game to main menu
 		elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 			self.next_state = "Main Menu"
+
+		# Handle AI Opponent's turn
+		if self.opponent.is_turn:
+			new_board = self.opponent.convert_board(self.board, self.player)
+			fen = self.opponent.generate_fen(new_board, self.opponent.active_player)
+
+			self.opponent.send_command(f"position fen {fen}")
+			self.opponent.send_command("go depth 1")	# Pick based on difficulty
+
+			# Retrieve the engine's move
+			try:
+				best_move = self.opponent.get_engine_move()
+				print(f"Engine's move: {best_move}")
+			except Exception as e:
+				print(f"Error retrieving move: {e}")
+
+			# This code tranlates the stockfish best move "i3h3" into
+			# numbers that we can use for the actual move.
+			starting_col, starting_row, ending_col, ending_row = 0
+
+			starting_col = ord(best_move[0].lower()) - 96
+			starting_row = int(best_move[1])
+			ending_col = ord(best_move[2].lower()) - 96
+			ending_row = int(best_move[3])
+
+			# Update the move of the oppenent 	
+			
+			# Apply the move
+			#self.apply_move(best_move)
+
+			self.opponent.send_command("quit")
+
+			self.opponent.is_turn = False
+			self.player.is_turn = True
 			
 	# Handle any rendering that needs to be done
 	# INPUT: pygame surface object (window to display to)
