@@ -1,17 +1,17 @@
 """
 ----------------------player.py-----------------------------------
 o This file is to hold the data for the human player
-o Last Modified - October 31st 2024
+o Last Modified - Novemeber 11th 2024
 ------------------------------------------------------------------
 """
 # libraries
 import pygame
 
 
-# local file specific attribute imports
+# local file imports, see individ file for details
 from helper_funcs import reformat_piece_collision
 import constants
-from piece import Piece, PieceCollisionSize, PieceType, PlayerPiecePosition
+from piece import Piece, PieceCollisionSize, PieceType, PlayerPiecePosition, OpponentPiecePosition
 
 # Player class to define a player in Janggi
 class Player():
@@ -21,12 +21,16 @@ class Player():
 	# OUTPUT: Player has side chosen, the style convention for the pieces they will use, 
 	# 		  the level of AI they play agaianst, a var for click state, and a list containing all 
 	# 		  their Piece objects need for the game
-	def __init__(self, color="Cho"):
-		self.color = color
+	def __init__(self, is_host=False, board_perspective="Bottom"):
+		self.color = "Cho"
+		self.is_host = is_host
+		self.board_perspective = board_perspective
 		self.piece_convention = "Standard"
-		self.ai_level = "Easy"
+		self.ai_level = None
+		self.is_ready = False
 		self.is_clicked = False
 		self.is_turn = False
+		self.initiated_bikjang = False
 		self.pieces = self.fill_pieces()
 		self.settings = self.initialize_settings()
 
@@ -39,7 +43,11 @@ class Player():
 		# for each piece in PieceType(enum) list
 		for piece_type in PieceType:
 			# lookup the list of starting positions based on the enum PieceType
-			positions = PlayerPiecePosition[piece_type.name].value
+			if self.is_host:
+				positions = PlayerPiecePosition[piece_type.name].value
+			else:
+				positions = OpponentPiecePosition[piece_type.name].value
+			#print(f"pos:\n{positions}")
 			# iterate through that list of starting positions
 			for pos in positions:
 				# assign point value to current piece based on PieceType(enum)
@@ -49,8 +57,8 @@ class Player():
 				image_location = pos
 				# create a collision rectangle using the enum size for collisions based
 				collision_rect = pygame.Rect(pos[0], pos[1],
-																		 PieceCollisionSize[piece_type.name].value[0], 
-																		 PieceCollisionSize[piece_type.name].value[1])
+											 PieceCollisionSize[piece_type.name].value[0], 
+											 PieceCollisionSize[piece_type.name].value[1])
 				# center the rectangle to fit appropriately onto the board
 				collision_rect = reformat_piece_collision(location, collision_rect)
 				# create the piece based on those parameters
@@ -93,8 +101,7 @@ class Player():
 		# settings file does not exist, create one using default settings
 		except:
 			FileNotFoundError
-			print("Player's settings file was not found, initialize base settings instead...")
-			player_settings = [self.color, self.piece_convention, self.ai_level]
+			player_settings = ["Cho", "Standard", "Easy"]
 
 			with open(settings_file, 'w') as outfile:
 				settings = '|'.join(player_settings)

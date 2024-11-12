@@ -2,11 +2,10 @@
 ----------------------state_machine.py----------------------------
 o This file is the actual state machine that will handle the 
 	transitioning between gamestates (Menu,Game, etc...)
-o Last Modified - October 31st 2024
+o Last Modified - Novemeber 11th 2024
 ----------------------------------------------------------
 """
 # specific local file importing of the States
-#from state import MainMenu, SinglePlayerGame, SinglePlayerPreGameSettings
 import state
 
 # The State Machine that will transiton the program between states
@@ -25,7 +24,9 @@ class StateManager():
 			"Main Menu" : state.MainMenu, 
 			"Single Player Pre-Game Settings" : state.SinglePlayerPreGameSettings,
 			"Single Player Game" : state.SinglePlayerGame,
-			"Multi Player Pre-Game Settings" : state.MultiPlayerPreGameSettings,
+			"Local Single Player Pre-Game Settings" : state.LocalSinglePlayerPreGameSettings,
+			"Local Single Player Game" : state.LocalSinglePlayerGame,
+			#"Multi Player Pre-Game Settings" : state.MultiPlayerPreGameSettings,
 			#"Multi Player Game" : state.MultiPlayerGame <-- Future Implementation
 		}
 		
@@ -33,6 +34,8 @@ class StateManager():
 		self.current_state = None
 		# for debugging reasons, start at gameplay for now
 		self.change_state("Main Menu", window)
+		#self.change_state("Local Single Player Pre-Game Settings", window)
+		#self.change_state("Local Single Player Game", window)
 
 	# Event handler that will call the event handler for the current given state
 	# INPUT: pygame event object
@@ -66,15 +69,26 @@ class StateManager():
 				del self.states_unitialized["Single Player Pre-Game Settings"]
 			self.states_unitialized["Single Player Pre-Game Settings"] = state.SinglePlayerPreGameSettings(window)
 
-		elif new_state == "Multi Player Pre-Game Settings":
-			if "Multi Player Pre-Game Settings" in self.states_unitialized:
-				del self.states_unitialized["Multi Player Pre-Game Settings"]
-			self.states_unitialized["Multi Player Pre-Game Settings"] = state.MultiPlayerPreGameSettings(window)
+		elif new_state == "Local Single Player Pre-Game Settings":
+			if "Local Single Player Pre-Game Settings" in self.states_unitialized:
+				del self.states_unitialized["Local Single Player Pre-Game Settings"]
+			self.states_unitialized["Local Single Player Pre-Game Settings"] = state.LocalSinglePlayerPreGameSettings(window)
+
+		elif new_state == "Local Single Player Game":
+			if "Local Single Player Game" in self.states_unitialized:
+				del self.states_unitialized["Local Single Player Game"]
+			self.states_unitialized["Local Single Player Game"] = state.LocalSinglePlayerGame(window)
 
 		elif new_state == "Main Menu":
 			if "Main Menu" in self.states_unitialized:
 				del self.states_unitialized["Main Menu"]
 			self.states_unitialized["Main Menu"] = state.MainMenu(window)
+
+		# FUTURE TODO: ONLINE MULTIPLAYER
+		"""elif new_state == "Multi Player Pre-Game Settings":
+			if "Multi Player Pre-Game Settings" in self.states_unitialized:
+				del self.states_unitialized["Multi Player Pre-Game Settings"]
+			self.states_unitialized["Multi Player Pre-Game Settings"] = state.MultiPlayerPreGameSettings(window)"""	
 
 		# change to the newly initialized state
 		self.current_state = self.states_unitialized[new_state]

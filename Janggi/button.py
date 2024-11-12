@@ -2,11 +2,12 @@
 ----------------------state.py----------------------------
 o This file is to manage the button class for the button
     objects for player to interact with
-o Last Modified - October 31st 2024
+o Last Modified - November 11th 2024
 ----------------------------------------------------------
 """
 import pygame
 
+# local file imports, see individ file for details
 import constants
 
 # Button class for base construction of a general button to be interacted with

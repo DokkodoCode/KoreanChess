@@ -1,7 +1,7 @@
 """
 ------------------------main.py-----------------------------------
 o This file is to hold the entry point to the program
-o Last Modified - October 31st 2024
+o Last Modified - November 11th 2024
 ------------------------------------------------------------------
 """
 
@@ -10,7 +10,7 @@ import os
 import pygame
 import sys
 
-# local file imports
+# local file imports, see individ file for details
 import constants
 import state_machine
 
@@ -21,8 +21,7 @@ def main():
 
 	# initialize pygame instance
 	pygame.init()
-	info = pygame.display.Info()
-	print(f"{info}")
+	
 	# frames
 	clock = pygame.time.Clock()
 	fps = 60
@@ -32,7 +31,7 @@ def main():
 	pygame.display.set_icon(icon)
 
 	# create the window
-	window = pygame.display.set_mode((constants.window_width, constants.window_height), pygame.FULLSCREEN, pygame.RESIZABLE)
+	window = pygame.display.set_mode((constants.screen_width, constants.screen_height), pygame.FULLSCREEN)
 
 	pygame.display.update()
 	pygame.display.set_caption("Janggi")
@@ -43,7 +42,6 @@ def main():
 	# core loop
 	#running = True
 	while constants.running:
-		#print(f"{constants.info}")
 		# find matching event calls by player to pygame event calls
 		for event in pygame.event.get():
 			# if player closes window
