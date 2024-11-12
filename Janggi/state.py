@@ -636,7 +636,9 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 			self.next_state = "Main Menu"
 
-		# Handle AI Opponent's turn
+#--------------------------------------------------------------------------------
+# AI STUFF IS HERE
+		"""# Handle AI Opponent's turn
 		if self.opponent.is_turn:
 			new_board = self.opponent.convert_board(self.board, self.player)
 			fen = self.opponent.generate_fen(new_board, self.opponent.active_player)
@@ -668,8 +670,9 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			self.opponent.send_command("quit")
 
 			self.opponent.is_turn = False
-			self.player.is_turn = True
-			
+			self.player.is_turn = True"""
+#--------------------------------------------------------------------------------
+
 	# Handle any rendering that needs to be done
 	# INPUT: pygame surface object (window to display to)
 	# OUTPUT: All game attributes/actions are rendered
