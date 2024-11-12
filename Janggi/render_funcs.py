@@ -2,14 +2,14 @@
 ----------------------render_funcs.py-----------------------------
 o This file is solely for rendering-based functions to be 
 	used by state.py
-o Last Modified - October 31st 2024
+o Last Modified - Novemeber 11th 2024
 ------------------------------------------------------------------
 """
 
 # libraries
 import pygame
 
-# local file imports
+# local file imports, see individ file for details
 import constants
 import helper_funcs
 from piece import PieceType, PreGamePieceDisplay, GuestPreGamePieceDisplay
@@ -18,7 +18,7 @@ from piece import PieceType, PreGamePieceDisplay, GuestPreGamePieceDisplay
 #-----------------------------------------------------------------------------------
 # Function that will render a lineup for viewing of the player's pieces when 
 # changing settings for the game
-# INPUT: Pygame surface object, player object
+# INPUT: Pygame surface object, player
 # OUTPUT: Piece line-up is rendered during pre-game set-up
 #-----------------------------------------------------------------------------------
 def PreGame_render_piece_display(window, player, opponent):
@@ -138,10 +138,9 @@ def PreGame_render_piece_display(window, player, opponent):
 			piece_image_pos = helper_funcs.reformat_piece(guest_piece_display[janggi_piece.piece_type], piece_image)
 			window.blit(piece_image, piece_image_pos)
 
-
 #-----------------------------------------------------------------------------------
 # Function that will render both player's pieces onto the board
-# INPUT: Player object, Opponent Object, pygame surface object
+# INPUT: player, waiting player, pygame surface object
 # OUTPUT: All active-in-play pieces will be rendered
 #-----------------------------------------------------------------------------------
 def render_pieces(player, opponent, window):
@@ -215,8 +214,8 @@ def render_pieces(player, opponent, window):
 				piece_image = I_cho_piece_images[janggi_piece.piece_type]
 			else:
 				piece_image = cho_piece_images[janggi_piece.piece_type]
-		piece_image = pygame.transform.scale(piece_image,
-																				 piece_sizes[janggi_piece.piece_type])
+
+		piece_image = pygame.transform.scale(piece_image, piece_sizes[janggi_piece.piece_type])
 		# center the image correctly to its spot
 		piece_image_pos = helper_funcs.reformat_piece(janggi_piece.image_location, piece_image)
 		window.blit(piece_image, piece_image_pos)
@@ -246,52 +245,100 @@ def render_pieces(player, opponent, window):
 	
 #-----------------------------------------------------------------------------------
 # Function that will render both player's collision boxes of pieces onto the board
-# INPUT: Player object, Opponent Object, pygame surface object
+# INPUT: player, waiting player, pygame surface object
 # OUTPUT: All active-in-play piece collision rectangles will be rendered
 #-----------------------------------------------------------------------------------
-def render_piece_collisions(player, opponent, window):
+def render_piece_collisions(active_player, waiting_player, window):
 	# render opponent-side collision rects
-	for janggi_piece in opponent.pieces:
+	for janggi_piece in waiting_player.pieces:
 		pygame.draw.rect(window, constants.RED, janggi_piece.collision_rect)
 
 	# render player-side collision rects
-	for janggi_piece in player.pieces:
+	for janggi_piece in active_player.pieces:
 		if not janggi_piece.is_clicked:
 			pygame.draw.rect(window, constants.BLUE, janggi_piece.collision_rect)
 		else: # highlight a clicked piece
 			pygame.draw.rect(window, constants.LIGHT_GREEN, janggi_piece.collision_rect)
 	return
 	
+
+#-----------------------------------------------------------------------------------
+# Function that will render highlighted spot under both kings under bikjang
+# INPUT: player, waiting player, display window
+# OUTPUT: both kings will be highlighted if under bikjang
+#-----------------------------------------------------------------------------------
+def render_bikjang_highlight(active_player, waiting_player, window):
+
+	# find the king pieces for both players
+	for janggi_piece in active_player.pieces:
+		if janggi_piece.piece_type == PieceType.KING:
+			active_king = janggi_piece
+			break
+	for janggi_piece in waiting_player.pieces:
+		if janggi_piece.piece_type == PieceType.KING:
+			waiting_king = janggi_piece
+			break
+
+	spot_highlight = pygame.image.load("UI/Button_Background_Poly.png")
+	spot_highlight = pygame.transform.scale(spot_highlight, 
+						 (constants.large_size[0] + constants.small_size[0], 
+							constants.large_size[1] + constants.small_size[1]))
+	spot_highlight_pos = helper_funcs.reformat_piece(active_king.image_location, spot_highlight)
+	window.blit(spot_highlight, spot_highlight_pos)
+
+	spot_highlight_pos = helper_funcs.reformat_piece(waiting_king.image_location, spot_highlight)
+	window.blit(spot_highlight, spot_highlight_pos)
+
+#-----------------------------------------------------------------------------------
+# Function that will render highlighted spot under checked king
+# INPUT: player, waiting player, display window
+# OUTPUT: both kings will be highlighted if under bikjang
+#-----------------------------------------------------------------------------------
+def render_check_highlight(active_player, window):
+
+	# find the king pieces for both players
+	for janggi_piece in active_player.pieces:
+		if janggi_piece.piece_type == PieceType.KING:
+			active_king = janggi_piece
+			break
+
+	spot_highlight = pygame.image.load("UI/Button_Background_Poly.png")
+	spot_highlight = pygame.transform.scale(spot_highlight, 
+						 (constants.large_size[0] + constants.small_size[0],
+						 constants.large_size[1] + constants.small_size[1]))
+	spot_highlight_pos = helper_funcs.reformat_piece(active_king.image_location, spot_highlight)
+	window.blit(spot_highlight, spot_highlight_pos)
+
 #-----------------------------------------------------------------------------------
 # Function that will render the possible move spots on the board for a clicked piece
-# INPUT: Player object, Opponent Object, pygame surface object
+# INPUT: player, waiting player, pygame surface object
 # OUTPUT: All possible jump-to spots will be highlighted
 #-----------------------------------------------------------------------------------
-def render_possible_spots(player, opponent, board, window):
+def render_possible_spots(active_player, waiting_player, board, window, condition="None"):
 	# determine the type of piece being moved
-	for janggi_piece in player.pieces:
+	for janggi_piece in active_player.pieces:
 		if janggi_piece.is_clicked:
 			match janggi_piece.piece_type.value:
 				case "King":
-					render_king_possible_spots(janggi_piece, player, board, window)
+					render_king_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
 	
 				case "Advisor":
-					render_advisor_possible_spots(janggi_piece, player,  board, window)
+					render_advisor_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
 	
 				case "Elephant":
-					render_elephant_possible_spots(janggi_piece, player, opponent, board, window)
+					render_elephant_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
 	
 				case "Horse":
-					render_horse_possible_spots(janggi_piece, player, opponent, board, window)
+					render_horse_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
 	
 				case "Cannon":
-					render_cannon_possible_spots(janggi_piece, player,opponent,  board, window)
+					render_cannon_possible_spots(janggi_piece, active_player,waiting_player,  board, window, condition)
 	
 				case "Chariot":
-					render_chariot_possible_spots(janggi_piece, player, opponent,  board, window)
+					render_chariot_possible_spots(janggi_piece, active_player, waiting_player,  board, window, condition)
 	
 				case "Pawn":
-					render_pawn_possible_spots(janggi_piece, player,  board, window)
+					render_pawn_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
 	
 				case _:
 					raise ValueError("Invalid piece type")
@@ -300,10 +347,10 @@ def render_possible_spots(player, opponent, board, window):
 
 #-----------------------------------------------------------------------------------
 # Function that will render the possible move spots on the board for the king piece
-# INPUT: Player object, Opponent Object, board object, pygame surface object
+# INPUT: piece, player, waiting player, board, pygame surface object, condition
 # OUTPUT: All possible jump-to spots will be highlighted
 #-----------------------------------------------------------------------------------
-def render_king_possible_spots(janggi_piece, player, board, window):
+def render_king_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition="None"):
 	# Possible moves for the piece based on current possition (L/R/U)
 	# view board as vertical (standard) where top of board is beginning of
 	# the 2D list
@@ -327,10 +374,27 @@ def render_king_possible_spots(janggi_piece, player, board, window):
 				   				 (1, 1),
 				   	  (0, 2),			   (2, 2)  )
 
+	# during bikjang, the King cannot move orthoganally up or down
+	if condition == "Bikjang":
+		full_moves = tuple(move for move in full_moves if move not in [(0, -1), (0, 1)])
+		orthogonal_moves = tuple(move for move in orthogonal_moves if move not in [(0, -1), (0, 1)])
+
+	# define which palace to use based on active player's perspective
+	if active_player.board_perspective == "Bottom":
+		palace = board.bottom_palace
+		palace_collisions = board.bottom_palace_collisions
+	else:
+		palace = board.top_palace
+		palace_collisions = board.top_palace_collisions
+
+	# image for displaying the jump-to spot
+	jump_to_image = pygame.image.load("Pieces/Blank_Piece.png")
+	jump_to_image = pygame.transform.scale(jump_to_image, (constants.spot_collision_size[0], constants.spot_collision_size[1]))
+		
 	# Check each spot in the board for valid locations where
 	# rank is the row, and file is the spot in that row
 	# i.e Cho King starts at Rank 9/File 5
-	for rank, row in enumerate(board.cho_palace):
+	for rank, row in enumerate(palace):
 		for file, spot in enumerate(row):
 			# find where piece is relative to board
 			if spot == janggi_piece.location:
@@ -347,39 +411,60 @@ def render_king_possible_spots(janggi_piece, player, board, window):
 					new_file = file + move[1]
 
 					# check that move location is within board
-					if ((0 <= new_rank < len(board.cho_palace))
+					if ((0 <= new_rank < len(palace))
 							and (0 <= new_file < len(row))):
 						# take the coords for the spot to potentially highlight
-						new_rect = board.cho_palace_collisions[new_rank][new_file]
+						new_rect = palace_collisions[new_rank][new_file]
 						
 						# Make sure spot is not occupied by another piece of the player
 						# but exclude the piece being moved from being checked
 						if not any(new_rect.colliderect(piece.collision_rect) 
-													 for piece in player.pieces 
+													 for piece in active_player.pieces 
 													 if piece != janggi_piece):
 							
 							# potential jump-to spot found, align the rectangle for drawing
 							# spot in board
-							new_spot = board.cho_palace[new_rank][new_file]
-							new_spot = helper_funcs.reformat_spot_collision(new_spot,
-																			board.cho_palace_collisions[new_rank]
-																			[new_file])
+							new_spot = palace[new_rank][new_file]
 							
-							# rectangle bounds for drawing the spot rectangle
-							rectangle = (new_spot[0], new_spot[1], 
-													 constants.spot_collision_size[0], 
-													 constants.spot_collision_size[1])
-							
-							# render the possible spot
-							pygame.draw.rect(window, constants.GREEN, rectangle)
+							# consider move limitations based on conditions
+							if (condition == "None" or
+								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
+								condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+									# hold memory of piece location and collision for valid move
+									temp = janggi_piece.location
+									temp_rect = janggi_piece.collision_rect.topleft
+									janggi_piece.location = new_spot
+									janggi_piece.collision_rect.topleft = new_spot
+
+									# make sure move does not leave own king vulnerable, cancel move if it does
+									if (helper_funcs.detect_check(active_player, waiting_player, board) and 
+										helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
+										janggi_piece.location = temp
+										janggi_piece.collision_rect.topleft = temp_rect
+												
+									# valid move was made
+									else:
+										# rectangle for displaying the jump-to image "blank"
+										rectangle = (new_spot[0], new_spot[1], 
+													jump_to_image.get_rect().size[0], 
+													jump_to_image.get_rect().size[1])
+										
+										# allign jump-to image then display
+										piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
+										window.blit(jump_to_image, piece_image_pos)
+										
+										# reset piece location and collision for next iteration
+										janggi_piece.location = temp
+										janggi_piece.collision_rect.topleft = temp_rect
+
 	return
 
 #-----------------------------------------------------------------------------------
 # Function that will render the possible move spots on the board for advisor piece
-# INPUT: Player object, Opponent Object, board object, pygame surface object
+# INPUT: piece, player, waiting player, board, pygame surface object, condition
 # OUTPUT: All possible jump-to spots will be highlighted
 #-----------------------------------------------------------------------------------
-def render_advisor_possible_spots(janggi_piece, player, board, window):
+def render_advisor_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition="None"):
 	# Possible moves for the piece based on current possition (L/R/U)
 	# view board as vertical (standard) where top of board is beginning of
 	# the 2D list
@@ -403,10 +488,22 @@ def render_advisor_possible_spots(janggi_piece, player, board, window):
 				   				 (1, 1),
 				   	  (0, 2),			   (2, 2)  )
 
+	# define which palace to use based on active player's perspective
+	if active_player.board_perspective == "Bottom":
+		palace = board.bottom_palace
+		palace_collisions = board.bottom_palace_collisions
+	else:
+		palace = board.top_palace
+		palace_collisions = board.top_palace_collisions
+
+	# image for displaying the jump-to spot
+	jump_to_image = pygame.image.load("Pieces/Blank_Piece.png")
+	jump_to_image = pygame.transform.scale(jump_to_image, (constants.spot_collision_size[0], constants.spot_collision_size[1]))
+
 	# Check each spot in the board for valid locations where
 	# rank is the row, and file is the spot in that row
 	# i.e Cho King starts at Rank 9/File 5
-	for rank, row in enumerate(board.cho_palace):
+	for rank, row in enumerate(palace):
 		for file, spot in enumerate(row):
 			# find where piece is relative to board
 			if spot == janggi_piece.location:
@@ -423,39 +520,59 @@ def render_advisor_possible_spots(janggi_piece, player, board, window):
 					new_file = file + move[1]
 
 					# check that move location is within board
-					if ((0 <= new_rank < len(board.cho_palace))
+					if ((0 <= new_rank < len(palace))
 							and (0 <= new_file < len(row))):
 						# take the coords for the spot to potentially highlight
-						new_rect = board.cho_palace_collisions[new_rank][new_file]
+						new_rect = palace_collisions[new_rank][new_file]
 						
 						# Make sure spot is not occupied by another piece of the player
 						# but exclude the piece being moved from being checked
 						if not any(new_rect.colliderect(piece.collision_rect) 
-													 for piece in player.pieces 
+													 for piece in active_player.pieces 
 													 if piece != janggi_piece):
 							
 							# potential jump-to spot found, align the rectangle for drawing
 							# spot in board
-							new_spot = board.cho_palace[new_rank][new_file]
-							new_spot = helper_funcs.reformat_spot_collision(new_spot,
-																			board.cho_palace_collisions[new_rank]
-																			[new_file])
+							new_spot = palace[new_rank][new_file]
 							
-							# rectangle bounds for drawing the spot rectangle
-							rectangle = (new_spot[0], new_spot[1], 
-													 constants.spot_collision_size[0], 
-													 constants.spot_collision_size[1])
-							
-							# render the possible spot
-							pygame.draw.rect(window, constants.GREEN, rectangle)
+							# consider move limitations based on conditions
+							if (condition == "None" or
+								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
+								condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+									# hold memory of piece location and collision for valid move
+									temp = janggi_piece.location
+									temp_rect = janggi_piece.collision_rect.topleft
+									janggi_piece.location = new_spot
+									janggi_piece.collision_rect.topleft = new_spot
+
+									# make sure move does not leave own king vulnerable, cancel move if it does
+									if (helper_funcs.detect_check(active_player, waiting_player, board) and 
+										helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
+										janggi_piece.location = temp
+										janggi_piece.collision_rect.topleft = temp_rect
+												
+									# valid move was made
+									else:
+										# rectangle for displaying the jump-to image "blank"
+										rectangle = (new_spot[0], new_spot[1], 
+													jump_to_image.get_rect().size[0], 
+													jump_to_image.get_rect().size[1])
+												
+										# allign jump-to image then display
+										piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
+										window.blit(jump_to_image, piece_image_pos)
+
+										# reset piece location and collision for next iteration
+										janggi_piece.location = temp
+										janggi_piece.collision_rect.topleft = temp_rect
 	return
 
 #-----------------------------------------------------------------------------------
 # Function that will render the possible move spots on the board for elephant piece
-# INPUT: Player object, Opponent Object, board object, pygame surface object
+# INPUT: piece, player, waiting player, board, pygame surface object, condition
 # OUTPUT: All possible jump-to spots will be highlighted
 #-----------------------------------------------------------------------------------
-def render_elephant_possible_spots(janggi_piece, player, opponent, board, window):
+def render_elephant_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition="None"):
 	def process_path(x): # Return orthogonal path position
 		if x == 2 or x == -2:
 			return 0
@@ -482,6 +599,11 @@ def render_elephant_possible_spots(janggi_piece, player, opponent, board, window
 	# (x, +y) --> down y spots
 	#				[ (Left) , (Right), (Up)  ]
 	possible_moves = [(-2, 3), (2, 3), (2, -3), (-2, -3), (3, -2), (3, 2), (-3, -2), (-3, 2)]
+
+	# image for displaying the jump-to spot
+	jump_to_image = pygame.image.load("Pieces/Blank_Piece.png")
+	jump_to_image = pygame.transform.scale(jump_to_image, (constants.spot_collision_size[0], constants.spot_collision_size[1]))
+
 	# Check each spot in the board for valid locations where
 	# rank is the row, and file is the spot in that row
 	# i.e Cho King starts at Rank 9/File 5
@@ -512,35 +634,59 @@ def render_elephant_possible_spots(janggi_piece, player, opponent, board, window
 						# but exclude the piece being moved from being checked
 						# Check the path's orthogonal and diagonal positions for ANY pieces to prevent illegal movement
 						if (not any(new_rect.colliderect(piece.collision_rect) 
-													 for piece in player.pieces 
+													 for piece in active_player.pieces 
 													 if piece != janggi_piece)
 							 and not any(path_to_check[0].colliderect(piece.collision_rect) 
-													 for piece in player.pieces 
+													 for piece in active_player.pieces 
 													 if piece != janggi_piece)
 						     and not any(path_to_check[0].colliderect(piece.collision_rect) 
-													 for piece in opponent.pieces 
+													 for piece in waiting_player.pieces 
 													 if piece != janggi_piece)
 							 and not any(path_to_check[1].colliderect(piece.collision_rect) 
-													 for piece in player.pieces 
+													 for piece in active_player.pieces 
 													 if piece != janggi_piece)
 						     and not any(path_to_check[1].colliderect(piece.collision_rect) 
-													 for piece in opponent.pieces 
+													 for piece in waiting_player.pieces 
 													 if piece != janggi_piece)):
-							# rectangle bounds for drawing the spot rectangle
-							rectangle = (new_spot[0], new_spot[1], 
-													 constants.spot_collision_size[0], 
-													 constants.spot_collision_size[1])
 							
-							# render the possible spot
-							pygame.draw.rect(window, constants.GREEN, rectangle)
+							# consider move limitations based on conditions
+							if (condition == "None" or
+								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
+								condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+									# hold memory of piece location and collision for valid move
+									temp = janggi_piece.location
+									temp_rect = janggi_piece.collision_rect.topleft
+									janggi_piece.location = new_spot
+									janggi_piece.collision_rect.topleft = new_spot
+
+									# make sure move does not leave own king vulnerable, cancel move if it does
+									if (helper_funcs.detect_check(active_player, waiting_player, board) and 
+										helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
+										janggi_piece.location = temp
+										janggi_piece.collision_rect.topleft = temp_rect
+												
+									# valid move was made
+									else:
+										# rectangle for displaying the jump-to image "blank"
+										rectangle = (new_spot[0], new_spot[1], 
+													jump_to_image.get_rect().size[0], 
+													jump_to_image.get_rect().size[1])
+												
+										# allign jump-to image then display
+										piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
+										window.blit(jump_to_image, piece_image_pos)
+
+										# reset piece location and collision for next iteration
+										janggi_piece.location = temp
+										janggi_piece.collision_rect.topleft = temp_rect
 	return
 
 #-----------------------------------------------------------------------------------
 # Function that will render the possible move spots on the board for the horse piece
-# INPUT: Player object, Opponent Object, board object, pygame surface object
+# INPUT: piece, player, waiting player, board, pygame surface object, condition
 # OUTPUT: All possible jump-to spots will be highlighted
 #-----------------------------------------------------------------------------------
-def render_horse_possible_spots(janggi_piece, player, opponent, board, window):
+def render_horse_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition="None"):
 	def process_path(x): # Return orthogonal path position
 		if x == 1 or x == -1:
 			return 0
@@ -558,6 +704,11 @@ def render_horse_possible_spots(janggi_piece, player, opponent, board, window):
 	# (x, +y) --> down y spots
 	#				[ (Left) , (Right), (Up)  ]
 	possible_moves = [(-1, 2), (1, 2), (1, -2), (-1, -2), (2, -1), (2, 1), (-2, -1), (-2, 1)]
+
+	# image for displaying the jump-to spot
+	jump_to_image = pygame.image.load("Pieces/Blank_Piece.png")
+	jump_to_image = pygame.transform.scale(jump_to_image, (constants.spot_collision_size[0], constants.spot_collision_size[1]))
+
 	# Check each spot in the board for valid locations where
 	# rank is the row, and file is the spot in that row
 	# i.e Cho King starts at Rank 9/File 5
@@ -586,34 +737,61 @@ def render_horse_possible_spots(janggi_piece, player, opponent, board, window):
 						# but exclude the piece being moved from being checked
 						# Check the path's orthogonal position for ANY pieces to prevent illegal movement
 						if (not any(new_rect.colliderect(piece.collision_rect) 
-													 for piece in player.pieces 
+													 for piece in active_player.pieces 
 													 if piece != janggi_piece)
 							 and not any(path_to_check.colliderect(piece.collision_rect) 
-													 for piece in player.pieces 
+													 for piece in active_player.pieces 
 													 if piece != janggi_piece)
 						     and not any(path_to_check.colliderect(piece.collision_rect) 
-													 for piece in opponent.pieces 
+													 for piece in waiting_player.pieces 
 													 if piece != janggi_piece)):
-							# rectangle bounds for drawing the spot rectangle
-							rectangle = (new_spot[0], new_spot[1], 
-													 constants.spot_collision_size[0], 
-													 constants.spot_collision_size[1])
-							
-							# render the possible spot
-							pygame.draw.rect(window, constants.GREEN, rectangle)
+							# consider move limitations based on conditions
+							if (condition == "None" or
+								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
+								condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+									# hold memory of piece location and collision for valid move
+									temp = janggi_piece.location
+									temp_rect = janggi_piece.collision_rect.topleft
+									janggi_piece.location = new_spot
+									janggi_piece.collision_rect.topleft = new_spot
+
+									# make sure move does not leave own king vulnerable, cancel move if it does
+									if (helper_funcs.detect_check(active_player, waiting_player, board) and 
+										helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
+										janggi_piece.location = temp
+										janggi_piece.collision_rect.topleft = temp_rect
+												
+									# valid move was made
+									else:
+										# rectangle for displaying the jump-to image "blank"
+										rectangle = (new_spot[0], new_spot[1], 
+													jump_to_image.get_rect().size[0], 
+													jump_to_image.get_rect().size[1])
+												
+										# allign jump-to image then display
+										piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
+										window.blit(jump_to_image, piece_image_pos)
+
+										# reset piece location and collision for next iteration
+										janggi_piece.location = temp
+										janggi_piece.collision_rect.topleft = temp_rect
 	return
 
 #-----------------------------------------------------------------------------------
 # Function that will render possible move spots on the board for the cannon piece
-# INPUT: Player object, Opponent Object, board object, pygame surface object
+# INPUT: piece, player, waiting player, board, pygame surface object, condition
 # OUTPUT: All possible jump-to spots will be highlighted
 #-----------------------------------------------------------------------------------
-def render_cannon_possible_spots(janggi_piece, player, opponent, board, window):
+def render_cannon_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition="None"):
 	# implement logic here
 	possible_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
     # Get a list of all the pieces on the board
-	all_pieces = player.pieces + opponent.pieces
+	all_pieces = active_player.pieces + waiting_player.pieces
+
+	# image for displaying the jump-to spot
+	jump_to_image = pygame.image.load("Pieces/Blank_Piece.png")
+	jump_to_image = pygame.transform.scale(jump_to_image, (constants.spot_collision_size[0], constants.spot_collision_size[1]))
 
     # Iterate over the board to find the current location of the cannon
 	for rank, row in enumerate(board.coordinates):
@@ -657,16 +835,38 @@ def render_cannon_possible_spots(janggi_piece, player, opponent, board, window):
 
 									# Check if the spot is valid (not occupied by a player's piece, except for the cannon)
 									if not any(new_rect.colliderect(piece.collision_rect) 
-																for piece in player.pieces 
+																for piece in active_player.pieces 
 																if piece != janggi_piece):
-										
-										# rectangle bounds for drawing the spot rectangle
-										rectangle = (new_spot[0], new_spot[1], 
-																constants.spot_collision_size[0], 
-																constants.spot_collision_size[1])
-										
-										# render the possible spot
-										pygame.draw.rect(window, constants.GREEN, rectangle)
+										# consider move limitations based on conditions
+										if (condition == "None" or
+											condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
+											condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+												# hold memory of piece location and collision for valid move
+												temp = janggi_piece.location
+												temp_rect = janggi_piece.collision_rect.topleft
+												janggi_piece.location = new_spot
+												janggi_piece.collision_rect.topleft = new_spot
+
+												# make sure move does not leave own king vulnerable, cancel move if it does
+												if (helper_funcs.detect_check(active_player, waiting_player, board) and 
+													helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
+													janggi_piece.location = temp
+													janggi_piece.collision_rect.topleft = temp_rect
+															
+												# valid move was made
+												else:
+													# rectangle for displaying the jump-to image "blank"
+													rectangle = (new_spot[0], new_spot[1], 
+																jump_to_image.get_rect().size[0], 
+																jump_to_image.get_rect().size[1])
+															
+													# allign jump-to image then display
+													piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
+													window.blit(jump_to_image, piece_image_pos)
+
+													# reset piece location and collision for next iteration
+													janggi_piece.location = temp
+													janggi_piece.collision_rect.topleft = temp_rect
 
 									# Keep moving
 									new_rank += move[0]
@@ -677,16 +877,39 @@ def render_cannon_possible_spots(janggi_piece, player, opponent, board, window):
 									new_spot = board.coordinates[new_rank][new_file]
 									new_rect = board.collisions[new_rank][new_file]
 									for check_piece in all_pieces:
-										if ((not any(new_rect.colliderect(piece.collision_rect) for piece in player.pieces if piece != janggi_piece)) 
+										if ((not any(new_rect.colliderect(piece.collision_rect) for piece in active_player.pieces if piece != janggi_piece)) 
 																				and (check_piece.piece_type.value != "Cannon")
 																				and (board.coordinates[new_rank][new_file] == check_piece.location)):
-											# rectangle bounds for drawing the spot rectangle
-											rectangle = (new_spot[0], new_spot[1], 
-																	constants.spot_collision_size[0], 
-																	constants.spot_collision_size[1])
-										
-											# render the possible spot
-											pygame.draw.rect(window, constants.GREEN, rectangle)
+											# consider move limitations based on conditions
+											if (condition == "None" or
+												condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
+												condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+													# hold memory of piece location and collision for valid move
+													temp = janggi_piece.location
+													temp_rect = janggi_piece.collision_rect.topleft
+													janggi_piece.location = new_spot
+													janggi_piece.collision_rect.topleft = new_spot
+
+													# make sure move does not leave own king vulnerable, cancel move if it does
+													if (helper_funcs.detect_check(active_player, waiting_player, board) and 
+														helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
+														janggi_piece.location = temp
+														janggi_piece.collision_rect.topleft = temp_rect
+																
+													# valid move was made
+													else:
+														# rectangle for displaying the jump-to image "blank"
+														rectangle = (new_spot[0], new_spot[1], 
+																	jump_to_image.get_rect().size[0], 
+																	jump_to_image.get_rect().size[1])
+																
+														# allign jump-to image then display
+														piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
+														window.blit(jump_to_image, piece_image_pos)
+
+														# reset piece location and collision for next iteration
+														janggi_piece.location = temp
+														janggi_piece.collision_rect.topleft = temp_rect
 									break
 
 							# Return back to move-in-possible-moves loop so it cant skip pieces
@@ -700,17 +923,21 @@ def render_cannon_possible_spots(janggi_piece, player, opponent, board, window):
 
 #-----------------------------------------------------------------------------------
 # Function that will render possible move spots on the board for the chariot piece
-# INPUT: Player object, Opponent Object, board object, pygame surface object
+# INPUT: piece, player, waiting player, board, pygame surface object, condition
 # OUTPUT: All possible jump-to spots will be highlighted
 #-----------------------------------------------------------------------------------
-def render_chariot_possible_spots(janggi_piece, player, opponent, board, window):
+def render_chariot_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition="None"):
     # Define rook-like moves (up, down, left, right)
     rook_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
     # Diagonal moves if inside the palace
     diagonal_moves = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
     
     # Combine all pieces from both players
-    all_pieces = player.pieces + opponent.pieces
+    all_pieces = active_player.pieces + waiting_player.pieces
+
+	# image for displaying the jump-to spot
+    jump_to_image = pygame.image.load("Pieces/Blank_Piece.png")
+    jump_to_image = pygame.transform.scale(jump_to_image, (constants.spot_collision_size[0], constants.spot_collision_size[1]))
 
     # Iterate over the board to find the current location of the chariot
     for rank, row in enumerate(board.coordinates):
@@ -747,35 +974,59 @@ def render_chariot_possible_spots(janggi_piece, player, opponent, board, window)
                         if any(new_rect.colliderect(piece.collision_rect) for piece in all_pieces):
                             # If it collides with an opponent's piece, highlight for capture
                             if any(new_rect.colliderect(piece.collision_rect) 
-                                   for piece in opponent.pieces):
-                                # Rectangle bounds for drawing the capture move
-                                rectangle = (new_spot[0], new_spot[1],
-                                             constants.spot_collision_size[0], 
-                                             constants.spot_collision_size[1])
-                                
-                                # Render the capture spot
-                                pygame.draw.rect(window, constants.GREEN, rectangle)
+                                   for piece in waiting_player.pieces):
+                                # rectangle for displaying the jump-to image "blank"
+                                rectangle = (new_spot[0], new_spot[1], 
+															jump_to_image.get_rect().size[0], 
+															jump_to_image.get_rect().size[1])
+									
+								# allign jump-to image then display
+                                piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
+                                window.blit(jump_to_image, piece_image_pos)
+
                             break  # Stop if there's any piece blocking the way
 
                         # If the spot is valid for the player (not occupied by their own pieces)
-                        if not any(new_rect.colliderect(piece.collision_rect) 
-                                   for piece in player.pieces if piece != janggi_piece):
-                            # Rectangle bounds for drawing the possible move
-                            rectangle = (new_spot[0], new_spot[1],
-                                         constants.spot_collision_size[0], 
-                                         constants.spot_collision_size[1])
-                            
-                            # Render the possible move spot
-                            pygame.draw.rect(window, constants.GREEN, rectangle)
+                        if not any(new_rect.colliderect(piece.collision_rect) for piece in active_player.pieces if piece != janggi_piece):
 
+							# consider move limitations based on conditions
+                            if (condition == "None" or
+								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
+								condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+									# hold memory of piece location and collision for valid move
+                                    temp = janggi_piece.location
+                                    temp_rect = janggi_piece.collision_rect.topleft
+                                    janggi_piece.location = new_spot
+                                    janggi_piece.collision_rect.topleft = new_spot
+
+									# make sure move does not leave own king vulnerable, cancel move if it does
+                                    if (helper_funcs.detect_check(active_player, waiting_player, board) and 
+										helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
+                                        janggi_piece.location = temp
+                                        janggi_piece.collision_rect.topleft = temp_rect
+												
+									# valid move was made
+                                    else:
+										# rectangle for displaying the jump-to image "blank"
+                                        rectangle = (new_spot[0], new_spot[1], 
+													jump_to_image.get_rect().size[0], 
+													jump_to_image.get_rect().size[1])
+												
+										# allign jump-to image then display
+                                        piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
+                                        window.blit(jump_to_image, piece_image_pos)
+
+										# reset piece location and collision for next iteration
+                                        janggi_piece.location = temp
+                                        janggi_piece.collision_rect.topleft = temp_rect
     return
 
 #-----------------------------------------------------------------------------------
 # Function that will render the possible move spots on the board for the pawn piece
-# INPUT: Player object, Opponent Object, board object, pygame surface object
+# INPUT: piece, player, waiting player, board, pygame surface object, condition
 # OUTPUT: All possible jump-to spots will be highlighted
 #-----------------------------------------------------------------------------------
-def render_pawn_possible_spots(janggi_piece, player, board, window):
+def render_pawn_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition="None"):
 	# Possible moves for the piece based on current possition (L/R/U)
 	# view board as vertical (standard) where top of board is beginning of
 	# the 2D list
@@ -783,9 +1034,19 @@ def render_pawn_possible_spots(janggi_piece, player, board, window):
 	# (+x, y) --> right x spots
 	# (x, -y) --> up y spots
 	# (x, +y) --> down y spots
-	#				 ((Left),   (Up),  (Right))
-	possible_moves = ((-1, 0), (0, -1), (1, 0))
+	if active_player.board_perspective == "Bottom":
+		#				 ((Left),   (Up),  (Right))
+		possible_moves = ((-1, 0), (0, -1), (1, 0))
+		palace = board.top_palace
+	else:
+		#				 ((Left),   (Down),  (Right))
+		possible_moves = ((-1, 0), (0, 1), (1, 0))
+		palace = board.bottom_palace
 	
+	# image for displaying the jump-to spot
+	jump_to_image = pygame.image.load("Pieces/Blank_Piece.png")
+	jump_to_image = pygame.transform.scale(jump_to_image, (constants.spot_collision_size[0], constants.spot_collision_size[1]))
+
 	# Check each spot in the board for valid locations where
 	# rank is the row, and file is the spot in that row
 	# i.e Cho King starts at Rank 9/File 5
@@ -794,8 +1055,8 @@ def render_pawn_possible_spots(janggi_piece, player, board, window):
 			# find where piece is relative to board
 			if spot == janggi_piece.location:
 				# check if piece can also use palace diagonals, then render those as well
-				if helper_funcs.can_use_palace_diagonals(janggi_piece, board):
-					render_pawn_possible_palace_spots(player, window, janggi_piece, board)
+				if helper_funcs.can_use_palace_diagonals(janggi_piece, palace):
+					render_pawn_possible_palace_spots(active_player, waiting_player, window, janggi_piece, board, condition)
 				
 				# Show where piece can move normaly by looking at each of 
 				# the possible locations piece can move
@@ -812,37 +1073,73 @@ def render_pawn_possible_spots(janggi_piece, player, board, window):
 						# Make sure spot is not occupied by another piece of the player
 						# but exclude the piece being moved from being checked
 						if not any(new_rect.colliderect(piece.collision_rect) 
-													 for piece in player.pieces 
+													 for piece in active_player.pieces 
 													 if piece != janggi_piece):
 							
 							# potential jump-to spot found, align the rectangle for drawing
+							# spot in board
 							new_spot = board.coordinates[new_rank][new_file]
-							new_spot = helper_funcs.reformat_spot_collision(new_spot,
-																			board.collisions[new_rank]
-																			[new_file])
 							
-							# rectangle bounds for drawing the spot rectangle
-							rectangle = (new_spot[0], new_spot[1], 
-													 constants.spot_collision_size[0], 
-													 constants.spot_collision_size[1])
-							
-							# render the possible spot
-							pygame.draw.rect(window, constants.GREEN, rectangle)
+							# consider move limitations based on conditions
+							if (condition == "None" or
+								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
+								condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+									# hold memory of piece location and collision for valid move
+									temp = janggi_piece.location
+									temp_rect = janggi_piece.collision_rect.topleft
+									janggi_piece.location = new_spot
+									janggi_piece.collision_rect.topleft = new_spot
+
+									# make sure move does not leave own king vulnerable, cancel move if it does
+									if (helper_funcs.detect_check(active_player, waiting_player, board) and 
+										helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
+										janggi_piece.location = temp
+										janggi_piece.collision_rect.topleft = temp_rect
+												
+									# valid move was made
+									else:
+										# rectangle for displaying the jump-to image "blank"
+										rectangle = (new_spot[0], new_spot[1], 
+													jump_to_image.get_rect().size[0], 
+													jump_to_image.get_rect().size[1])
+												
+										# allign jump-to image then display
+										piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
+										window.blit(jump_to_image, piece_image_pos)
+
+										# reset piece location and collision for next iteration
+										janggi_piece.location = temp
+										janggi_piece.collision_rect.topleft = temp_rect
 	return
 
 #-----------------------------------------------------------------------------------
 # Function that will render the possible move spots on the board for the pawn piece
 # given that the piece is inside the palace
-# INPUT: Player object, pygame surface object, piece object, board object
+# INPUT: player, waiting player, pygame surface object, piece, board, condition
 # OUTPUT: All possible jump-to spots will be highlighted within the palace
 #-----------------------------------------------------------------------------------
-def render_pawn_possible_palace_spots(player, window, janggi_piece, board):
-	#			   ((UpLeft),       (UpRight))
-	palace_moves = ((-1, -1),		(1, -1))
+def render_pawn_possible_palace_spots(active_player, waiting_player, window, janggi_piece, board, condition="None"):
+	# define which palace to use based on active player's perspective
+	if active_player.board_perspective == "Bottom":
+		palace = board.top_palace
+		palace_collisions = board.top_palace_collisions
+
+		#			   ((UpLeft),       (UpRight))
+		palace_moves = ((-1, -1),		(1, -1))
+	else:
+		palace = board.bottom_palace
+		palace_collisions = board.bottom_palace_collisions
+
+		#			   ((DownLeft),     (DownRight))
+		palace_moves = ((-1, 1),		(1, 1))
+
+	# image for displaying the jump-to spot
+	jump_to_image = pygame.image.load("Pieces/Blank_Piece.png")
+	jump_to_image = pygame.transform.scale(jump_to_image, (constants.spot_collision_size[0], constants.spot_collision_size[1]))
 
 	# if the pawn is in a palace diagonal , it can take palace moves
-	if helper_funcs.can_use_palace_diagonals(janggi_piece, board):
-		for rank, row in enumerate(board.han_palace):
+	if helper_funcs.can_use_palace_diagonals(janggi_piece, palace):
+		for rank, row in enumerate(palace):
 			for file, spot in enumerate(row):
 				# find the piece's location relative to palace
 				if spot == janggi_piece.location:
@@ -852,54 +1149,49 @@ def render_pawn_possible_palace_spots(player, window, janggi_piece, board):
 						new_file = file + move[1]
 
 						# check that move location is in palace
-						if ((0 <= new_rank < len(board.han_palace))
+						if ((0 <= new_rank < len(palace))
 								and (0 <= new_file < len(row))
-								and (helper_funcs.is_inside_palace(board, new_rank, new_file))):
+								and (helper_funcs.is_inside_palace(palace, new_rank, new_file))):
 							# take the coords for the spot to potentially highlight
-							new_rect = board.han_palace_collisions[new_rank][new_file]
+							new_rect = palace_collisions[new_rank][new_file]
 										
 							# Make sure spot is not occupied by another piece of the player
 							# but exclude the piece being moved from being checked
 							if not any(new_rect.colliderect(piece.collision_rect) 
-														for piece in player.pieces 
+														for piece in active_player.pieces 
 														if piece != janggi_piece):
 								# potential jump-to spot found, align the rectangle for drawing
-								new_spot = board.han_palace[new_rank][new_file]
-								new_spot = helper_funcs.reformat_spot_collision(new_spot,
-																				board.han_palace_collisions[new_rank]
-																				[new_file])
-											
-								# rectangle bounds for drawing the spot rectangle
-								rectangle = (new_spot[0], new_spot[1], 
-											constants.spot_collision_size[0], 
-											constants.spot_collision_size[1])
-											
-								# render the possible spot
-								pygame.draw.rect(window, constants.GREEN, rectangle)
+								new_spot = palace[new_rank][new_file]
+								
+									# consider move limitations based on conditions
+								if (condition == "None" or
+									condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
+									condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+										# hold memory of piece location and collision for valid move
+										temp = janggi_piece.location
+										temp_rect = janggi_piece.collision_rect.topleft
+										janggi_piece.location = new_spot
+										janggi_piece.collision_rect.topleft = new_spot
+
+										# make sure move does not leave own king vulnerable, cancel move if it does
+										if (helper_funcs.detect_check(active_player, waiting_player, board) and 
+											helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
+											janggi_piece.location = temp
+											janggi_piece.collision_rect.topleft = temp_rect
+													
+										# valid move was made
+										else:
+											# rectangle for displaying the jump-to image "blank"
+											rectangle = (new_spot[0], new_spot[1], 
+														jump_to_image.get_rect().size[0], 
+														jump_to_image.get_rect().size[1])
+													
+											# allign jump-to image then display
+											piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
+											window.blit(jump_to_image, piece_image_pos)
+
+											# reset piece location and collision for next iteration
+											janggi_piece.location = temp
+											janggi_piece.collision_rect.topleft = temp_rect
 	
-	return
-
-#-----------------------------------------------------------------------------------
-# Function that will render the palaces for DEBUG purposes
-# INPUT: board object, pygame surface object
-# OUTPUT: Palace is highlighted for debugging purposes
-#-----------------------------------------------------------------------------------
-def render_palace_debug(board, window):
-	# go to each spot in the palace for cho
-	for row in board.cho_palace:
-		for spot in row:
-			# define rectangle bounds
-			rectangle = (spot[0], spot[1], constants.spot_collision_size[0], 
-										constants.spot_collision_size[1])
-			# render the palace spots
-			pygame.draw.rect(window, constants.GREEN, rectangle)
-
-			# go to each spot in the palace for han
-	for row in board.han_palace:
-		for spot in row:
-			# define rectangle bounds
-			rectangle = (spot[0], spot[1], constants.spot_collision_size[0], 
-										constants.spot_collision_size[1])
-			# render the palace spots
-			pygame.draw.rect(window, constants.GREEN, rectangle)
 	return

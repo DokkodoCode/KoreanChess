@@ -1,18 +1,16 @@
 """
 ----------------------baord.py----------------------------
 o This file is to manage the board object for Janggi
-o Last Modified - September 17th 2024
+o Last Modified - November 11th 2024
 ----------------------------------------------------------
 """
 
 # libraries
 import pygame
 
-# local file imports
+# local file imports, see individ file for details
 import constants
 import helper_funcs
-
-# list of cho-side palace square
 
 # Class for Janggi Board
 class Board():
@@ -28,17 +26,17 @@ class Board():
 	def __init__(self):
 		self.coordinates = [[(x,y) for y in constants.y_coordinates]
 												for x in constants.x_coordinates]
-		self.cho_palace = [row[-3:] for row in self.coordinates[3:6]]
-		self.cho_palace_collisions = self.cho_assign_palace_collision_spots()
-		self.han_palace = [row[:3] for row in self.coordinates[3:6]]
-		self.han_palace_collisions  = self.han_assign_palace_collision_spots()
+		self.bottom_palace = [row[-3:] for row in self.coordinates[3:6]]
+		self.bottom_palace_collisions = self.cho_assign_palace_collision_spots()
+		self.top_palace = [row[:3] for row in self.coordinates[3:6]]
+		self.top_palace_collisions  = self.han_assign_palace_collision_spots()
 		self.collisions = self.assign_collision_spots()
 
 	def cho_assign_palace_collision_spots(self):
 		collision_rects = [] # hold the collision rectangles
 
 		# create a collision rectangle based on the coordinates of the board
-		for row in self.cho_palace:
+		for row in self.bottom_palace:
 			row_collision_rects = [] # hold the rectangles in the row
 
 			for coordinate in row:
@@ -59,7 +57,7 @@ class Board():
 		collision_rects = [] # hold the collision rectangles
 
 		# create a collision rectangle based on the coordinates of the board
-		for row in self.han_palace:
+		for row in self.top_palace:
 			row_collision_rects = [] # hold the rectangles in the row
 
 			for coordinate in row:

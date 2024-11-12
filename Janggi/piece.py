@@ -7,6 +7,8 @@ o Last Modified - October 31st 2024
 
 # libraries
 from enum import Enum
+
+# local file imports, see individ file for details
 import constants
 
 # Enumeration type for the PieceType
@@ -99,23 +101,23 @@ class OpponentPiecePosition(Enum):
 
 # Enumeration type for the pregame settings menu display of the player's pieces
 class GuestPreGamePieceDisplay(Enum):
-	KING = (constants.x_coordinates[7],constants.y_coordinates[1])
-	ADVISOR = (constants.x_coordinates[7],constants.y_coordinates[2])
-	ELEPHANT = (constants.x_coordinates[7],constants.y_coordinates[3])
-	HORSE = (constants.x_coordinates[7],constants.y_coordinates[4])
-	CANNON = (constants.x_coordinates[7],constants.y_coordinates[5])
-	CHARIOT = (constants.x_coordinates[7],constants.y_coordinates[6])
-	PAWN = (constants.x_coordinates[7],constants.y_coordinates[7])
+	KING = (constants.x_coordinates[8],constants.y_coordinates[3])
+	ADVISOR = (constants.x_coordinates[8],constants.y_coordinates[4])
+	ELEPHANT = (constants.x_coordinates[8],constants.y_coordinates[5])
+	HORSE = (constants.x_coordinates[8],constants.y_coordinates[6])
+	CANNON = (constants.x_coordinates[8],constants.y_coordinates[7])
+	CHARIOT = (constants.x_coordinates[8],constants.y_coordinates[8])
+	PAWN = (constants.x_coordinates[8],constants.y_coordinates[9])
 
 # Enumeration type for the pregame settings menu display of the player's pieces
 class PreGamePieceDisplay(Enum):
-	KING = (constants.x_coordinates[1],constants.y_coordinates[1])
-	ADVISOR = (constants.x_coordinates[1],constants.y_coordinates[2])
-	ELEPHANT = (constants.x_coordinates[1],constants.y_coordinates[3])
-	HORSE = (constants.x_coordinates[1],constants.y_coordinates[4])
-	CANNON = (constants.x_coordinates[1],constants.y_coordinates[5])
-	CHARIOT = (constants.x_coordinates[1],constants.y_coordinates[6])
-	PAWN = (constants.x_coordinates[1],constants.y_coordinates[7])
+	KING = (constants.x_coordinates[0],constants.y_coordinates[3])
+	ADVISOR = (constants.x_coordinates[0],constants.y_coordinates[4])
+	ELEPHANT = (constants.x_coordinates[0],constants.y_coordinates[5])
+	HORSE = (constants.x_coordinates[0],constants.y_coordinates[6])
+	CANNON = (constants.x_coordinates[0],constants.y_coordinates[7])
+	CHARIOT = (constants.x_coordinates[0],constants.y_coordinates[8])
+	PAWN = (constants.x_coordinates[0],constants.y_coordinates[9])
 
 # Class object for the Piece
 class Piece():
@@ -130,3 +132,4 @@ class Piece():
 		self.collision_rect = collision_rect
 		self.point_value = point_value
 		self.is_clicked = False
+		self.image = "Pieces/Blank_Piece.png"
