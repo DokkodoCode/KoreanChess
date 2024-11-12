@@ -576,6 +576,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 						self.condition = "Bikjang"
 					elif helper_funcs.detect_check(self.waiting_player, self.active_player, self.board):
 						self.check = True
+						self.bikjang = False
 						self.condition = "Check"
 					else: # no condition change
 						self.bikjang = False
@@ -603,7 +604,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		# elif something
 			# do etc...
 		# right-clicking your king will pass the turn
-		elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+		elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3 and not self.bikjang and not self.check:
 			if self.active_player is not None:
 				helper_funcs.player_piece_unclick(self.active_player)
 				# KING piece is always the first piece in the list

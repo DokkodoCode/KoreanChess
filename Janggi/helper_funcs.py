@@ -632,8 +632,6 @@ def move_horse(janggi_piece, board, active_player, waiting_player, mouse_pos, co
 													 for piece in waiting_player.pieces 
 													 if piece != janggi_piece)):
 							# consider move limitations based on conditions
-							print(f"mcbc: {move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)}")
-							print(f"mcbc: {find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece}")
 							if (new_rect.collidepoint(mouse_pos) and
 		   						condition == "None" or
 								condition == "Bikjang" and move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
