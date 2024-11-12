@@ -931,6 +931,8 @@ def render_chariot_possible_spots(janggi_piece, active_player, waiting_player, b
     rook_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
     # Diagonal moves if inside the palace
     diagonal_moves = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+	# Define palace corners where diagonal moves are allowed
+    palace_corners = {(3, 0), (5, 0), (3, 2), (5, 2), (3, 7), (5, 7), (3, 9), (5, 9)}
     
     # Combine all pieces from both players
     all_pieces = active_player.pieces + waiting_player.pieces
@@ -947,7 +949,7 @@ def render_chariot_possible_spots(janggi_piece, active_player, waiting_player, b
                 possible_moves = rook_moves
 
                 # If the chariot is in the palace, allow diagonal movement
-                if helper_funcs.is_in_palace(rank, file):
+                if (rank, file) in palace_corners:
                     possible_moves += diagonal_moves
                 
                 # Check movement in all possible directions

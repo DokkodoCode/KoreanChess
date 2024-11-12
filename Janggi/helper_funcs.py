@@ -812,16 +812,22 @@ def move_chariot(janggi_piece, board, mouse_pos, active_player, waiting_player, 
 	rook_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 	diagonal_moves = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
 
+	# Define palace corners where diagonal moves are allowed
+	palace_corners = {(3, 0), (5, 0), (3, 2), (5, 2), (3, 7), (5, 7), (3, 9), (5, 9)}
+
 	# Get the current location of the piece
 	for rank, row in enumerate(board.coordinates):
 		for file, spot in enumerate(row):
 			# Find where the chariot is on the board
 			if spot == janggi_piece.location:
+				# Testing
+				# print(f"Chariot is at ({rank}, {file})")
+
 				# Set initial possible moves (up, down, left, right)
 				possible_moves = rook_moves
 				
 				# Check if the chariot is in the palace (to allow diagonal moves)
-				if is_in_palace(rank, file):
+				if (rank, file) in palace_corners:
 					possible_moves += diagonal_moves
 				
 				# Check each possible direction for continuous movement
@@ -858,6 +864,7 @@ def move_chariot(janggi_piece, board, mouse_pos, active_player, waiting_player, 
 									temp = janggi_piece.location
 									temp_rect = janggi_piece.collision_rect.topleft
 
+									# CHARIOT MOVES RIGHT HERE
 									janggi_piece.location = new_spot
 									janggi_piece.collision_rect.topleft = new_spot
 
@@ -1646,6 +1653,7 @@ def chariot_possible_moves(janggi_piece, board, player, opponent):
 	# Define rook-like moves for chariot (up, down, left, right)
 	rook_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 	diagonal_moves = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+	
 
 	# set that will hold all possible moves for ending the condition
 	moves = set()
