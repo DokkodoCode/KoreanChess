@@ -299,10 +299,12 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		# listen for an event trigger via click from right-mouse-button
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 			# check if the player is currently attempting to move a piece
-			if self.player.is_clicked:
+			if self.player.is_clicked and self.player.is_turn:
 				# unclick that piece if the move was successful/valid
 				if helper_funcs.attempt_move(self.player, self.opponent, self.board, mouse_pos):
 					helper_funcs.player_piece_unclick(self.player)
+					self.opponent.is_turn = True
+					self.player.is_turn = False
 				# otherwise the player is clicking another piece or invalid spot
 				else:
 					# reset click state
@@ -323,11 +325,15 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 			self.next_state = "Main Menu"
 
+		######################################################################################
 		# Handle AI Opponent's turn
+		######################################################################################
 		if self.opponent.is_turn:
 			new_board = self.opponent.convert_board(self.board, self.player)
+			print(new_board)
 			fen = self.opponent.generate_fen(new_board, self.opponent.active_player)
 
+			# Send some commands to stockfish
 			self.opponent.send_command(f"position fen {fen}")
 			self.opponent.send_command("go depth 1")	# Pick based on difficulty
 
@@ -338,22 +344,13 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			except Exception as e:
 				print(f"Error retrieving move: {e}")
 
-			# This code tranlates the stockfish best move "i3h3" into
-			# numbers that we can use for the actual move.
-			starting_col, starting_row, ending_col, ending_row = 0
+			# Move the piece based on the stockfish answer using helper function
+			helper_funcs.ai_move(self.player, self.opponent, self.board, best_move)
 
-			starting_col = ord(best_move[0].lower()) - 96
-			starting_row = int(best_move[1])
-			ending_col = ord(best_move[2].lower()) - 96
-			ending_row = int(best_move[3])
+			# Quitting early will crash because the engine needs to be remade
+			# self.opponent.send_command("quit")
 
-			# Update the move of the oppenent 	
-			
-			# Apply the move
-			#self.apply_move(best_move)
-
-			self.opponent.send_command("quit")
-
+			# Update whose turn it is
 			self.opponent.is_turn = False
 			self.player.is_turn = True
 			

@@ -1,6 +1,7 @@
 import subprocess
 import board
 import pygame
+import re
 import numpy as np
 
 from piece import Piece, PieceCollisionSize, PieceType, OpponentPiecePosition
@@ -17,6 +18,7 @@ from helper_funcs import reformat_piece_collision
 class OpponentAI:
 	def __init__(self, difficulty="easy", color="Han"):
 		self.difficulty = difficulty
+		self.color = color
 		# Start the engine process
 		# Formality stuff
 		self.engine = subprocess.Popen(
@@ -27,10 +29,9 @@ class OpponentAI:
 			text=True
 		)
 		if color == "Han":
-			color = "w"
+			self.active_player = "w"
 		else:
-			color = "b"
-		self.active_player = color
+			self.active_player = "b"
 		self.is_turn = False
 		self.pieces = self.fill_pieces()
 
@@ -84,8 +85,34 @@ class OpponentAI:
 	# Function for sending commands to the engine.
 	def send_command(self, command):
 		self.engine.stdin.write(command + '\n')
-		self.engine.stdin.flush()\
+		self.engine.stdin.flush()
+
+	# Converts the h1d1 type stockifsh output to coordinates on the board
+	def notation_to_coordinates(self, location):
+		# Define column mappings for Janggi notation
+		columns = {'i': 0, 'h': 1, 'g': 2, 'f': 3, 'e': 4, 'd': 5, 'c': 6, 'b': 7, 'a': 8}
+
+		# Get map index value
+		column = columns[location[:1]]
+		row = int(location[1:]) - 1  # Convert "1" to index 0, etc.
 		
+		return (column, row)
+
+	# Function to find the piece at the given position in the Stockfish notation
+	def find_piece_on_board(self, board, location):
+		# 'location' is a rank and file
+		# Find the piece by checking every self(opponent) piece location
+		# against the location of the stockfish move.
+		for rank, row in enumerate(board.coordinates):
+			for file, spot in enumerate(row):
+				if (rank, file) == location:
+					for piece in self.pieces:
+						if piece.location == spot:
+							return piece
+		return
+		
+	# Convert the board class board of coordinates and pieces
+	# into string format
 	def convert_board(self, board, player):
 		# Create a template for the board
 		new_board = np.array([
@@ -103,8 +130,8 @@ class OpponentAI:
 		# Some pieces need alias for stockfish
 		piece_type_mapping = {
 			"Chariot": "R",
-			"Elephant": "N",
-			"Horse": "B",
+			"Elephant": "B",
+			"Horse": "N",
 			"Pawn": "P",
 			"King": "K",
 			"Advisor": "A",
@@ -118,23 +145,24 @@ class OpponentAI:
 
 		return new_board
 	
+	# Return the board with the players pieces added to the string
 	def add_player_pieces(self, new_board, player, board, piece_type_mapping):
 		for row in range(len(board.coordinates)):
 			for column in range(len(board.coordinates[row])):
 				for piece in player.pieces:
 					if board.coordinates[row][column] == piece.location:
-						new_board[column][row] = piece_type_mapping.get(piece.piece_type.value)
+						new_board[column][row] = piece_type_mapping.get(piece.piece_type.value).lower()
 		return new_board
 
-	# Opponent is self here, I know the name may be confusing
+	# Opponent is self here, I know the name may be confusing.
+	# Return the board with the opponent's (self) pieces added to the string
 	def add_opponent_pieces(self, new_board, board, piece_type_mapping):
 		for row in range(len(board.coordinates)):
 			for column in range(len(board.coordinates[row])):
 				for piece in self.pieces:
 					if board.coordinates[row][column] == piece.location:
-						new_board[column][row] = piece_type_mapping.get(piece.piece_type.value).lower()
+						new_board[column][row] = piece_type_mapping.get(piece.piece_type.value)
 		return new_board
-
 
 	# Function to generate FEN string from the board state
 	# The FEN string is a way of recording the current board state in string format.
@@ -165,18 +193,18 @@ class OpponentAI:
 
 # Example board state
 # We need to import the current board state and convert it into this format.
-janggi_board = [
-	["r", "n", "b", "a", ".", "a", "b", "n", "r"],
-	[".", ".", ".", ".", "k", ".", ".", ".", "."],
-	[".", "c", ".", ".", ".", ".", ".", "c", "."],
-	["p", ".", "p", ".", "p", ".", "p", ".", "p"],
-	[".", ".", ".", ".", ".", ".", ".", ".", "."],
-	[".", ".", ".", ".", ".", ".", ".", ".", "."],
-	["P", ".", "P", ".", "P", ".", "P", ".", "P"],
-	[".", "C", ".", ".", ".", ".", ".", "C", "."],
-	[".", ".", ".", ".", "k", ".", ".", ".", "."],
-	["R", "R", "R", "R", ".", "R", "B", "N", "R"],
-]
+# janggi_board = [
+# 	["r", "n", "b", "a", ".", "a", "b", "n", "r"],
+# 	[".", ".", ".", ".", "k", ".", ".", ".", "."],
+# 	[".", "c", ".", ".", ".", ".", ".", "c", "."],
+# 	["p", ".", "p", ".", "p", ".", "p", ".", "p"],
+# 	[".", ".", ".", ".", ".", ".", ".", ".", "."],
+# 	[".", ".", ".", ".", ".", ".", ".", ".", "."],
+# 	["P", ".", "P", ".", "P", ".", "P", ".", "P"],
+# 	[".", "C", ".", ".", ".", ".", ".", "C", "."],
+# 	[".", ".", ".", ".", "k", ".", ".", ".", "."],
+# 	["R", "R", "R", "R", ".", "R", "B", "N", "R"],
+# ]
 
 # w means white in chess terms, in this case w = red.
 # b meand black in chess terms, in this case b = blue

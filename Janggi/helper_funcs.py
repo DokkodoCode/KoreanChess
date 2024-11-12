@@ -5,6 +5,7 @@ o This file is to hold any logical/helper functions to be
 o Last Modified - October 31st 2024
 ------------------------------------------------------------------
 """
+import re
 
 def read_move(str):
 	str = str.split(",")
@@ -71,6 +72,34 @@ def player_piece_unclick(player):
 		if piece.is_clicked:
 			piece.is_clicked = False # flag piece being not moved
 			player.is_clicked = False # flag player as no longer atempting to move piece
+
+# Handle logic for moving ai opponent's piece
+def ai_move(player, opponent, board, best_move):
+	# Separate the initial and final coordinates using regular expression
+	split_coords = re.findall(r"[a-zA-Z]\d+", best_move)
+	initial = split_coords[0]
+	destination = split_coords[1]
+
+	# Convert the coordinates into usable format
+	initial = opponent.notation_to_coordinates(initial)
+	destination = opponent.notation_to_coordinates(destination)
+
+	# Find the correct piece using the initial location coordinate
+	selected_piece = opponent.find_piece_on_board(board, initial)
+	if selected_piece:
+		print("Moving Piece: ", selected_piece.piece_type.value, " to ", destination)
+	else:
+		print("No piece found")
+
+	# Check if the destination position is occupied by an opponent piece (for capture)
+	# Stockfish shouldn't recommend a move to a space with its own pieces on it but it
+	# might, so we may have to check for that.
+	
+
+	# Move the piece to the destination
+	
+
+	return
 
 #-----------------------------------------------------------------------------------
 # Function that will move a clicked piece to a valid location
@@ -469,10 +498,10 @@ def move_cannon(janggi_piece, board, mouse_pos, player, opponent):
 	# implement logic here
 	possible_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
-    # Get a list of all the pieces on the board
+	# Get a list of all the pieces on the board
 	all_pieces = player.pieces + opponent.pieces
 
-    # Iterate over the board to find the current location of the cannon
+	# Iterate over the board to find the current location of the cannon
 	for rank, row in enumerate(board.coordinates):
 		for file, spot in enumerate(row):
 			if spot == janggi_piece.location:
@@ -481,7 +510,7 @@ def move_cannon(janggi_piece, board, mouse_pos, player, opponent):
 					new_rank = rank + move[0]
 					new_file = file + move[1]
 
-                    # Continue moving along the path in the given direction until out of bounds
+					# Continue moving along the path in the given direction until out of bounds
 					while (0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)):
 						piece_in_way = False
 
