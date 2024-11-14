@@ -576,12 +576,9 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 					if self.player_ai.color == "Cho":
 						helper_funcs.choose_ai_lineup(self.player_ai)
 						self.waiting_player = self.player
-						self.waiting_player.is_turn = False
 						self.active_player = self.player_ai
-						self.active_player.is_turn = True
 					else:
 						self.active_player = self.player
-						self.active_player.is_turn = True
 
 			# check if the player is currently attempting to move a piece
 			elif self.active_player.is_clicked and not self.opening_turn:
@@ -1165,7 +1162,6 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 					elif self.host_confirm_swap_button.is_clicked():
 						self.waiting_player = self.han_player
 						self.waiting_player.is_ready = True
-						self.waiting_player.is_turn = False
 				# HAN IS GUEST
 				else:
 					if self.guest_swap_right_horse_button.is_clicked():
@@ -1175,7 +1171,6 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 					elif self.guest_confirm_swap_button.is_clicked():
 						self.waiting_player = self.han_player
 						self.waiting_player.is_ready = True
-						self.waiting_player.is_turn = False
 			# Cho player chooses second
 			elif self.opening_turn and not self.cho_player.is_ready:
 				# CHO IS HOST
@@ -1187,7 +1182,6 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 					elif self.host_confirm_swap_button.is_clicked():
 						self.active_player = self.cho_player
 						self.active_player.is_ready = True
-						self.active_player.is_turn = False
 						self.opening_turn = False
 				# CHO IS GUEST
 				else:

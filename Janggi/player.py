@@ -29,7 +29,6 @@ class Player():
 		self.ai_level = None
 		self.is_ready = False
 		self.is_clicked = False
-		self.is_turn = False
 		self.initiated_bikjang = False
 		self.pieces = self.fill_pieces()
 		self.settings = self.initialize_settings()
