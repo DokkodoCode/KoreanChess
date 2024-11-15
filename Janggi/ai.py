@@ -179,7 +179,7 @@ class OpponentAI:
 				for piece in self.pieces:
 					if board.coordinates[row][column] == piece.location:
 						new_board[column][row] = piece_type_mapping.get(piece.piece_type.value)
-		return new_board
+		return reversed(new_board)
 
 	# Function to generate FEN string from the board state
 	# The FEN string is a way of recording the current board state in string format.

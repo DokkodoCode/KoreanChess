@@ -65,8 +65,8 @@ def render_palace_debug(window, board):
 # INPUT: display window
 # OUTPUT: rectangle rendered on screen at coord
 #-----------------------------------------------------------------------------------
-def render_spot(window, coord):
+def render_spot(window, coord, color):
 	rectangle = (coord[0], coord[1], constants.small_collision_size[0], 
 				 constants.small_collision_size[1])
-	pygame.draw.rect(window, constants.GREEN, rectangle)
+	pygame.draw.rect(window, color, rectangle)
 	return

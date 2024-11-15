@@ -12,6 +12,7 @@ import re
 
 # local file imports, see individ file for details
 import constants
+import debug_funcs
 
 #-----------------------------------------------------------------------------------
 # Function that will send player's board data to other player for synchronization
@@ -188,21 +189,36 @@ def player_piece_unclick(active_player):
 			piece.is_clicked = False # flag piece being not moved
 			active_player.is_clicked = False # flag player as no longer atempting to move piece
 
+def find_piece_on_board(opponent, board, location):
+	for piece in opponent.pieces:
+		print("Piece Location: ", piece.location)
+		print("Board Location: ", board.coordinates[location[0]][location[1]])
+		if piece.location == board.coordinates[location[0]][location[1]]:
+			return piece
+	return None	
+
 # Handle logic for moving ai opponent's piece
 def ai_move(player, opponent, board, best_move):
 	# Separate the initial and final coordinates using regular expression
 	split_coords = re.findall(r"[a-zA-Z]\d+", best_move)
 	initial = split_coords[0]
 	destination = split_coords[1]
+	print("Initial: ", initial, " Destination: ", destination)
 
 	# Convert the coordinates into usable format
 	initial = opponent.notation_to_coordinates(initial)
 	destination = opponent.notation_to_coordinates(destination)
 
+	print("Initial: ", initial, " Destination: ", destination)
+
+	print(f"coordinates: {board.coordinates[initial[0]][initial[1]]}")
+	print(f"coordinates: {board.coordinates[destination[0]][destination[1]]}")
+
 	# Find the correct piece using the initial location coordinate
 	selected_piece = opponent.find_piece_on_board(player, board, initial)
+
 	if selected_piece:
-		print("Moving Piece: ", selected_piece.piece_type.value, " to ", destination)
+		print("Moving Piece: ", selected_piece.piece_type.value, " @ loc ", selected_piece.location, " to ", destination)
 	else:
 		print("No piece found")
 
@@ -1146,6 +1162,7 @@ def capture_piece(waiting_player, piece):
 	# detect if player captured a piece if they moved piece
 	for janggi_piece in waiting_player.pieces:
 		if piece.collision_rect.colliderect(janggi_piece.collision_rect):
+			print(f"{waiting_player.color}'s {janggi_piece.piece_type} captured!")
 			waiting_player.pieces.remove(janggi_piece)
 	
 	return
