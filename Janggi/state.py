@@ -14,6 +14,7 @@ import board
 import button
 import constants
 import debug_funcs
+import numpy as np
 import helper_funcs
 import player
 import render_funcs
@@ -137,7 +138,7 @@ class MainMenu(State):
 		window.blit(self.menu_background, self.menu_background.get_rect(center = window.get_rect().center))
 		window.blit(self.playboard, self.playboard.get_rect(center = window.get_rect().center))
 		window.blit(self.button_background, 
-                    self.button_background.get_rect(center = window.get_rect().center))
+					self.button_background.get_rect(center = window.get_rect().center))
 		
 		# draw buttons to window
 		self.singleplayer_button.draw_button(window)
@@ -363,7 +364,7 @@ class SinglePlayerPreGameSettings(State):
 		
 		# SELECT PIECE SIDE TO PLAY AS (CHO/HAN)
 		window.blit(self.play_as_background, 
-               constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["play_as"]["location"])
+			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["play_as"]["location"])
 		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["play_as"]["text"]["string"]
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["play_as"]["text"]["location"]
 		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["play_as"]["text"]["font_size"]
@@ -616,12 +617,13 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 # AI STUFF IS HERE
 		# Handle AI Opponent's turn
 		if self.opponent.is_turn and not self.opening_turn:
-			new_board = self.opponent.convert_board(self.board, self.opponent)
+			new_board = self.opponent.convert_board(self.board, self.player)
 			# print(new_board)
 			fen = self.opponent.generate_fen(new_board)
 
 			# Send some commands to stockfish
 			self.opponent.send_command(f"position fen {fen}")
+
 			# Pick based on difficulty
 			if self.ai_level == "Easy":
 				self.opponent.send_command("go depth 1")	
@@ -638,7 +640,13 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 				print(f"Error retrieving move: {e}")
 
 			# Move the piece based on the stockfish answer using helper function
+			# print("Board BEFORE move:\n", self.opponent.convert_board(self.board, self.player))
+			# print("FEN before move:", self.opponent.generate_fen(self.opponent.convert_board(self.board, self.player)))
+
 			helper_funcs.ai_move(self.player, self.opponent, self.board, best_move)
+
+			# print("Board AFTER move:\n", self.opponent.convert_board(self.board, self.player))
+			# print("FEN after move:", self.opponent.generate_fen(self.opponent.convert_board(self.board, self.player)))
 
 			self.player.is_turn = True
 			self.opponent.is_turn = False
@@ -924,7 +932,7 @@ class LocalSinglePlayerPreGameSettings(State):
 		
 		# SELECT PIECE SIDE TO PLAY AS (CHO/HAN)
 		window.blit(self.play_as_background, 
-               constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["location"])
+			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["location"])
 		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["string"]
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["location"]
 		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["font_size"]

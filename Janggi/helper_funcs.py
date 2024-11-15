@@ -203,16 +203,16 @@ def ai_move(player, opponent, board, best_move):
 	split_coords = re.findall(r"[a-zA-Z]\d+", best_move)
 	initial = split_coords[0]
 	destination = split_coords[1]
-	print("Initial: ", initial, " Destination: ", destination)
+	# print("Initial: ", initial, " Destination: ", destination)
 
 	# Convert the coordinates into usable format
 	initial = opponent.notation_to_coordinates(initial)
 	destination = opponent.notation_to_coordinates(destination)
 
-	print("Initial: ", initial, " Destination: ", destination)
+	# print("Initial: ", initial, " Destination: ", destination)
 
-	print(f"coordinates: {board.coordinates[initial[0]][initial[1]]}")
-	print(f"coordinates: {board.coordinates[destination[0]][destination[1]]}")
+	# print(f"coordinates: {board.coordinates[initial[0]][initial[1]]}")
+	# print(f"coordinates: {board.coordinates[destination[0]][destination[1]]}")
 
 	# Find the correct piece using the initial location coordinate
 	selected_piece = opponent.find_piece_on_board(player, board, initial)
@@ -221,6 +221,15 @@ def ai_move(player, opponent, board, best_move):
 		print("Moving Piece: ", selected_piece.piece_type.value, " @ loc ", selected_piece.location, " to ", destination)
 	else:
 		print("No piece found")
+
+	new_spot = board.coordinates[destination[0]][destination[1]]
+
+	selected_piece.location = new_spot
+	selected_piece.collision_rect.topleft = new_spot
+
+	# Check if the valid move resulted in a capture
+	if detect_capture(player, selected_piece):
+		capture_piece(player, selected_piece)
 
 	# Check if the destination position is occupied by an opponent piece (for capture)
 	# Stockfish shouldn't recommend a move to a space with its own pieces on it but it

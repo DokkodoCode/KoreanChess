@@ -99,6 +99,25 @@ class OpponentAI:
 		self.engine.stdin.write(command + '\n')
 		self.engine.stdin.flush()
 
+	# Clears Stockfish's output buffer
+	def flush_engine_output(self):
+		import time
+		buffer = []
+		start_time = time.time()
+
+		while True:
+			# Read a line from Stockfish's stdout
+			line = self.engine.stdout.readline().strip()
+			if line:  # If there's output, store it in the buffer
+				buffer.append(line)
+				print(f"Flushed line: {line}")  # Debugging log (optional)
+			else:
+				# If no output and we have waited long enough, break
+				if time.time() - start_time > 0.5:  # Avoid hanging indefinitely
+					break
+
+		return buffer
+
 	# Converts the h1d1 type stockifsh output to coordinates on the board
 	def notation_to_coordinates(self, location):
 		# Define column mappings for Janggi notation
@@ -123,7 +142,6 @@ class OpponentAI:
 			for file, spot in enumerate(row):
 				if (rank, file) == location:
 					for piece in self.pieces:
-						print(piece.location, " vs ", spot)
 						if piece.location == spot:
 							return piece
 		return
@@ -155,12 +173,23 @@ class OpponentAI:
 			"Cannon": "C"
 		}
 		
+		
 		# Add the player's pieces to the template
 		new_board = self.add_player_pieces(new_board, player, board, piece_type_mapping)
 		# Add the opponent's pieces to the template
 		new_board = self.add_opponent_pieces(new_board, board, piece_type_mapping)
-
-		return new_board
+		#new_board = self.test(new_board, player, board)
+	
+		return np.flipud(new_board)
+	
+	# def test(self, new_board, player, board):
+	# 	pieces = self.pieces + player.pieces
+	# 	for row in range(len(board.coordinates)):
+	# 		for column in range(len(board.coordinates[row])):
+	# 			for piece in pieces:
+	# 				if board.coordinates[row][column] == piece.location:
+	# 					new_board[column][row] = "X"
+	# 	return new_board
 	
 	# Return the board with the players pieces added to the string
 	def add_player_pieces(self, new_board, player, board, piece_type_mapping):
@@ -179,7 +208,7 @@ class OpponentAI:
 				for piece in self.pieces:
 					if board.coordinates[row][column] == piece.location:
 						new_board[column][row] = piece_type_mapping.get(piece.piece_type.value)
-		return reversed(new_board)
+		return new_board
 
 	# Function to generate FEN string from the board state
 	# The FEN string is a way of recording the current board state in string format.
