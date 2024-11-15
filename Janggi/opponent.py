@@ -21,6 +21,7 @@ class Opponent():
 	# 				their Piece objects need for the game
 	def __init__(self, color="Han"):
 		self.color = color
+		self.piece_convention = "Standard"
 		self.is_turn = False
 		self.pieces = self.fill_pieces()
 

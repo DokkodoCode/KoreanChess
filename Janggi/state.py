@@ -13,6 +13,7 @@ import pygame
 import board
 import button
 import constants
+import debug_funcs
 import helper_funcs
 import player
 import render_funcs
@@ -160,18 +161,16 @@ class SinglePlayerPreGameSettings(State):
 		self.ai_level = "Easy"
 		# player and opponent will be created here to be inherited
 		self.player = player.Player(is_host=True, board_perspective="Bottom")
-		self.player_ai = player.Player(is_host=False, board_perspective="Top")
+		# self.player_ai = player.Player(is_host=False, board_perspective="Top")
+		self.opponent = ai.OpponentAI(is_host=False, board_perspective="Top")
 
 		# host retains last settings, guest is opposite
 		if self.player.color == "Cho":
-			self.player_ai.color = "Han"
+			self.opponent.color = "Han"
 		else:
-			self.player_ai.color = "Cho"
-		#self.player = player.Player()
-		#self.opponent = ai.OpponentAI()
+			self.opponent.color = "Cho"
 
 		# DECLARE BUTTONS FOR PRE-GAME SETTINGS
-
 		# cho button
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["cho_button"]["location"]
 		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["cho_button"]["size"]
@@ -324,19 +323,19 @@ class SinglePlayerPreGameSettings(State):
 			# PLAY AS CHO
 			if self.cho_side_button.is_clicked():
 				self.player.color ="Cho"
-				self.player_ai.color = "Han"
+				self.opponent.color = "Han"
 			# PLAY AS HAN
 			elif self.han_side_button.is_clicked():
 				self.player.color = "Han"
-				self.player_ai.color = "Cho"
+				self.opponent.color = "Cho"
 			# PLAY WITH STANDARD PIECE LOGOS
 			elif self.standard_piece_convention_button.is_clicked():
 				self.player.piece_convention = "Standard"
-				self.player_ai.piece_convention = "Standard"
+				self.opponent.piece_convention = "Standard"
 			# PLAY WITH INTERNATIONAL PIECE LOGOS
 			elif self.internat_piece_convention_button.is_clicked():
 				self.player.piece_convention = "International"
-				self.player_ai.piece_convention = "International"
+				self.opponent.piece_convention = "International"
 			# CLICK CONFIRM SETTINGS IF ALL ARE SET
 			elif (self.play_button.is_clicked() 
 		 		  and self.player is not None):
@@ -348,7 +347,7 @@ class SinglePlayerPreGameSettings(State):
 					if button.is_clicked():
 						self.ai_level = button.text
 						self.player.ai_level = button.text
-						self.player_ai.ai_level = button.text
+						self.opponent.ai_level = button.text
 						
 	# escape to main menu
 		elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -401,7 +400,7 @@ class SinglePlayerPreGameSettings(State):
 			button.draw_button(window)
 				
 		# DISPLAY PREVIEW OF THE PIECES ON HOW THEY WILL LOOK	
-		if self.player is not None and self.player_ai is not None:
+		if self.player is not None and self.opponent is not None:
 
 			# player header to notify which display is player's
 			window.blit(self.player_header_background, 
@@ -424,7 +423,7 @@ class SinglePlayerPreGameSettings(State):
 			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["opponent_piece_display"]["location"])
 
 			# render pieces
-			render_funcs.PreGame_render_piece_display(window, self.player, self.player_ai)
+			render_funcs.PreGame_render_piece_display(window, self.player, self.opponent)
 
 
 		# PLAY BUTTON
@@ -507,8 +506,6 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		self.game_over_background = pygame.transform.scale(self.game_over_background,
 				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["size"])
 
-
-
 		# game state variables
 		self.opening_turn = True
 		self.bikjang = False
@@ -519,31 +516,13 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		# create game objects
 		self.board = board.Board()
 		self.player = self.player
-		self.player_ai = self.player_ai
-		self.active_player = None
-		self.waiting_player = None
+		self.opponent = self.opponent
 
 		# pre-set ai if it goes first
 		# Han player chooses first horse swaps
-		if self.player_ai.color == "Han":
-			self.waiting_player = self.player_ai
-			helper_funcs.choose_ai_lineup(self.waiting_player)
+		if self.opponent.color == "Han":
+			helper_funcs.choose_ai_lineup(self.opponent)
 		
-		# This is for testing the ai moves. Right now, the AI give the player moves to do.
-		########################################################################################################################
-		# new_board = self.opponent.convert_board(self.board, self.player)
-		# fen = self.opponent.generate_fen(new_board, self.opponent.active_player)
-
-		# self.opponent.send_command(f"position fen {fen}")
-		# self.opponent.send_command("go depth 1")	# Pick based on difficulty
-
-		# # Retrieve the engine's move
-		# try:
-		# 	best_move = self.opponent.get_engine_move()
-		# 	print(f"Engine's move: {best_move}")
-		# except Exception as e:
-		# 	print(f"Error retrieving move: {e}")
-		#######################################################################################################################
 
 	# Listen for and handle any event ticks (clicks/buttons)
 	# INPUT: pygame event object
@@ -552,99 +531,104 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		# get the player's mouse position for click tracking
 		mouse_pos = pygame.mouse.get_pos()
 		# check for game over conditions at the top of the turn
-		if (self.active_player is not None and 
-	  		self.waiting_player is not None and 
-	  		not helper_funcs.resolve_condition(self.active_player, self.waiting_player, self.board, self.condition)):
+		if (self.player is not None and 
+	  		self.opponent is not None and 
+	  		not helper_funcs.resolve_condition(self.player, self.opponent, self.board, self.condition)):
 			if self.condition == "Bikjang":
 				self.game_over = True
 			if self.condition == "Check":
 				self.game_over = True
 			pass # handle end game transition here
-
-		# listen for an event trigger via click from right-mouse-button
+			# listen for an event trigger via click from right-mouse-button
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-			# OPENING TURN ONLY
-			if self.opening_turn:
-				# player may swap horses with elephants, confirm swap to end turn
-				# Han player chooses first then Cho
-				if self.swap_right_horse_button.is_clicked():
-					helper_funcs.swap_pieces(self.player.pieces[6], self.player.pieces[4])
-				elif self.swap_left_horse_button.is_clicked():
-					helper_funcs.swap_pieces(self.player.pieces[5], self.player.pieces[3])
-				elif self.confirm_swap_button.is_clicked():
-					self.opening_turn = False
-					if self.player_ai.color == "Cho":
-						helper_funcs.choose_ai_lineup(self.player_ai)
-						self.waiting_player = self.player
-						self.waiting_player.is_turn = False
-						self.active_player = self.player_ai
-						self.active_player.is_turn = True
-					else:
-						self.active_player = self.player
-						self.active_player.is_turn = True
+				# OPENING TURN ONLY
+				if self.opening_turn:
+					# player may swap horses with elephants, confirm swap to end turn
+					# Han player chooses first then Cho
+					if self.swap_right_horse_button.is_clicked():
+						helper_funcs.swap_pieces(self.player.pieces[6], self.player.pieces[4])
+					elif self.swap_left_horse_button.is_clicked():
+						helper_funcs.swap_pieces(self.player.pieces[5], self.player.pieces[3])
+					elif self.confirm_swap_button.is_clicked():
+						self.opening_turn = False
+						if self.opponent.color == "Cho":
+							helper_funcs.choose_ai_lineup(self.opponent)
+							self.player.is_turn = False
+							self.opponent.is_turn = True
+						else:
+							self.player.is_turn = True
+							self.opponent.is_turn = False
 
-			# check if the player is currently attempting to move a piece
-			elif self.active_player.is_clicked and not self.opening_turn:
-				# unclick that piece if the move was successful/valid
-				if helper_funcs.attempt_move(self.active_player, self.waiting_player, self.board, mouse_pos, self.condition):
-					helper_funcs.player_piece_unclick(self.active_player)
-					# end of turn update
-					if helper_funcs.detect_bikjang(self.active_player, self.waiting_player):
-						self.bikjang = True
-						self.active_player.initiated_bikjang = True
-						self.condition = "Bikjang"
-					elif helper_funcs.detect_check(self.waiting_player, self.active_player, self.board):
-						self.check = True
-						self.bikjang = False
-						self.condition = "Check"
-					else: # no condition change
-						self.bikjang = False
-						self.check = False
-						self.condition = "None"
-					# switch turns
-					temp_info = self.active_player
-					self.active_player = self.waiting_player
-					self.waiting_player = temp_info
+				if self.player.is_turn:
+					# check if the player is currently attempting to move a piece
+					if self.player.is_clicked and not self.opening_turn:
+						# unclick that piece if the move was successful/valid
+						if helper_funcs.attempt_move(self.player, self.opponent, self.board, mouse_pos, self.condition):
+							helper_funcs.player_piece_unclick(self.player)
+							# end of turn update
+							if helper_funcs.detect_bikjang(self.player, self.opponent):
+								self.bikjang = True
+								self.player.initiated_bikjang = True
+								self.condition = "Bikjang"
+							elif helper_funcs.detect_check(self.player, self.opponent, self.board):
+								self.check = True
+								self.bikjang = False
+								self.condition = "Check"
+							else: # no condition change
+								self.bikjang = False
+								self.check = False
+								self.condition = "None"
+							# switch turns
+							self.player.is_turn = False
+							self.opponent.is_turn = True
 
-				# otherwise the player is clicking another piece or invalid spot
-				else:
-					# reset click state
-					helper_funcs.player_piece_unclick(self.active_player)
-					# update click to new piece if valid clicked
-					helper_funcs.player_piece_clicked(self.active_player, mouse_pos)
+						# otherwise the player is clicking another piece or invalid spot
+						else:
+							# reset click state
+							helper_funcs.player_piece_unclick(self.player)
+							# update click to new piece if valid clicked
+							helper_funcs.player_piece_clicked(self.player, mouse_pos)
 
-			# otherwise, check if any player-side pieces were clicked
-			elif helper_funcs.player_piece_clicked(self.active_player, mouse_pos):
-				# FUTURE LOGIC HERE
-				pass
-			# IMPLEMENT FURTHER BRANCHES HERE FOR FUTURE IMPLEMENTATIONS
-		# if something...
-			# do something ...
-		# elif something
-			# do etc...
-		# right-clicking your king will pass the turn
-		elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3 and not self.bikjang and not self.check:
-			if self.active_player is not None:
-				helper_funcs.player_piece_unclick(self.active_player)
-				# KING piece is always the first piece in the list
-				if self.active_player.pieces[0].collision_rect.collidepoint(mouse_pos):
-					# swap turns
-					temp_info = self.active_player
-					self.active_player = self.waiting_player
-					self.waiting_player = temp_info
+					# otherwise, check if any player-side pieces were clicked
+					elif helper_funcs.player_piece_clicked(self.player, mouse_pos):
+						# FUTURE LOGIC HERE
+						pass
+				# IMPLEMENT FURTHER BRANCHES HERE FOR FUTURE IMPLEMENTATIONS
+			# if something...
+				# do something ...
+			# elif something
+				# do etc...
+			# right-clicking your king will pass the turn
+		elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3 and self.player.is_turn and not self.bikjang and not self.check:
+				if self.player is not None:
+					helper_funcs.player_piece_unclick(self.player)
+					# KING piece is always the first piece in the list
+					if self.player.pieces[0].collision_rect.collidepoint(mouse_pos):
+						# swap turns
+						self.player.is_turn = False
+						self.opponent.is_turn = True
+
 		# escape from game to main menu
-		elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+		if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 			self.next_state = "Main Menu"
 
 #--------------------------------------------------------------------------------
 # AI STUFF IS HERE
-		"""# Handle AI Opponent's turn
-		if self.opponent.is_turn:
-			new_board = self.opponent.convert_board(self.board, self.player)
-			fen = self.opponent.generate_fen(new_board, self.opponent.active_player)
+		# Handle AI Opponent's turn
+		if self.opponent.is_turn and not self.opening_turn:
+			new_board = self.opponent.convert_board(self.board, self.opponent)
+			# print(new_board)
+			fen = self.opponent.generate_fen(new_board)
 
+			# Send some commands to stockfish
 			self.opponent.send_command(f"position fen {fen}")
-			self.opponent.send_command("go depth 1")	# Pick based on difficulty
+			# Pick based on difficulty
+			if self.ai_level == "Easy":
+				self.opponent.send_command("go depth 1")	
+			if self.ai_level == "Medium":
+				self.opponent.send_command("go depth 3")	
+			if self.ai_level == "Hard":
+				self.opponent.send_command("go depth 5")	
 
 			# Retrieve the engine's move
 			try:
@@ -653,24 +637,15 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			except Exception as e:
 				print(f"Error retrieving move: {e}")
 
-			# This code tranlates the stockfish best move "i3h3" into
-			# numbers that we can use for the actual move.
-			starting_col, starting_row, ending_col, ending_row = 0
+			# Move the piece based on the stockfish answer using helper function
+			helper_funcs.ai_move(self.player, self.opponent, self.board, best_move)
 
-			starting_col = ord(best_move[0].lower()) - 96
-			starting_row = int(best_move[1])
-			ending_col = ord(best_move[2].lower()) - 96
-			ending_row = int(best_move[3])
-
-			# Update the move of the oppenent 	
-			
-			# Apply the move
-			#self.apply_move(best_move)
-
-			self.opponent.send_command("quit")
-
+			self.player.is_turn = True
 			self.opponent.is_turn = False
-			self.player.is_turn = True"""
+
+			# Quitting early will crash because the engine needs to be remade
+			# self.opponent.send_command("quit")
+
 #--------------------------------------------------------------------------------
 
 	# Handle any rendering that needs to be done
@@ -692,8 +667,8 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			self.swap_right_horse_button.draw_button(window)
 
 		# if player has a piece currently clicked, render where it can go
-		if self.active_player is not None and self.active_player.is_clicked:
-			render_funcs.render_possible_spots(self.active_player, self.waiting_player, self.board, window, self.condition)
+		if self.player is not None and self.player.is_clicked:
+			render_funcs.render_possible_spots(self.player, self.opponent, self.board, window, self.condition)
 
 		# render collision rectangles for the pieces on both sides
 		#render_funcs.render_piece_collisions(self.active_player, self.waiting_player, window)
@@ -707,17 +682,17 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 
 		# HIGHLIGHT BIKJANG/CHECK CONDITIONS WHEN APPLICABLE
 		if self.bikjang:
-			render_funcs.render_bikjang_highlight(self.active_player, self.waiting_player, window)
+			render_funcs.render_bikjang_highlight(self.player, self.opponent, window)
 		if self.check:
-			render_funcs.render_check_highlight(self.active_player, window)
+			render_funcs.render_check_highlight(self.player, window)
 
 		# DISPLAY GAME STATE INFORMATION
-		if self.active_player is not None and self.waiting_player is not None:
-			render_funcs.render_pieces(self.active_player, self.waiting_player, window)
+		if self.player is not None and self.opponent is not None:
+			render_funcs.render_pieces(self.player, self.opponent, window)
 
 		# COVER CASE WHERE NO PLAYER HAS STARTED THEIR TURN YET
 		else:
-			render_funcs.render_pieces(self.player, self.player_ai, window)
+			render_funcs.render_pieces(self.player, self.opponent, window)
 
 		# DISPLAY END GAME CONDITIONS/GAME_STATES
 		# BIKJANG CONDITION
@@ -733,7 +708,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			self.draw_text(window, text, x, y, font_size)
 
 			# DISPLAY ANY RESULT-AFFECTING CONDITIONS
-			text = f"Bikjang initiated by {self.waiting_player.color} was unresolvable."
+			text = f"Bikjang initiated by {self.opponent.color} was unresolvable."
 			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["condition_text"]["location"]
 			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["condition_text"]["font_size"]
 			self.draw_text(window, text, x, y, font_size)
@@ -758,7 +733,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 
 
 			# HE WHO INITIATES BIKJANG FORFEITS THEIR RIGHT TO WIN
-			if self.waiting_player.initiated_bikjang:
+			if self.opponent.initiated_bikjang:
 
 				# NO WINNER
 				text = "Draw..."
@@ -767,7 +742,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 				self.draw_text(window, text, x, y, font_size)
 
 					# DISPLAY CONDITONS AFFECTING RESULT
-				text = f"{self.waiting_player.color} forfeited their win when initiating Bikjang."
+				text = f"{self.opponent.color} forfeited their win when initiating Bikjang."
 				x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["condition_text"]["location"]
 				font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["condition_text"]["font_size"]
 				self.draw_text(window, text, x, y, font_size)
@@ -775,16 +750,18 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			# NO RESTRICTIONS ON WINNING
 			else:
 				# DISPLAY THE WINNER
-				text = f"{self.waiting_player.color} wins!"
+				text = f"{self.opponent.color} wins!"
 				x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["result_text"]["location"]
 				font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["result_text"]["font_size"]
 				self.draw_text(window, text, x, y, font_size)
 
 				# DISPLAY REASONING
-				text = f"Check initiated by {self.waiting_player.color} was unresolvable."
+				text = f"Check initiated by {self.opponent.color} was unresolvable."
 				x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["condition_text"]["location"]
 				font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["condition_text"]["font_size"]
 				self.draw_text(window, text, x, y, font_size)
+		#debug_funcs.render_spot(window, (1168, 289), constants.GREY)
+		#debug_funcs.render_spot(window, (1068, 289), constants.RED)
 
 #--------------------------------------------------------------------------------
 class LocalSinglePlayerPreGameSettings(State):
@@ -1165,7 +1142,6 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 					elif self.host_confirm_swap_button.is_clicked():
 						self.waiting_player = self.han_player
 						self.waiting_player.is_ready = True
-						self.waiting_player.is_turn = False
 				# HAN IS GUEST
 				else:
 					if self.guest_swap_right_horse_button.is_clicked():
@@ -1175,7 +1151,6 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 					elif self.guest_confirm_swap_button.is_clicked():
 						self.waiting_player = self.han_player
 						self.waiting_player.is_ready = True
-						self.waiting_player.is_turn = False
 			# Cho player chooses second
 			elif self.opening_turn and not self.cho_player.is_ready:
 				# CHO IS HOST
@@ -1187,7 +1162,6 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 					elif self.host_confirm_swap_button.is_clicked():
 						self.active_player = self.cho_player
 						self.active_player.is_ready = True
-						self.active_player.is_turn = False
 						self.opening_turn = False
 				# CHO IS GUEST
 				else:
