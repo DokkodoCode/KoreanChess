@@ -727,6 +727,7 @@ def move_cannon(janggi_piece, board, mouse_pos, active_player, waiting_player, c
     # Get a list of all the pieces on the board
 	all_pieces = active_player.pieces + waiting_player.pieces
 
+	cannon_found = False
     # Iterate over the board to find the current location of the cannon
 	for rank, row in enumerate(board.coordinates):
 		for file, spot in enumerate(row):
@@ -736,18 +737,25 @@ def move_cannon(janggi_piece, board, mouse_pos, active_player, waiting_player, c
 					new_rank = rank + move[0]
 					new_file = file + move[1]
 
+					count = 0
                     # Continue moving along the path in the given direction until out of bounds
 					while (0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)):
 						piece_in_way = False
-
 						for check_piece in all_pieces:
 							# Check here if the piece is a cannon
 							if (board.coordinates[new_rank][new_file] == check_piece.location) and not (check_piece.piece_type.value == "Cannon"):
 								# A piece is in the way, cannon jumps over it
 								piece_in_way = True
+								count = count + 1
+								break
+								
+							if (board.coordinates[new_rank][new_file] == check_piece.location) and (check_piece.piece_type.value == "Cannon") and count == 0:
+								# A piece is in the way, cannon jumps over it
+								count = count + 1
+								piece_in_way = False
 								break
 
-						if piece_in_way:
+						if piece_in_way and count == 1:
 							# Jump over the piece
 							new_rank += move[0]
 							new_file += move[1]
