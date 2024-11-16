@@ -219,24 +219,18 @@ def ai_move(player, opponent, board, best_move):
 
 	if selected_piece:
 		print("Moving Piece: ", selected_piece.piece_type.value, " @ loc ", selected_piece.location, " to ", destination)
+
+		# Move the piece to the destination
+		new_spot = board.coordinates[destination[0]][destination[1]]
+		selected_piece.location = new_spot
+		selected_piece.collision_rect.topleft = new_spot
+		selected_piece.image_location = new_spot
+
+		# Check if the valid move resulted in a capture
+		if detect_capture(player, selected_piece):
+			capture_piece(player, selected_piece)
 	else:
 		print("No piece found")
-
-	new_spot = board.coordinates[destination[0]][destination[1]]
-
-	selected_piece.location = new_spot
-	selected_piece.collision_rect.topleft = new_spot
-
-	# Check if the valid move resulted in a capture
-	if detect_capture(player, selected_piece):
-		capture_piece(player, selected_piece)
-
-	# Check if the destination position is occupied by an opponent piece (for capture)
-	# Stockfish shouldn't recommend a move to a space with its own pieces on it but it
-	# might, so we may have to check for that.
-	
-
-	# Move the piece to the destination
 	
 
 	return
