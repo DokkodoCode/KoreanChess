@@ -53,6 +53,20 @@ class OpponentAI:
 		self.send_command("setoption name UCI_Variant value janggi")
 		self.send_command("position startpos")
 
+	def restart_engine(self):
+		self.engine.terminate()
+		self.engine = subprocess.Popen(
+			["./fairy-stockfish-largeboard_x86-64"],
+			stdin=subprocess.PIPE,
+			stdout=subprocess.PIPE,
+			stderr=subprocess.PIPE,
+			text=True
+		)
+
+		self.send_command("uci")
+		self.send_command("setoption name UCI_Variant value janggi")
+		self.send_command("position startpos")
+
 	# Method to populate the player's pieces for Janggi
 	# INPUT: None
 	# OUTPUT: A list of the piece objects
@@ -165,8 +179,8 @@ class OpponentAI:
 		# Some pieces need alias for stockfish
 		piece_type_mapping = {
 			"Chariot": "R",
-			"Elephant": "B",
-			"Horse": "N",
+			"Elephant": "E",
+			"Horse": "H",
 			"Pawn": "P",
 			"King": "K",
 			"Advisor": "A",

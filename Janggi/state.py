@@ -18,6 +18,7 @@ import numpy as np
 import helper_funcs
 import player
 import render_funcs
+import time
 import ai
 
 #--------------------------------------------------------------------------------
@@ -620,36 +621,63 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			new_board = self.opponent.convert_board(self.board, self.player)
 			# print(new_board)
 			fen = self.opponent.generate_fen(new_board)
-
-			# Send some commands to stockfish
-			self.opponent.send_command(f"position fen {fen}")
-
-			# Pick based on difficulty
+				
 			if self.ai_level == "Easy":
-				self.opponent.send_command("go depth 1")	
-			if self.ai_level == "Medium":
-				self.opponent.send_command("go depth 3")	
-			if self.ai_level == "Hard":
-				self.opponent.send_command("go depth 5")	
+				depth = 1
+			elif self.ai_level == "Medium":
+				depth = 5
+			elif self.ai_level == "Hard":
+				depth = 10
+			no_new_move = True
+			restarted = False
+			epoch = 0
+			thinking_time = 500
 
-			# Retrieve the engine's move
-			try:
-				best_move = self.opponent.get_engine_move()
-				print(f"Engine's move: {best_move}")
-			except Exception as e:
-				print(f"Error retrieving move: {e}")
+			# Keep trying to find a new move. It works well at moving right now, but it will reach a 
+			# state where it keeps suggesting the same move, and this is forced to end with a pass.
+			while no_new_move and not restarted:
+				if epoch % 2 == 0:
+					try:
+						print(f"Trying at depth level {str(depth)}")
+						self.opponent.send_command(f"position fen {fen}")
+						self.opponent.send_command(f"go depth {str(depth)}")
+						best_move = self.opponent.get_engine_move()
+						# print(f"Engine's move: {best_move}")
+					except Exception as e:
+						print(f"Error retrieving move: {e}")
+					depth += 3
 
-			# Move the piece based on the stockfish answer using helper function
-			# print("Board BEFORE move:\n", self.opponent.convert_board(self.board, self.player))
-			# print("FEN before move:", self.opponent.generate_fen(self.opponent.convert_board(self.board, self.player)))
+				else:
+					try:
+						print(f"Trying at thinking time {thinking_time}ms")
+						self.opponent.send_command(f"position fen {fen}")
+						self.opponent.send_command(f"go movetime {str(thinking_time)}")
+						best_move = self.opponent.get_engine_move()
+						# print(f"Engine's move: {best_move}")
+					except Exception as e:
+						print(f"Error retrieving move: {e}")
+					thinking_time += 500
 
-			helper_funcs.ai_move(self.player, self.opponent, self.board, best_move)
+				if helper_funcs.ai_move(self.player, self.opponent, self.board, best_move, new_board, fen):
+					print(f"Engine's move: {best_move}")
+					self.player.is_turn = True
+					self.opponent.is_turn = False
+					no_new_move = False
+				elif epoch == 10:
+					self.opponent.restart_engine()
+					restarted = True
+					epoch = 0
+					depth = 1
+					thinking_time = 500
+				else:
+					epoch += 1
 
-			# print("Board AFTER move:\n", self.opponent.convert_board(self.board, self.player))
-			# print("FEN after move:", self.opponent.generate_fen(self.opponent.convert_board(self.board, self.player)))
+			if no_new_move:
+				print("\nAI passes, no new move\n")
+				self.player.is_turn = True
+				self.opponent.is_turn = False
+		
 
-			self.player.is_turn = True
-			self.opponent.is_turn = False
 
 			# Quitting early will crash because the engine needs to be remade
 			# self.opponent.send_command("quit")
@@ -773,6 +801,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 
 #--------------------------------------------------------------------------------
 class LocalSinglePlayerPreGameSettings(State):
+
 
 	# initialize the settings for the game
 	# INPUT: No Input

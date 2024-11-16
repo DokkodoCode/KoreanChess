@@ -9,6 +9,7 @@ import json
 import pygame
 import random
 import re
+import numpy as np
 
 # local file imports, see individ file for details
 import constants
@@ -198,7 +199,7 @@ def find_piece_on_board(opponent, board, location):
 	return None	
 
 # Handle logic for moving ai opponent's piece
-def ai_move(player, opponent, board, best_move):
+def ai_move(player, opponent, board, best_move, new_board, fen):
 	# Separate the initial and final coordinates using regular expression
 	split_coords = re.findall(r"[a-zA-Z]\d+", best_move)
 	initial = split_coords[0]
@@ -226,14 +227,15 @@ def ai_move(player, opponent, board, best_move):
 		selected_piece.collision_rect.topleft = new_spot
 		selected_piece.image_location = new_spot
 
+		new_board = opponent.convert_board(board, player)
+
 		# Check if the valid move resulted in a capture
 		if detect_capture(player, selected_piece):
 			capture_piece(player, selected_piece)
-	else:
-		print("No piece found")
-	
 
-	return
+		return True
+
+	return False
 
 #-----------------------------------------------------------------------------------
 # Function that will move a clicked piece to a valid location
