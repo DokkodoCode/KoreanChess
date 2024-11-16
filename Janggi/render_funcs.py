@@ -932,7 +932,7 @@ def render_chariot_possible_spots(janggi_piece, active_player, waiting_player, b
     # Diagonal moves if inside the palace
     diagonal_moves = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
 	# Define palace corners where diagonal moves are allowed
-    palace_corners = {(3, 0), (5, 0), (3, 2), (5, 2), (3, 7), (5, 7), (3, 9), (5, 9)}
+    palace_corners = {(3, 0), (5, 0), (3, 2), (5, 2), (3, 7), (5, 7), (3, 9), (5, 9), (4, 1), (4, 8)}
     
     # Combine all pieces from both players
     all_pieces = active_player.pieces + waiting_player.pieces

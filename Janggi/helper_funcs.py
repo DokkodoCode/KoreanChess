@@ -858,7 +858,7 @@ def move_chariot(janggi_piece, board, mouse_pos, active_player, waiting_player, 
 	diagonal_moves = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
 
 	# Define palace corners where diagonal moves are allowed
-	palace_corners = {(3, 0), (5, 0), (3, 2), (5, 2), (3, 7), (5, 7), (3, 9), (5, 9)}
+	palace_corners = {(3, 0), (5, 0), (3, 2), (5, 2), (3, 7), (5, 7), (3, 9), (5, 9), (4, 1), (4, 8)}
 
 	# Get the current location of the piece
 	for rank, row in enumerate(board.coordinates):
