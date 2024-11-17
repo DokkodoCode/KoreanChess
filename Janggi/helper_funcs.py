@@ -9,6 +9,7 @@ import json
 import pygame
 import random
 import re
+import numpy as np
 
 # local file imports, see individ file for details
 import constants
@@ -196,7 +197,7 @@ def find_piece_on_board(opponent, board, location):
 	return None	
 
 # Handle logic for moving ai opponent's piece
-def ai_move(player, opponent, board, best_move):
+def ai_move(player, opponent, board, best_move, new_board, fen):
 	# Separate the initial and final coordinates using regular expression
 	split_coords = re.findall(r"[a-zA-Z]\d+", best_move)
 	initial = split_coords[0]
@@ -217,27 +218,22 @@ def ai_move(player, opponent, board, best_move):
 
 	if selected_piece:
 		print("Moving Piece: ", selected_piece.piece_type.value, " @ loc ", selected_piece.location, " to ", destination)
-	else:
-		print("No piece found")
 
-	new_spot = board.coordinates[destination[0]][destination[1]]
+		# Move the piece to the destination
+		new_spot = board.coordinates[destination[0]][destination[1]]
+		selected_piece.location = new_spot
+		selected_piece.collision_rect.topleft = new_spot
+		selected_piece.image_location = new_spot
 
-	selected_piece.location = new_spot
-	selected_piece.collision_rect.topleft = new_spot
+		new_board = opponent.convert_board(board, player)
 
-	# Check if the valid move resulted in a capture
-	if detect_capture(player, selected_piece):
-		capture_piece(player, selected_piece)
+		# Check if the valid move resulted in a capture
+		if detect_capture(player, selected_piece):
+			capture_piece(player, selected_piece)
 
-	# Check if the destination position is occupied by an opponent piece (for capture)
-	# Stockfish shouldn't recommend a move to a space with its own pieces on it but it
-	# might, so we may have to check for that.
-	
+		return True
 
-	# Move the piece to the destination
-	
-
-	return
+	return False
 
 #-----------------------------------------------------------------------------------
 # Function that will move a clicked piece to a valid location
@@ -747,6 +743,11 @@ def move_cannon(janggi_piece, board, mouse_pos, active_player, waiting_player, c
 	# implement logic here
 	possible_moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
+	diagonal_moves = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+
+	# Define palace corners where diagonal moves are allowed
+	palace_corners = {(3, 0), (5, 0), (3, 2), (5, 2), (3, 7), (5, 7), (3, 9), (5, 9), (4, 1), (4, 8)}
+
     # Get a list of all the pieces on the board
 	all_pieces = active_player.pieces + waiting_player.pieces
 
@@ -754,30 +755,51 @@ def move_cannon(janggi_piece, board, mouse_pos, active_player, waiting_player, c
 	for rank, row in enumerate(board.coordinates):
 		for file, spot in enumerate(row):
 			if spot == janggi_piece.location:
+				if (rank, file) in palace_corners:
+					possible_moves += diagonal_moves
 				# Cannon found, now check possible movement directions
 				for move in possible_moves:
 					new_rank = rank + move[0]
 					new_file = file + move[1]
 
+					count = 0
+				
+
+
                     # Continue moving along the path in the given direction until out of bounds
 					while (0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)):
 						piece_in_way = False
-
 						for check_piece in all_pieces:
 							# Check here if the piece is a cannon
 							if (board.coordinates[new_rank][new_file] == check_piece.location) and not (check_piece.piece_type.value == "Cannon"):
 								# A piece is in the way, cannon jumps over it
 								piece_in_way = True
+								count = count + 1
+								break
+							
+								
+							if (board.coordinates[new_rank][new_file] == check_piece.location) and (check_piece.piece_type.value == "Cannon") and count == 0:
+								# A piece is in the way, cannon jumps over it
+								count = count + 1
+								piece_in_way = False
 								break
 
-						if piece_in_way:
+						if piece_in_way and count == 1:
 							# Jump over the piece
 							new_rank += move[0]
 							new_file += move[1]
 
+
 							# Check if after jumping the new position is out of bounds
 							piece_in_way = False
 							while ((0 <= new_rank < len(board.coordinates)) and (0 <= new_file < len(row)) and not piece_in_way):
+
+								# Ensure the move is within the bounds of the board
+								if 0 <= new_rank < len(board.coordinates) and 0 <= new_file < len(row):
+									# If moving diagonally, ensure that the move stays inside the palace
+									if move in diagonal_moves and not is_in_palace(new_rank, new_file):
+										break  # Stop diagonal movement if it exits the palace
+
 								piece_in_way = False
 								for check_piece in all_pieces:
 									if (board.coordinates[new_rank][new_file] == check_piece.location):
