@@ -984,7 +984,6 @@ class LocalSinglePlayerPreGameSettings(State):
 
 			# render pieces
 			render_funcs.PreGame_render_piece_display(window, self.player_host, self.player_guest)
-
 #--------------------------------------------------------------------------------
 # Inherited State for single player gaming against an ai
 #--------------------------------------------------------------------------------
@@ -1223,7 +1222,7 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 			# do etc...
 
 		# right-clicking your king will pass the turn
-		elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+		elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3 and self.condition == "None":
 			if self.active_player is not None:
 				helper_funcs.player_piece_unclick(self.active_player)
 				# KING piece is always the first piece in the list
@@ -1401,6 +1400,14 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 				x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
 				font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
 				self.draw_text(window, text, x, y, font_size)
+
+		# find player chariot
+		if self.waiting_player is not None and self.active_player is not None and not self.opening_turn:
+			for piece in self.waiting_player.pieces:
+				if piece.piece_type.value == "Chariot":
+					chariot_moves = helper_funcs.chariot_possible_moves(piece, self.board, self.waiting_player, self.active_player)
+					debug_funcs.render_possible_spots(window, chariot_moves)
+					
 
 # FUTURE TODO: ONLINE MULTIPLAYER
 """#--------------------------------------------------------------------------------
