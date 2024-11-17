@@ -429,7 +429,8 @@ def render_king_possible_spots(janggi_piece, active_player, waiting_player, boar
 							# consider move limitations based on conditions
 							if (condition == "None" or
 								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+								(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
+									helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
 									# hold memory of piece location and collision for valid move
 									temp = janggi_piece.location
 									temp_rect = janggi_piece.collision_rect.topleft
@@ -538,7 +539,8 @@ def render_advisor_possible_spots(janggi_piece, active_player, waiting_player, b
 							# consider move limitations based on conditions
 							if (condition == "None" or
 								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+								(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
+									helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
 									# hold memory of piece location and collision for valid move
 									temp = janggi_piece.location
 									temp_rect = janggi_piece.collision_rect.topleft
@@ -652,7 +654,8 @@ def render_elephant_possible_spots(janggi_piece, active_player, waiting_player, 
 							# consider move limitations based on conditions
 							if (condition == "None" or
 								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+								(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
+									helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
 									# hold memory of piece location and collision for valid move
 									temp = janggi_piece.location
 									temp_rect = janggi_piece.collision_rect.topleft
@@ -748,7 +751,8 @@ def render_horse_possible_spots(janggi_piece, active_player, waiting_player, boa
 							# consider move limitations based on conditions
 							if (condition == "None" or
 								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+								(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
+									helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
 									# hold memory of piece location and collision for valid move
 									temp = janggi_piece.location
 									temp_rect = janggi_piece.collision_rect.topleft
@@ -864,7 +868,8 @@ def render_cannon_possible_spots(janggi_piece, active_player, waiting_player, bo
 										# consider move limitations based on conditions
 										if (condition == "None" or
 											condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-											condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+											(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
+												helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
 												# hold memory of piece location and collision for valid move
 												temp = janggi_piece.location
 												temp_rect = janggi_piece.collision_rect.topleft
@@ -907,7 +912,8 @@ def render_cannon_possible_spots(janggi_piece, active_player, waiting_player, bo
 											# consider move limitations based on conditions
 											if (condition == "None" or
 												condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-												condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+												(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
+												helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
 													# hold memory of piece location and collision for valid move
 													temp = janggi_piece.location
 													temp_rect = janggi_piece.collision_rect.topleft
@@ -1018,7 +1024,8 @@ def render_chariot_possible_spots(janggi_piece, active_player, waiting_player, b
 							# consider move limitations based on conditions
 							if (condition == "None" or
 								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+								(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
+									helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
 									# hold memory of piece location and collision for valid move
 									temp = janggi_piece.location
 									temp_rect = janggi_piece.collision_rect.topleft
@@ -1109,7 +1116,8 @@ def render_pawn_possible_spots(janggi_piece, active_player, waiting_player, boar
 							# consider move limitations based on conditions
 							if (condition == "None" or
 								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+								(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
+									helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
 									# hold memory of piece location and collision for valid move
 									temp = janggi_piece.location
 									temp_rect = janggi_piece.collision_rect.topleft
@@ -1192,7 +1200,8 @@ def render_pawn_possible_palace_spots(active_player, waiting_player, window, jan
 									# consider move limitations based on conditions
 								if (condition == "None" or
 									condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-									condition == "Check" and helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot)):
+									(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
+									helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
 										# hold memory of piece location and collision for valid move
 										temp = janggi_piece.location
 										temp_rect = janggi_piece.collision_rect.topleft

@@ -570,6 +570,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 							# end of turn update
 							if helper_funcs.detect_bikjang(self.player, self.opponent):
 								self.bikjang = True
+								self.check = False
 								self.player.initiated_bikjang = True
 								self.condition = "Bikjang"
 							elif helper_funcs.detect_check(self.player, self.opponent, self.board):
@@ -1219,9 +1220,11 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 					# end of turn update
 					if helper_funcs.detect_bikjang(self.active_player, self.waiting_player):
 						self.bikjang = True
+						self.check = False
 						self.active_player.initiated_bikjang = True
 						self.condition = "Bikjang"
 					elif helper_funcs.detect_check(self.waiting_player, self.active_player, self.board):
+						self.bikjang = False
 						self.check = True
 						self.condition = "Check"
 					else: # no condition change
@@ -1429,15 +1432,7 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 				x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
 				font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
 				self.draw_text(window, text, x, y, font_size)
-
-		# find player chariot
-		if self.waiting_player is not None and self.active_player is not None and not self.opening_turn:
-			for piece in self.waiting_player.pieces:
-				if piece.piece_type.value == "Chariot":
-					chariot_moves = helper_funcs.chariot_possible_moves(piece, self.board, self.waiting_player, self.active_player)
-					debug_funcs.render_possible_spots(window, chariot_moves)
 					
-
 # FUTURE TODO: ONLINE MULTIPLAYER
 """#--------------------------------------------------------------------------------
 # THIS STATE WILL HANDLE SETTINGS FOR SETTING UP GAME AGAINST ANOTHER A PLAYER
