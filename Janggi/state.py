@@ -661,37 +661,14 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 				depth = 5
 			elif self.ai_level == "Hard":
 				depth = 10
-			no_new_move = True
-			restarted = False
-			epoch = 0
-			thinking_time = 100
+			
+			#possible_moves = helper_funcs.get_possible_moves(self.opponent, self.player, self.board)
 
-			# Keep trying to find a new move. It works well at moving right now, but it will reach a 
-			# state where it keeps suggesting the same move, and this is forced to end with a pass.
-			while no_new_move and not restarted:
-				if epoch % 2 == 0:
-					try:
-						print(f"Trying at depth level {str(depth)}")
-						self.opponent.send_command(f"position fen {fen}")
-						self.opponent.send_command(f"go depth {str(depth)}")
-						best_move = self.opponent.get_engine_move()
-						print(f"if Engine's move: {best_move}")
-					except Exception as e:
-						print(f"Error retrieving move: {e}")
-					depth += 3
-
-				else:
-					try:
-						print(f"Trying at thinking time {thinking_time}ms")
-						self.opponent.send_command(f"position fen {fen}")
-						self.opponent.send_command(f"go movetime {str(thinking_time)}")
-						best_move = self.opponent.get_engine_move()
-						print(f"else Engine's move: {best_move}")
-					except Exception as e:
-						print(f"Error retrieving move: {e}")
-					thinking_time += 500
-
-				if helper_funcs.ai_move(self.player, self.opponent, self.board, best_move, new_board, fen):
+			self.opponent.send_command(f"position fen {fen}")
+			self.opponent.send_command(f"go depth {str(depth)}")
+			best_move = self.opponent.get_engine_move()
+			print(best_move)
+			if helper_funcs.ai_move(self.player, self.opponent, self.board, best_move, new_board, fen):
 					print(f"Engine's move: {best_move}")
 					if helper_funcs.detect_bikjang(self.opponent, self.player):
 						self.bikjang = True
@@ -700,32 +677,18 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 							self.opponent.initiated_bikjang = True
 							self.winner = self.player
 						self.condition = "Bikjang"
-						no_new_move = False
-					elif helper_funcs.detect_check(self.player, self.opponent, self.board):
+
+			elif helper_funcs.detect_check(self.player, self.opponent, self.board):
 						self.check = True
 						self.bikjang = False
 						self.condition = "Check"
-						no_new_move = False
-					else:
+			else:
 						self.check = False
 						self.bikjang = False
 						self.condition = "None"
 						self.player.is_turn = True
 						self.opponent.is_turn = False
-						no_new_move = False
-				elif epoch == 10:
-					self.opponent.restart_engine()
-					restarted = True
-					epoch = 0
-					depth = 1
-					thinking_time = 500
-				else:
-					epoch += 1
-
-			if no_new_move:
-				print("\nAI passes, no new move\n")
-				self.player.is_turn = True
-				self.opponent.is_turn = False
+			
 			self.player.is_turn = True
 			self.opponent.is_turn = False
 			self.active_player = self.player
@@ -1227,18 +1190,18 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 				# HAN IS HOST
 				if self.han_player.is_host:
 					if self.host_swap_right_horse_button.is_clicked():
-						helper_funcs.swap_pieces(self.han_player.pieces[6], self.han_player.pieces[4])
+						helper_funcs.swap_pieces(self.han_player, self.han_player.pieces[6], self.han_player.pieces[4])
 					elif self.host_swap_left_horse_button.is_clicked():
-						helper_funcs.swap_pieces(self.han_player.pieces[5], self.han_player.pieces[3])
+						helper_funcs.swap_pieces(self.han_player, self.han_player.pieces[5], self.han_player.pieces[3])
 					elif self.host_confirm_swap_button.is_clicked():
 						self.waiting_player = self.han_player
 						self.waiting_player.is_ready = True
 				# HAN IS GUEST
 				else:
 					if self.guest_swap_right_horse_button.is_clicked():
-						helper_funcs.swap_pieces(self.han_player.pieces[6], self.han_player.pieces[4])
+						helper_funcs.swap_pieces(self.han_player, self.han_player.pieces[6], self.han_player.pieces[4])
 					elif self.guest_swap_left_horse_button.is_clicked():
-						helper_funcs.swap_pieces(self.han_player.pieces[5], self.han_player.pieces[3])
+						helper_funcs.swap_pieces(self.han_player, self.han_player.pieces[5], self.han_player.pieces[3])
 					elif self.guest_confirm_swap_button.is_clicked():
 						self.waiting_player = self.han_player
 						self.waiting_player.is_ready = True
@@ -1247,9 +1210,9 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 				# CHO IS HOST
 				if self.cho_player.is_host:
 					if self.host_swap_right_horse_button.is_clicked():
-						helper_funcs.swap_pieces(self.cho_player.pieces[6], self.cho_player.pieces[4])
+						helper_funcs.swap_pieces(self.cho_player, self.cho_player.pieces[6], self.cho_player.pieces[4])
 					elif self.host_swap_left_horse_button.is_clicked():
-						helper_funcs.swap_pieces(self.cho_player.pieces[5], self.cho_player.pieces[3])
+						helper_funcs.swap_pieces(self.cho_player, self.cho_player.pieces[5], self.cho_player.pieces[3])
 					elif self.host_confirm_swap_button.is_clicked():
 						self.active_player = self.cho_player
 						self.active_player.is_ready = True
