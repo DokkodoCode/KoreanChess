@@ -28,6 +28,7 @@ class OpponentAI:
 		self.is_clicked = False
 		self.is_turn = False
 		self.initiated_bikjang = False
+		self.is_checked = False
 		self.pieces = self.fill_pieces()
 		# self.settings = self.initialize_settings()
 
@@ -212,6 +213,7 @@ class OpponentAI:
 				for piece in player.pieces:
 					if board.coordinates[row][column] == piece.location:
 						new_board[column][row] = piece_type_mapping.get(piece.piece_type.value).lower()
+		print(new_board)
 		return new_board
 
 	# Opponent is self here, I know the name may be confusing.
@@ -222,6 +224,8 @@ class OpponentAI:
 				for piece in self.pieces:
 					if board.coordinates[row][column] == piece.location:
 						new_board[column][row] = piece_type_mapping.get(piece.piece_type.value)
+		print("AI")
+		print(new_board)
 		return new_board
 
 	# Function to generate FEN string from the board state

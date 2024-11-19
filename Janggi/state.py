@@ -510,47 +510,58 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 
 		# game state variables
 		self.opening_turn = True
+		self.immediate_render = False
 		self.bikjang = False
 		self.check = False
 		self.condition = "None"
 		self.game_over = False
+		self.bikjang_initiater = None
+		self.winner = None
 
 		# create game objects
 		self.board = board.Board()
 		self.player = self.player
-		self.opponent = self.opponent
 
 		# pre-set ai if it goes first
 		# Han player chooses first horse swaps
 		if self.opponent.color == "Han":
 			helper_funcs.choose_ai_lineup(self.opponent)
-		
+			self.active_player = self.player
+			self.waiting_player = self.opponent
+		else:
+			self.active_player = self.opponent
+			self.waiting_player = self.player
+
+		self.opponent = self.opponent
 
 	# Listen for and handle any event ticks (clicks/buttons)
 	# INPUT: pygame event object
 	# OUTPUT: User triggered game events are handled appropriately
 	def handle_event(self, event):
+		self.immediate_render = False
 		# get the player's mouse position for click tracking
 		mouse_pos = pygame.mouse.get_pos()
-		# check for game over conditions at the top of the turn
+		# check for game over conditions at the top of the player's turn
 		if (self.player is not None and 
 	  		self.opponent is not None and 
+			self.player.is_turn and
 	  		not helper_funcs.resolve_condition(self.player, self.opponent, self.board, self.condition)):
 			if self.condition == "Bikjang":
 				self.game_over = True
 			if self.condition == "Check":
 				self.game_over = True
-			pass # handle end game transition here
+				self.winner = self.opponent
+
 			# listen for an event trigger via click from right-mouse-button
-		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+		elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 				# OPENING TURN ONLY
 				if self.opening_turn:
 					# player may swap horses with elephants, confirm swap to end turn
 					# Han player chooses first then Cho
 					if self.swap_right_horse_button.is_clicked():
-						helper_funcs.swap_pieces(self.player.pieces[6], self.player.pieces[4])
+						helper_funcs.swap_pieces(self.player, self.player.pieces[6], self.player.pieces[4])
 					elif self.swap_left_horse_button.is_clicked():
-						helper_funcs.swap_pieces(self.player.pieces[5], self.player.pieces[3])
+						helper_funcs.swap_pieces(self.player, self.player.pieces[5], self.player.pieces[3])
 					elif self.confirm_swap_button.is_clicked():
 						self.opening_turn = False
 						if self.opponent.color == "Cho":
@@ -561,7 +572,8 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 							self.player.is_turn = True
 							self.opponent.is_turn = False
 
-				if self.player.is_turn:
+				# GAMEPLAY TURN
+				elif self.player.is_turn:
 					# check if the player is currently attempting to move a piece
 					if self.player.is_clicked and not self.opening_turn:
 						# unclick that piece if the move was successful/valid
@@ -571,10 +583,14 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 							if helper_funcs.detect_bikjang(self.player, self.opponent):
 								self.bikjang = True
 								self.check = False
-								self.player.initiated_bikjang = True
+								if self.bikjang_initiater is None:	
+									self.player.initiated_bikjang = True
+									self.winner = self.opponent
+
 								self.condition = "Bikjang"
-							elif helper_funcs.detect_check(self.player, self.opponent, self.board):
+							elif helper_funcs.detect_check(self.opponent, self.player, self.board):
 								self.check = True
+								self.opponent.is_checked = True
 								self.bikjang = False
 								self.condition = "Check"
 							else: # no condition change
@@ -584,6 +600,9 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 							# switch turns
 							self.player.is_turn = False
 							self.opponent.is_turn = True
+							self.active_player = self.opponent
+							self.waiting_player = self.player
+							self.immediate_render = True
 
 						# otherwise the player is clicking another piece or invalid spot
 						else:
@@ -610,6 +629,8 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 						# swap turns
 						self.player.is_turn = False
 						self.opponent.is_turn = True
+						self.active_player = self.opponent
+						self.waiting_player = self.player
 
 		# escape from game to main menu
 		if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -618,9 +639,20 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 #--------------------------------------------------------------------------------
 # AI STUFF IS HERE
 		# Handle AI Opponent's turn
-		if self.opponent.is_turn and not self.opening_turn:
+		# check for game over conditions at the top of the ai's turn
+		if (self.player is not None and 
+	  		self.opponent is not None and 
+			self.opponent.is_turn and
+	  		not helper_funcs.resolve_condition(self.opponent, self.player, self.board, self.condition)):
+			if self.condition == "Bikjang":
+				self.game_over = True
+			if self.condition == "Check":
+				self.game_over = True
+				self.winner = self.player
+		# ai move logic
+		elif not self.immediate_render and self.opponent.is_turn and not self.opening_turn and not self.game_over:
 			new_board = self.opponent.convert_board(self.board, self.player)
-			# print(new_board)
+			print(new_board)
 			fen = self.opponent.generate_fen(new_board)
 				
 			if self.ai_level == "Easy":
@@ -632,7 +664,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			no_new_move = True
 			restarted = False
 			epoch = 0
-			thinking_time = 500
+			thinking_time = 100
 
 			# Keep trying to find a new move. It works well at moving right now, but it will reach a 
 			# state where it keeps suggesting the same move, and this is forced to end with a pass.
@@ -643,7 +675,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 						self.opponent.send_command(f"position fen {fen}")
 						self.opponent.send_command(f"go depth {str(depth)}")
 						best_move = self.opponent.get_engine_move()
-						# print(f"Engine's move: {best_move}")
+						print(f"if Engine's move: {best_move}")
 					except Exception as e:
 						print(f"Error retrieving move: {e}")
 					depth += 3
@@ -654,16 +686,33 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 						self.opponent.send_command(f"position fen {fen}")
 						self.opponent.send_command(f"go movetime {str(thinking_time)}")
 						best_move = self.opponent.get_engine_move()
-						# print(f"Engine's move: {best_move}")
+						print(f"else Engine's move: {best_move}")
 					except Exception as e:
 						print(f"Error retrieving move: {e}")
 					thinking_time += 500
 
 				if helper_funcs.ai_move(self.player, self.opponent, self.board, best_move, new_board, fen):
 					print(f"Engine's move: {best_move}")
-					self.player.is_turn = True
-					self.opponent.is_turn = False
-					no_new_move = False
+					if helper_funcs.detect_bikjang(self.opponent, self.player):
+						self.bikjang = True
+						self.check = False
+						if self.bikjang_initiater is None:
+							self.opponent.initiated_bikjang = True
+							self.winner = self.player
+						self.condition = "Bikjang"
+						no_new_move = False
+					elif helper_funcs.detect_check(self.player, self.opponent, self.board):
+						self.check = True
+						self.bikjang = False
+						self.condition = "Check"
+						no_new_move = False
+					else:
+						self.check = False
+						self.bikjang = False
+						self.condition = "None"
+						self.player.is_turn = True
+						self.opponent.is_turn = False
+						no_new_move = False
 				elif epoch == 10:
 					self.opponent.restart_engine()
 					restarted = True
@@ -677,7 +726,11 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 				print("\nAI passes, no new move\n")
 				self.player.is_turn = True
 				self.opponent.is_turn = False
-		
+			self.player.is_turn = True
+			self.opponent.is_turn = False
+			self.active_player = self.player
+			self.waiting_player = self.opponent
+			self.opponent.is_checked = False
 
 
 			# Quitting early will crash because the engine needs to be remade
@@ -721,7 +774,10 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		if self.bikjang:
 			render_funcs.render_bikjang_highlight(self.player, self.opponent, window)
 		if self.check:
-			render_funcs.render_check_highlight(self.player, window)
+			if self.opponent.is_checked:
+				render_funcs.render_check_highlight(self.opponent, window)
+			else:
+				render_funcs.render_check_highlight(self.player, window)
 
 		# DISPLAY GAME STATE INFORMATION
 		if self.player is not None and self.opponent is not None:
@@ -736,69 +792,67 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		if self.game_over and self.bikjang:
 			# DRAW THE BACKGROUND FOR DISPLAYING GAME OVER TEXT
 			window.blit(self.game_over_background,
-			  	constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["location"])
+			  	constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["location"])
 				
 			# DISPLAY GAME OVER TEXT
 			text = "Game Over!"
-			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["notify_text"]["location"]
-			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["notify_text"]["font_size"]
+			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["location"]
+			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["font_size"]
 			self.draw_text(window, text, x, y, font_size)
 
 			# DISPLAY ANY RESULT-AFFECTING CONDITIONS
-			text = f"Bikjang initiated by {self.opponent.color} was unresolvable."
-			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["condition_text"]["location"]
-			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["condition_text"]["font_size"]
+			text = f"Bikjang initiated by {self.waiting_player.color} was unresolvable."
+			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
+			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
 			self.draw_text(window, text, x, y, font_size)
 
 			# DISPLAY THE FINAL RESULT
 			text = "Draw..."
-			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["result_text"]["location"]
-			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["result_text"]["font_size"]
+			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["location"]
+			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["font_size"]
 			self.draw_text(window, text, x, y, font_size)
 
 		# GAME ENDING CHECK
 		if self.game_over and self.check:
 			# DRAW THE BACKGROUND FOR DISPLAYING GAME OVER TEXT
 			window.blit(self.game_over_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["location"])
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["location"])
 				
 			# DISPLAY GAME OVER TEXT
 			text = "Game Over!"
-			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["notify_text"]["location"]
-			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["notify_text"]["font_size"]
+			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["location"]
+			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["font_size"]
 			self.draw_text(window, text, x, y, font_size)
 
 
 			# HE WHO INITIATES BIKJANG FORFEITS THEIR RIGHT TO WIN
-			if self.opponent.initiated_bikjang:
+			if self.waiting_player.initiated_bikjang:
 
 				# NO WINNER
 				text = "Draw..."
-				x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["result_text"]["location"]
-				font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["result_text"]["font_size"]
+				x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["location"]
+				font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["font_size"]
 				self.draw_text(window, text, x, y, font_size)
 
 					# DISPLAY CONDITONS AFFECTING RESULT
-				text = f"{self.opponent.color} forfeited their win when initiating Bikjang."
-				x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["condition_text"]["location"]
-				font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["condition_text"]["font_size"]
+				text = f"{self.waiting_player.color} forfeited their win when initiating Bikjang."
+				x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
+				font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
 				self.draw_text(window, text, x, y, font_size)
 				
 			# NO RESTRICTIONS ON WINNING
 			else:
 				# DISPLAY THE WINNER
-				text = f"{self.opponent.color} wins!"
-				x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["result_text"]["location"]
-				font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["result_text"]["font_size"]
+				text = f"{self.waiting_player.color} wins!"
+				x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["location"]
+				font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["font_size"]
 				self.draw_text(window, text, x, y, font_size)
 
 				# DISPLAY REASONING
-				text = f"Check initiated by {self.opponent.color} was unresolvable."
-				x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["condition_text"]["location"]
-				font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["condition_text"]["font_size"]
+				text = f"Check initiated by {self.waiting_player.color} was unresolvable."
+				x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
+				font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
 				self.draw_text(window, text, x, y, font_size)
-		#debug_funcs.render_spot(window, (1168, 289), constants.GREY)
-		#debug_funcs.render_spot(window, (1068, 289), constants.RED)
 
 #--------------------------------------------------------------------------------
 class LocalSinglePlayerPreGameSettings(State):

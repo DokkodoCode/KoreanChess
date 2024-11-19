@@ -719,12 +719,12 @@ resolutions = {
         "y_spacing": 92.22,
         "x_coordinates": [368, 468, 568, 668, 768, 868, 968, 1068, 1168],
         "y_coordinates": [19, 109, 199, 289, 379, 469, 558, 648, 737, 818],
-        "spot_collision_size": (60, 60),
+        "spot_collision_size": (50, 50),
         "small_collision_size": (50, 50),
         "small_size": (60, 60),
-        "med_collision_size": (70, 70),
+        "med_collision_size": (60, 60),
         "med_size": (80,80),
-        "large_collision_size": (100, 100),
+        "large_collision_size": (80, 80),
         "large_size": (100,100),
         "buttons": 
         {

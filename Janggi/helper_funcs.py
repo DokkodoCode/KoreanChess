@@ -133,22 +133,22 @@ def choose_ai_lineup(ai_player):
 		side = random.randint(0,2)
 		if side == 0:
 			# swap left horse with left elephant
-			swap_pieces(ai_player.pieces[5], ai_player.pieces[3])
+			swap_pieces(ai_player, ai_player.pieces[5], ai_player.pieces[3])
 		elif side == 1:
 			# swap right horse with right elephant
-			swap_pieces(ai_player.pieces[6], ai_player.pieces[4])
+			swap_pieces(ai_player, ai_player.pieces[6], ai_player.pieces[4])
 		else:
 			# swap left horse with left elephant
-			swap_pieces(ai_player.pieces[5], ai_player.pieces[3])
+			swap_pieces(ai_player, ai_player.pieces[5], ai_player.pieces[3])
 			# swap right horse with right elephant
-			swap_pieces(ai_player.pieces[6], ai_player.pieces[4])
+			swap_pieces(ai_player, ai_player.pieces[6], ai_player.pieces[4])
 
 #-----------------------------------------------------------------------------------
 # Function that will swap two pieces locations on the board
 # INPUT: piece1, piece2
 # OUTPUT: piece locations swapped
 #-----------------------------------------------------------------------------------
-def swap_pieces(piece1, piece2):
+def swap_pieces(player, piece1, piece2):
 	# swap the two piece locations
 	temp = piece1.location
 	piece1.location = piece2.location
@@ -163,6 +163,12 @@ def swap_pieces(piece1, piece2):
 	temp = piece1.image_location
 	piece1.image_location = piece2.image_location
 	piece2.image_location = temp
+
+	# swap the pieces in the player's list
+	player_pieces = player.pieces
+	index1 = player_pieces.index(piece1)
+	index2 = player_pieces.index(piece2)
+	player_pieces[index1], player_pieces[index2] = player_pieces[index2], player_pieces[index1]
 
 #-----------------------------------------------------------------------------------
 # Function that will check if the player has clicked one of their pieces
@@ -200,6 +206,11 @@ def find_piece_on_board(opponent, board, location):
 def ai_move(player, opponent, board, best_move, new_board, fen):
 	# Separate the initial and final coordinates using regular expression
 	split_coords = re.findall(r"[a-zA-Z]\d+", best_move)
+
+	# if no valid move found, game is over
+	if len(split_coords) != 2:
+		return False
+	
 	initial = split_coords[0]
 	destination = split_coords[1]
 	# print("Initial: ", initial, " Destination: ", destination)
