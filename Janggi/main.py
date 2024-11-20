@@ -1,7 +1,7 @@
 """
 ------------------------main.py-----------------------------------
 o This file is to hold the entry point to the program
-o Last Modified - November 11th 2024
+o Last Modified - November 19th 2024
 ------------------------------------------------------------------
 """
 
@@ -13,7 +13,6 @@ import sys
 # local file imports, see individ file for details
 import constants
 import state_machine
-from network import Network
 
 def main():
 

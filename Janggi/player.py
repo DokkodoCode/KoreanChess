@@ -1,7 +1,7 @@
 """
 ----------------------player.py-----------------------------------
 o This file is to hold the data for the human player
-o Last Modified - Novemeber 11th 2024
+o Last Modified - Novemeber 19th 2024
 ------------------------------------------------------------------
 """
 # libraries
@@ -30,7 +30,6 @@ class Player():
 		self.is_ready = False
 		self.is_clicked = False
 		self.is_turn = False
-		self.initiated_bikjang = False
 		self.pieces = self.fill_pieces()
 		self.settings = self.initialize_settings()
 

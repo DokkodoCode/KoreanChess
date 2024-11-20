@@ -32,10 +32,8 @@ class StateManager():
 		
 		self.states_unitialized = {}
 		self.current_state = None
-		# for debugging reasons, start at gameplay for now
+		# start here
 		self.change_state("Main Menu", window)
-		#self.change_state("Local Single Player Pre-Game Settings", window)
-		#self.change_state("Local Single Player Game", window)
 
 	# Event handler that will call the event handler for the current given state
 	# INPUT: pygame event object

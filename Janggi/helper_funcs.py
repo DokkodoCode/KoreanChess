@@ -2,20 +2,17 @@
 ----------------------helper_funcs.py-----------------------------
 o This file is to hold any logical/helper functions to be 
 	called by state.py
-o Last Modified - November 11th 2024
+o Last Modified - November 19th 2024
 ------------------------------------------------------------------
 """
-import json
 import pygame
 import random
 import re
-import numpy as np
 
 # local file imports, see individ file for details
 import constants
-import debug_funcs
 
-#-----------------------------------------------------------------------------------
+"""#-----------------------------------------------------------------------------------
 # Function that will send player's board data to other player for synchronization
 # INPUT: 
 # OUTPUT: 
@@ -81,7 +78,7 @@ def read_move(str):
 def make_move(tup):
 	return str(tup[0] + "," + tup[1])
 
-
+"""
 #-----------------------------------------------------------------------------------
 # Function that will center the piece image in its spot on the board
 # INPUT: coordinate of the piece object, image path asssociated with the object
@@ -228,8 +225,6 @@ def ai_move(player, opponent, board, best_move, new_board, fen):
 	selected_piece = opponent.find_piece_on_board(player, board, initial)
 
 	if selected_piece:
-		print("Moving Piece: ", selected_piece.piece_type.value, " @ loc ", selected_piece.location, " to ", destination)
-
 		# Move the piece to the destination
 		new_spot = board.coordinates[destination[0]][destination[1]]
 		selected_piece.location = new_spot
@@ -306,20 +301,8 @@ def attempt_move(active_player, waiting_player, board, mouse_pos, condition):
 	
 				# update the moved piece's collision rectangle
 				janggi_piece.collision_rect.topleft = (center_x, center_y)
-				#janggi_piece.image_location = board.coordinates[rank][file]
+
 				
-				original_location = janggi_piece.location
-				#janggi_piece.location = board.coordinates[rank][file]
-				
-				# Send move details over the network
-				move_data = {
-					"piece_type": janggi_piece.piece_type.value,
-					"collision_rect.topleft": janggi_piece.collision_rect.topleft,
-					"image_location": janggi_piece.image_location,
-					"from": (original_location[0], original_location[1]),
-					"to": (rank, file)
-				}
-				#send_move_over_network(json.dumps(move_data))
 
 				return True
 				
@@ -429,11 +412,6 @@ def move_king(janggi_piece, board, mouse_pos, active_player, waiting_player, con
 										# now check if the valid move resulted in a capture
 										if detect_capture(waiting_player, janggi_piece):
 											capture_piece(waiting_player, janggi_piece)
-										elif detect_check(active_player, waiting_player, board):
-											janggi_piece.location = temp
-											janggi_piece.collision_rect.topleft = temp_rect
-											janggi_piece.image_location = temp_image
-											return False
 										# valid move was made
 										return True
 						
@@ -1250,7 +1228,6 @@ def capture_piece(waiting_player, piece):
 	# detect if player captured a piece if they moved piece
 	for janggi_piece in waiting_player.pieces:
 		if piece.collision_rect.colliderect(janggi_piece.collision_rect):
-			print(f"{waiting_player.color}'s {janggi_piece.piece_type} captured!")
 			waiting_player.pieces.remove(janggi_piece)
 	
 	return
@@ -1316,8 +1293,9 @@ def detect_check(active_player, waiting_player, board):
 	# check if the active player's king is in any of the threatening spaces
 	if any(space == player_king_location for space in threatening_spaces):
 		return True # in check
-	
+
 	# handle chariot row/col sweeps
+	
 	else:
 		king = [piece for piece in active_player.pieces if piece.piece_type.value == "King"]
 		chariot = [piece for piece in waiting_player.pieces if piece.piece_type.value == "Chariot"]
@@ -1351,15 +1329,8 @@ def pieces_face_each_other(active_player, king, waiting_player, chariot, board):
 # OUTPUT: return a flag on whether the condition was resolved
 #-----------------------------------------------------------------------------------
 def resolve_condition(active_player, waiting_player, board, condition = "None"):
-	# check and handle Bikjang
-	if condition == "Bikjang":
-		possible_moves = get_all_possible_moves(active_player, waiting_player, board)
-		if not breakable_bikjang(active_player, waiting_player, possible_moves):
-			return False # bikjang cannot be broken, game over as draw
-	
 	# check and handle Check
-	elif condition == "Check":
-		possible_moves = get_all_possible_moves(active_player, waiting_player, board)
+	if condition == "Check":
 		if not breakable_check(active_player, waiting_player, board):
 			return False # check cannot be broken, game over as checkmate
 
@@ -1467,9 +1438,8 @@ def king_possible_moves(janggi_piece, board, player):
 							
 							# place coordinates into the set to avoid duplicates
 							moves.add(new_spot)
-						
+
 	# no valid move was made
-	#print(f"KING MOVES: {moves}")
 	return list(moves)
 
 #-----------------------------------------------------------------------------------
@@ -1632,7 +1602,13 @@ def elephant_possible_moves(janggi_piece, board, player, opponent):
 													 if piece != janggi_piece)):
 							# add moves for condition to set
 							moves.add(new_spot)
-						
+						# Check if the spot is occupied by a piece from the same player
+						# addd to moves then break because that can be a threatening spot nonetheless
+						for piece in player.pieces:
+							if new_rect.colliderect(piece.collision_rect) and piece != janggi_piece:
+								moves.add(new_spot)
+								break
+
 	# no valid move was made
 	return list(moves)
 
@@ -1702,6 +1678,13 @@ def horse_possible_moves(janggi_piece, board, player, opponent):
 			
 							# add moves for condition to set
 							moves.add(new_spot)
+
+						# Check if the spot is occupied by a piece from the same player
+						# addd to moves then break because that can be a threatening spot nonetheless
+						for piece in player.pieces:
+							if new_rect.colliderect(piece.collision_rect) and piece != janggi_piece:
+								moves.add(new_spot)
+								break
 						
 	# no valid move was made
 	return list(moves)
@@ -1760,14 +1743,20 @@ def cannon_possible_moves(janggi_piece, board, player, opponent):
 								if not piece_in_way:
 									new_spot = board.coordinates[new_rank][new_file]
 									new_rect = board.collisions[new_rank][new_file]
-
+										
 									# Check if the spot is valid (not occupied by a player's piece, except for the cannon)
 									if not any(new_rect.colliderect(piece.collision_rect) 
 																for piece in player.pieces 
 																if piece != janggi_piece):
 										# place coordinates into the list
 										moves.add(new_spot)
-									
+
+									# Check if the spot is occupied by a piece from the same player
+									# addd to moves then break because that can be a threatening spot nonetheless
+									for piece in player.pieces:
+										if new_rect.colliderect(piece.collision_rect) and piece != janggi_piece:
+											moves.add(new_spot)
+											break
 
 									# Keep moving
 									new_rank += move[0]
@@ -1784,6 +1773,11 @@ def cannon_possible_moves(janggi_piece, board, player, opponent):
 												
 											# place coordinates into the list
 											moves.add(new_spot)
+										# Check if the spot is occupied by a piece from the same player
+										# addd to moves then break because that can be a threatening spot nonetheless
+										if new_rect.colliderect(check_piece.collision_rect) and check_piece != janggi_piece:
+											moves.add(new_spot)
+											break
 									break		
 
 							# Return back to move-in-possible-moves loop so it cant skip pieces
@@ -1792,7 +1786,6 @@ def cannon_possible_moves(janggi_piece, board, player, opponent):
 							# Continue moving in the current direction if no piece is found
 							new_rank += move[0]
 							new_file += move[1]
-							
 	return list(moves)
 	
 #-----------------------------------------------------------------------------------
@@ -1845,9 +1838,11 @@ def chariot_possible_moves(janggi_piece, board, active_player, waiting_player):
 							new_rect = board.collisions[new_rank][new_file]
 							
 							# Check if the spot is occupied by a piece from the same player
-							if any(new_rect.colliderect(piece.collision_rect) 
-								   for piece in active_player.pieces if piece != janggi_piece):
-								break  # Stop if there's a piece possible the way
+							# addd to moves then break because that can be a threatening spot nonetheless
+							for piece in active_player.pieces:
+								if new_rect.colliderect(piece.collision_rect) and piece != janggi_piece:
+									moves.add(new_spot)
+									break
 
 							# Stop if there's an opponent's piece (can move here but not beyond)
 							if any(new_rect.colliderect(piece.collision_rect) 
@@ -1917,10 +1912,19 @@ def pawn_possible_moves(janggi_piece, board, player):
 							# Make sure spot is not occupied by another piece of the player
 							# but exclude the piece being moved from being checked
 							if (not any(new_rect.colliderect(piece.collision_rect) 
-														for piece in player.pieces 
-														if piece != janggi_piece)):
-								# place coordinates into the list
+											for piece in player.pieces 
+											if piece != janggi_piece)):
+								
+								# add moves for condition to set
 								moves.add(new_spot)
+
+							# Check if the spot is occupied by a piece from the same player
+							# addd to moves then break because that can be a threatening spot nonetheless
+							for piece in player.pieces:
+								if new_rect.colliderect(piece.collision_rect) and piece != janggi_piece:
+									moves.add(new_spot)
+									break
+							
 							
 	# no valid move made
 	return list(moves)
@@ -1974,6 +1978,13 @@ def pawn_palace_possible_moves(player, janggi_piece, board):
 							
 							# add moves for condition to set
 							moves.add(new_spot)
+
+						# Check if the spot is occupied by a piece from the same player
+						# addd to moves then break because that can be a threatening spot nonetheless
+						for piece in player.pieces:
+							if new_rect.colliderect(piece.collision_rect) and piece != janggi_piece:
+								moves.add(new_spot)
+								break
 						
 	# no valid move was made
 	return list(moves)
@@ -2318,7 +2329,6 @@ def update_player_settings(player):
 	# file already is present, write over it, updating the new settings
 	except:
 		FileExistsError
-		print("Player's settings file already exists, updating player's settings...")
 		with open(settings_file, 'w') as outfile:
 			settings = '|'.join(setting_options)
 			outfile.write(settings)

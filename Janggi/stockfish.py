@@ -1,3 +1,11 @@
+"""
+---------------------------stockfish.py---------------------------
+o This file is to hold logic for the ai engine (fairy-stockfish)
+o Last Modified - November 19th 2024
+------------------------------------------------------------------
+"""
+
+# python imports
 import subprocess
 
 # Start the engine process
@@ -41,7 +49,6 @@ def generate_fen(board, active_player):
             fen_row += str(empty_count)
         fen_rows.append(fen_row)
     fen_string = "/".join(fen_rows) + " " + active_player
-    print(fen_string)
     return fen_string
 
 # Example board state

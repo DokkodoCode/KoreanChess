@@ -1,9 +1,16 @@
-import subprocess
-import board
-import pygame
-import re
-import numpy as np
+"""
+----------------------------ai.py---------------------------------
+o This file is to hold logic for the ai
+o Last Modified - November 19th 2024
+------------------------------------------------------------------
+"""
 
+# python imports
+import numpy as np
+import pygame
+import subprocess
+
+# local imports
 from piece import Piece, PieceCollisionSize, PieceType, OpponentPiecePosition
 from helper_funcs import reformat_piece_collision
 
@@ -125,7 +132,6 @@ class OpponentAI:
 			line = self.engine.stdout.readline().strip()
 			if line:  # If there's output, store it in the buffer
 				buffer.append(line)
-				print(f"Flushed line: {line}")  # Debugging log (optional)
 			else:
 				# If no output and we have waited long enough, break
 				if time.time() - start_time > 0.5:  # Avoid hanging indefinitely
@@ -191,20 +197,14 @@ class OpponentAI:
 		
 		# Add the player's pieces to the template
 		new_board = self.add_player_pieces(new_board, player, board, piece_type_mapping)
+		
 		# Add the opponent's pieces to the template
 		new_board = self.add_opponent_pieces(new_board, board, piece_type_mapping)
 		#new_board = self.test(new_board, player, board)
 	
-		return np.flipud(new_board)
-	
-	# def test(self, new_board, player, board):
-	# 	pieces = self.pieces + player.pieces
-	# 	for row in range(len(board.coordinates)):
-	# 		for column in range(len(board.coordinates[row])):
-	# 			for piece in pieces:
-	# 				if board.coordinates[row][column] == piece.location:
-	# 					new_board[column][row] = "X"
-	# 	return new_board
+		new_board = np.flipud(new_board)
+		new_board = np.fliplr(new_board)
+		return new_board
 	
 	# Return the board with the players pieces added to the string
 	def add_player_pieces(self, new_board, player, board, piece_type_mapping):
@@ -213,7 +213,6 @@ class OpponentAI:
 				for piece in player.pieces:
 					if board.coordinates[row][column] == piece.location:
 						new_board[column][row] = piece_type_mapping.get(piece.piece_type.value).lower()
-		print(new_board)
 		return new_board
 
 	# Opponent is self here, I know the name may be confusing.
@@ -224,8 +223,6 @@ class OpponentAI:
 				for piece in self.pieces:
 					if board.coordinates[row][column] == piece.location:
 						new_board[column][row] = piece_type_mapping.get(piece.piece_type.value)
-		print("AI")
-		print(new_board)
 		return new_board
 
 	# Function to generate FEN string from the board state

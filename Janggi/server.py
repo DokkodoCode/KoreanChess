@@ -1,10 +1,15 @@
-# Dependencies
+"""
+----------------------server.py-----------------------------------
+o This file is not used and may be used for future development
+o Last Modified - N/A
+------------------------------------------------------------------
+"""
+
+"""# Dependencies
 import socket
 from _thread import *
 import sys
 
-server = "192.168.68.118" # Server address
-port = 5555 # Port number
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -40,4 +45,4 @@ while True:
     conn, addr = s.accept() # Accept any connection
     print("Connected to:", addr)
 
-    start_new_thread(threaded_client,(conn,)) # Start a thread with the connection
+    start_new_thread(threaded_client,(conn,)) # Start a thread with the connection"""

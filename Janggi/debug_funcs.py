@@ -1,10 +1,10 @@
 """
 ----------------------debug_funcs.py--------------------------------
 o This file is to hold any debugging functions for testing
-o Last Modified - November 11th 2024
+o Last Modified - November 19th 2024
 ------------------------------------------------------------------
 """
-
+# package imports
 import pygame
 
 # local file imports, see individ file for details

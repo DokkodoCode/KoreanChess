@@ -2,7 +2,7 @@
 ----------------------constants.py--------------------------------
 o This file is to hold any global constants to be used by program
 o Place all global constants into here
-o Last Modified - November 11th 2024
+o Last Modified - November 19th 2024
 ------------------------------------------------------------------
 """
 import pygame
@@ -721,11 +721,11 @@ resolutions = {
         "y_coordinates": [19, 109, 199, 289, 379, 469, 558, 648, 737, 818],
         "spot_collision_size": (50, 50),
         "small_collision_size": (50, 50),
-        "small_size": (60, 60),
+        "small_size": (50, 50),
         "med_collision_size": (60, 60),
-        "med_size": (80,80),
+        "med_size": (70,70),
         "large_collision_size": (80, 80),
-        "large_size": (100,100),
+        "large_size": (90,90),
         "buttons": 
         {
             "main_menu" :
@@ -1371,7 +1371,6 @@ info = pygame.display.Info()
 
 # set window sizes based on user's machine
 screen_width, screen_height = info.current_w, info.current_h
-#screen_width, screen_height = 1440, 900
 #screen_width, screen_height = 1920, 1080
 #screen_width, screen_height = 1440, 900
 #screen_width, screen_height = 640, 480
