@@ -35,7 +35,7 @@ class OpponentAI:
 		# Start the engine process
 		# Formality stuff
 		self.engine = subprocess.Popen(
-			["./fairy-stockfish-largeboard_x86-64"],
+			["./stockfish"],
 			stdin=subprocess.PIPE,
 			stdout=subprocess.PIPE,
 			stderr=subprocess.PIPE,
@@ -57,7 +57,7 @@ class OpponentAI:
 	def restart_engine(self):
 		self.engine.terminate()
 		self.engine = subprocess.Popen(
-			["./fairy-stockfish-largeboard_x86-64"],
+			["./stockfish"],
 			stdin=subprocess.PIPE,
 			stdout=subprocess.PIPE,
 			stderr=subprocess.PIPE,
