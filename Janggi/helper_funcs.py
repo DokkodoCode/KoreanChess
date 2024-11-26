@@ -193,13 +193,22 @@ def player_piece_unclick(active_player):
 			piece.is_clicked = False # flag piece being not moved
 			active_player.is_clicked = False # flag player as no longer atempting to move piece
 
+#-----------------------------------------------------------------------------------
+# Function that will find a specified piece on the board
+# INPUT: opponent, board, piece location
+# OUTPUT: Piece @location is returned
+#-----------------------------------------------------------------------------------
 def find_piece_on_board(opponent, board, location):
 	for piece in opponent.pieces:
 		if piece.location == board.coordinates[location[0]][location[1]]:
 			return piece
 	return None	
 
-# Handle logic for moving ai opponent's piece
+#-----------------------------------------------------------------------------------
+# Function that will handle ai movements
+# INPUT: player, waiting player, board, fen string
+# OUTPUT: ai move is made
+#-----------------------------------------------------------------------------------
 def ai_move(player, opponent, board, best_move, new_board, fen):
 	# Separate the initial and final coordinates using regular expression
 	split_coords = re.findall(r"[a-zA-Z]\d+", best_move)
@@ -1307,7 +1316,11 @@ def detect_check(active_player, waiting_player, board):
 	# default to not in check
 	return False # not in check
 
-
+#-----------------------------------------------------------------------------------
+# Function that determine if a piece faces a chariot
+# INPUT: active player, king piece, waiting player, chariot piece, board
+# OUTPUT: Piece is remapped to valid spot, or nothing if not valid location
+#-----------------------------------------------------------------------------------
 def pieces_face_each_other(active_player, king, waiting_player, chariot, board):
 	# check if both kings are in the same column
 		if king.location[0] == chariot.location[0]:
@@ -1323,6 +1336,7 @@ def pieces_face_each_other(active_player, king, waiting_player, chariot, board):
 					
 			# no possible pieces found, Bikjang occurs
 			return True
+
 #-----------------------------------------------------------------------------------
 # Function that will handle any urgent game conditions (Bikjang, Check, etc...)
 # INPUT: player, waiting player, board
@@ -1803,6 +1817,9 @@ def chariot_possible_moves(janggi_piece, board, active_player, waiting_player):
 
 	moves = set()
 
+	# Combine all pieces from both players
+	all_pieces = active_player.pieces + waiting_player.pieces
+
 	# Get the current location of the piece
 	for rank, row in enumerate(board.coordinates):
 		for file, spot in enumerate(row):
@@ -1829,21 +1846,28 @@ def chariot_possible_moves(janggi_piece, board, active_player, waiting_player):
 						new_file += move[1]
 
 						# Ensure the move is within the bounds of the board
-						if 0 <= new_rank < len(board.coordinates) and 0 <= new_file < len(row):
-							# If moving diagonally, ensure that the move stays inside the palace
-							if move in diagonal_moves and not is_in_palace(new_rank, new_file):
-								break  # Stop diagonal movement if it exits the palace
+						if not (0 <= new_rank < len(board.coordinates) and 0 <= new_file < len(row)):
+							break  # Out of board bounds, stop in this direction
 
-							new_spot = board.coordinates[new_rank][new_file]
-							new_rect = board.collisions[new_rank][new_file]
+						# If moving diagonally, ensure the move stays inside the palace
+						if move in diagonal_moves and not is_in_palace(new_rank, new_file):
+							break  # Stop diagonal movement if it exits the palace
+
+						new_spot = board.coordinates[new_rank][new_file]
+						new_rect = board.collisions[new_rank][new_file]
 							
-							# Check if the spot is occupied by a piece from the same player
-							# addd to moves then break because that can be a threatening spot nonetheless
-							for piece in active_player.pieces:
-								if new_rect.colliderect(piece.collision_rect) and piece != janggi_piece:
-									moves.add(new_spot)
-									break
+						# Check if the new spot is occupied by any piece
+						if any(new_rect.colliderect(piece.collision_rect) for piece in all_pieces):
+							# If it collides with an opponent's piece, highlight for capture
+							if any(new_rect.colliderect(piece.collision_rect) 
+								   for piece in waiting_player.pieces):
+								moves.add(new_spot)
+							break
 
+						# If the spot is valid for the player (not occupied by their own pieces)
+						if not any(new_rect.colliderect(piece.collision_rect) for piece in active_player.pieces if piece != janggi_piece):
+							moves.add(new_spot)
+							
 							# Stop if there's an opponent's piece (can move here but not beyond)
 							if any(new_rect.colliderect(piece.collision_rect) 
 								   for piece in waiting_player.pieces):

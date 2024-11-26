@@ -688,9 +688,6 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			self.waiting_player = self.opponent
 			self.opponent.is_checked = False
 
-
-#--------------------------------------------------------------------------------
-
 	# Handle any rendering that needs to be done
 	# INPUT: pygame surface object (window to display to)
 	# OUTPUT: All game attributes/actions are rendered
