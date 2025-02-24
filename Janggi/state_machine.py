@@ -83,10 +83,10 @@ class StateManager():
 			self.states_unitialized["Main Menu"] = state.MainMenu(window)
 
 		# FUTURE TODO: ONLINE MULTIPLAYER
-		"""elif new_state == "Multi Player Pre-Game Settings":
+		elif new_state == "Multi Player Pre-Game Settings":
 			if "Multi Player Pre-Game Settings" in self.states_unitialized:
 				del self.states_unitialized["Multi Player Pre-Game Settings"]
-			self.states_unitialized["Multi Player Pre-Game Settings"] = state.MultiPlayerPreGameSettings(window)"""	
+			self.states_unitialized["Multi Player Pre-Game Settings"] = state.Multiplayer(window)
 
 		# change to the newly initialized state
 		self.current_state = self.states_unitialized[new_state]

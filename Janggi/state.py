@@ -79,7 +79,7 @@ class MainMenu(State):
 		self.local_multiplayer_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
 
 		# FUTURE TODO: ONLINE MULTIPLAYER
-		"""# button for multiplayer
+		# button for multiplayer
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["location"]
 		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["size"]
 		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["font"]
@@ -88,7 +88,7 @@ class MainMenu(State):
 		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["background_color"]
 		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["hover_color"]
 		self.multiplayer_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-"""
+
 		# button for exiting application
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["location"]
 		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["size"]
@@ -122,8 +122,8 @@ class MainMenu(State):
 				self.next_state = "Local Single Player Pre-Game Settings"
 
 			# FUTURE TODO: ONLINE MULTIPLAYER
-			"""elif self.multiplayer_button.is_clicked():
-				self.next_state = "Multi Player Pre-Game Settings"""
+			elif self.multiplayer_button.is_clicked():
+				self.next_state = "Multi Player Pre-Game Settings"
 
 			if self.exit_button.is_clicked():
 				constants.running = False
@@ -142,7 +142,7 @@ class MainMenu(State):
 		self.singleplayer_button.draw_button(window)
 		self.local_multiplayer_button.draw_button(window)
 		# FUTURE TODO: ONLINE MULTIPLAYER
-		"""self.multiplayer_button.draw_button(window)"""
+		self.multiplayer_button.draw_button(window)
 		self.exit_button.draw_button(window)
 
 #--------------------------------------------------------------------------------
@@ -434,9 +434,16 @@ class SinglePlayerPreGameSettings(State):
 # Inherited State for single player gaming against an ai
 #--------------------------------------------------------------------------------
 class SinglePlayerGame(SinglePlayerPreGameSettings):
+	
 	# initialize the gamestate
 	# INPUT: No Input
 	# OUTPUT: Gamestate is initialized and ready for playing
+	# PROCESS:
+	# 	1. loads board picture
+	# 	2. loads horse-elephant swapping menus
+	# 	3. Inits class variables
+	# 	4. Inits board instance5
+
 	def __init__(self, window):
 		super().__init__(window)
 		# load then display board image
@@ -506,18 +513,17 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["size"])
 
 		# game state variables
-		self.opening_turn = True
-		self.immediate_render = False
-		self.bikjang = False
-		self.check = False
-		self.condition = "None"
+		self.opening_turn = True       # check to see if its the first turn of the game
+		self.immediate_render = False  # ?????
+		self.bikjang = False           # When both generals face each other unobstructed
+		self.check = False             # When a general is in threat of being captured
+		self.condition = "None"        # this is being set between either Check, Bikjang, and None. But there's aleady checks for that?
 		self.game_over = False
-		self.bikjang_initiater = None
+		self.bikjang_initiater = None  # this is used in line 582 and 670, both times it is checked if it's set to None, but the value is never changed. So this is redundant?
 		self.winner = None
 
 		# create game objects
 		self.board = board.Board()
-		self.player = self.player
 
 		# pre-set ai if it goes first
 		# Han player chooses first horse swaps
@@ -529,8 +535,6 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			self.active_player = self.opponent
 			self.waiting_player = self.player
 
-		self.opponent = self.opponent
-
 	# Listen for and handle any event ticks (clicks/buttons)
 	# INPUT: pygame event object
 	# OUTPUT: User triggered game events are handled appropriately
@@ -538,25 +542,25 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		self.immediate_render = False
 		# get the player's mouse position for click tracking
 		mouse_pos = pygame.mouse.get_pos()
+
 		# check for game over conditions at the top of the player's turn
-		if (self.player is not None and 
-	  		self.opponent is not None and 
-			self.player.is_turn and
-	  		not helper_funcs.resolve_condition(self.player, self.opponent, self.board, self.condition)):
-			if self.condition == "Check":
+		if self.is_game_over():
 				self.game_over = True
 				self.winner = self.opponent
 
-			# listen for an event trigger via click from right-mouse-button
+		# listen for an event trigger via click from right-mouse-button
 		elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not self.game_over:
+				
 				# OPENING TURN ONLY
 				if self.opening_turn:
 					# player may swap horses with elephants, confirm swap to end turn
 					# Han player chooses first then Cho
 					if self.swap_right_horse_button.is_clicked():
 						helper_funcs.swap_pieces(self.player, self.player.pieces[6], self.player.pieces[4])
+
 					elif self.swap_left_horse_button.is_clicked():
 						helper_funcs.swap_pieces(self.player, self.player.pieces[5], self.player.pieces[3])
+					
 					elif self.confirm_swap_button.is_clicked():
 						self.opening_turn = False
 						if self.opponent.color == "Cho":
@@ -569,33 +573,25 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 
 				# GAMEPLAY TURN
 				elif self.player.is_turn:
+					self.print_fen("PLAYER:")
 					# check if the player is currently attempting to move a piece
-					if self.player.is_clicked and not self.opening_turn:
+					if self.player.is_clicked:
 						# unclick that piece if the move was successful/valid
 						if helper_funcs.attempt_move(self.player, self.opponent, self.board, mouse_pos, self.condition):
 							helper_funcs.player_piece_unclick(self.player)
 							# end of turn update
 							if helper_funcs.detect_bikjang(self.player, self.opponent):
 								self.bikjang = True
-								self.check = False
-								if self.bikjang_initiater is None:	
-									self.winner = self.player
+								self.winner = self.player
 								self.game_over = True
 								self.condition = "Bikjang"
+
 							elif helper_funcs.detect_check(self.opponent, self.player, self.board):
 								self.check = True
 								self.opponent.is_checked = True
-								self.bikjang = False
 								self.condition = "Check"
-							else: # no condition change
-								self.bikjang = False
-								self.check = False
-								self.condition = "None"
-							# switch turns
-							self.player.is_turn = False
-							self.opponent.is_turn = True
-							self.active_player = self.opponent
-							self.waiting_player = self.player
+																
+							self.swap_turn()
 							self.immediate_render = True
 
 						# otherwise the player is clicking another piece or invalid spot
@@ -609,26 +605,20 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 					elif helper_funcs.player_piece_clicked(self.player, mouse_pos):
 						# FUTURE LOGIC HERE
 						pass
-				# IMPLEMENT FURTHER BRANCHES HERE FOR FUTURE IMPLEMENTATIONS
-			# if something...
-				# do something ...
-			# elif something
-				# do etc...
-			# right-clicking your king will pass the turn
+
+		# if RMB clicked and ...
 		elif (event.type == pygame.MOUSEBUTTONDOWN and event.button == 3 
 				and self.player.is_turn 
 				and not self.bikjang 
 				and not self.check
 				and not self.game_over):
+
 				if self.player is not None:
 					helper_funcs.player_piece_unclick(self.player)
 					# KING piece is always the first piece in the list
 					if self.player.pieces[0].collision_rect.collidepoint(mouse_pos):
 						# swap turns
-						self.player.is_turn = False
-						self.opponent.is_turn = True
-						self.active_player = self.opponent
-						self.waiting_player = self.player
+						self.swap_turn()
 
 		# escape from game to main menu
 		if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -638,11 +628,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 # AI STUFF IS HERE
 		# Handle AI Opponent's turn
 		# check for game over conditions at the top of the ai's turn
-		if (self.player is not None and 
-	  		self.opponent is not None and 
-			self.opponent.is_turn and
-	  		not helper_funcs.resolve_condition(self.opponent, self.player, self.board, self.condition)):
-			if self.condition == "Check":
+		if self.is_game_over():
 				self.game_over = True
 				self.winner = self.player
 
@@ -651,6 +637,8 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			new_board = self.opponent.convert_board(self.board, self.player)
 			fen = self.opponent.generate_fen(new_board)
 				
+			self.print_fen("AI:")
+
 			if self.ai_level == "Easy":
 				depth = 1
 			elif self.ai_level == "Medium":
@@ -663,29 +651,17 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			best_move = self.opponent.get_engine_move()
 			
 			if helper_funcs.ai_move(self.player, self.opponent, self.board, best_move, new_board, fen):
-					if helper_funcs.detect_bikjang(self.opponent, self.player):
-						self.bikjang = True
-						self.check = False
-						if self.bikjang_initiater is None:
-							self.winner = self.opponent
-						self.condition = "Bikjang"
-						self.game_over = True
+				if helper_funcs.detect_bikjang(self.opponent, self.player):
+					self.bikjang = True
+					self.winner = self.opponent
+					self.condition = "Bikjang"
+					self.game_over = True
 
-					elif helper_funcs.detect_check(self.player, self.opponent, self.board):
-						self.check = True
-						self.bikjang = False
-						self.condition = "Check"
-					else:
-						self.check = False
-						self.bikjang = False
-						self.condition = "None"
-						self.player.is_turn = True
-						self.opponent.is_turn = False
+				elif helper_funcs.detect_check(self.player, self.opponent, self.board):
+					self.check = True
+					self.condition = "Check"
 			
-			self.player.is_turn = True
-			self.opponent.is_turn = False
-			self.active_player = self.player
-			self.waiting_player = self.opponent
+			self.swap_turn()
 			self.opponent.is_checked = False
 
 	# Handle any rendering that needs to be done
@@ -785,6 +761,30 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
 			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
 			self.draw_text(window, text, x, y, font_size)
+
+	# Prints out the fen string of the current board
+	def print_fen(self, optional_message=""):
+		string_board = self.opponent.convert_board(self.board, self.player)
+		fen = self.opponent.generate_fen(string_board)
+		print(optional_message, fen)
+
+	# inverts turn flags and swaps the active and waiting player variables
+	def swap_turn(self):
+		self.player.is_turn = not self.player.is_turn
+		self.opponent.is_turn = not self.opponent.is_turn
+
+		if self.active_player == self.player:
+			self.active_player = self.opponent
+			self.waiting_player = self.player
+		else:
+			self.active_player = self.player
+			self.waiting_player = self.opponent
+
+	def is_game_over(self):
+		if (not helper_funcs.resolve_condition(self.active_player, self.waiting_player, self.board, self.condition) and
+	  		self.condition == "Check"):
+			return True
+		return False
 
 #--------------------------------------------------------------------------------
 class LocalSinglePlayerPreGameSettings(State):
@@ -1004,6 +1004,7 @@ class LocalSinglePlayerPreGameSettings(State):
 # Inherited State for single player gaming against an ai
 #--------------------------------------------------------------------------------
 class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
+
 	# initialize the gamestate
 	# INPUT: No Input
 	# OUTPUT: Gamestate is initialized and ready for playing
@@ -1135,6 +1136,12 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 		self.active_player = None
 		self.waiting_player = None
 
+	def is_game_over(self):
+		if (not helper_funcs.resolve_condition(self.active_player, self.waiting_player, self.board, self.condition) and
+	  		self.condition == "Check"):
+			return True
+		return False
+
 	# Listen for and handle any event ticks (clicks/buttons)
 	# INPUT: pygame event object
 	# OUTPUT: User triggered game events are handled appropriately
@@ -1142,13 +1149,9 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 		# get the player's mouse position for click tracking
 		mouse_pos = pygame.mouse.get_pos()
 		# check for game over conditions at the top of the turn
-		if (self.active_player is not None and 
-	  		self.waiting_player is not None and 
-	  		not helper_funcs.resolve_condition(self.active_player, self.waiting_player, self.board, self.condition)):
-			if self.condition == "Check":
+		if self.is_game_over():
 				self.game_over = True
 				self.winner = self.waiting_player
-			pass # handle end game transition here
 
 		# listen for an event trigger via click from left-mouse-button
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not self.game_over:
@@ -1180,12 +1183,15 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 				if self.cho_player.is_host:
 					if self.host_swap_right_horse_button.is_clicked():
 						helper_funcs.swap_pieces(self.cho_player, self.cho_player.pieces[6], self.cho_player.pieces[4])
+					
 					elif self.host_swap_left_horse_button.is_clicked():
 						helper_funcs.swap_pieces(self.cho_player, self.cho_player.pieces[5], self.cho_player.pieces[3])
+					
 					elif self.host_confirm_swap_button.is_clicked():
 						self.active_player = self.cho_player
 						self.active_player.is_ready = True
 						self.opening_turn = False
+				
 				# CHO IS GUEST
 				else:
 					if self.guest_swap_right_horse_button.is_clicked():
@@ -1206,18 +1212,12 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 					# end of turn update
 					if helper_funcs.detect_bikjang(self.active_player, self.waiting_player):
 						self.bikjang = True
-						self.check = False
 						self.condition = "Bikjang"
 						self.winner = self.active_player
 						self.game_over = True
 					elif helper_funcs.detect_check(self.waiting_player, self.active_player, self.board):
-						self.bikjang = False
 						self.check = True
 						self.condition = "Check"
-					else: # no condition change
-						self.bikjang = False
-						self.check = False
-						self.condition = "None"
 					# switch turns
 					temp_info = self.active_player
 					self.active_player = self.waiting_player
@@ -1404,7 +1404,6 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
 			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
 			self.draw_text(window, text, x, y, font_size)
-
 	
 # FUTURE TODO: ONLINE MULTIPLAYER
 """#--------------------------------------------------------------------------------
@@ -1419,3 +1418,20 @@ class MultiPlayerPreGameSettings(State):
 		self.next_state = None
 		self.player_host = None
 		self.player_guest = None"""
+
+class Multiplayer(State):
+
+	def __init__(self, window):
+		super().__init__()
+		# load then display board image
+		self.menu_background = pygame.image.load("Board/Janggi_Board_Border.png").convert_alpha()
+		self.menu_background = pygame.transform.scale(self.menu_background, constants.board_border_size)
+		self.center = window.get_rect().center
+
+		self.playboard = pygame.image.load("Board/Janggi_Board.png").convert_alpha()
+		self.playboard = pygame.transform.scale(self.playboard, constants.board_size)
+		self.playboard_center = self.menu_background.get_rect().center
+
+	def render(self, window):
+		window.blit(self.menu_background, self.menu_background.get_rect(center = window.get_rect().center))
+		window.blit(self.playboard, self.playboard.get_rect(center = window.get_rect().center))
