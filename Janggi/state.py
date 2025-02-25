@@ -50,6 +50,7 @@ class State():
 	def update(self):
 		pass
 
+	# functions to handle input from player
 	def is_left_click(event):
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 			return True
@@ -82,6 +83,13 @@ class State():
 		font = pygame.font.SysFont("Arial", font_size)
 		text_surface = font.render(text, True, constants.WHITE)
 		window.blit(text_surface, (x, y))
+
+	# Checks flags to see if the game is over by check
+	def is_game_over(self):
+		if (not helper_funcs.resolve_condition(self.active_player, self.waiting_player, self.board, self.condition) and
+	  		self.condition == "Check"):
+			return True
+		return False
 
 #--------------------------------------------------------------------------------
 # MAIN MENU TO TRANSITION INTO SINGLEPLAYER/MULTIPLAYER/ETC...
@@ -806,12 +814,6 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			self.active_player = self.player
 			self.waiting_player = self.opponent
 
-	def is_game_over(self):
-		if (not helper_funcs.resolve_condition(self.active_player, self.waiting_player, self.board, self.condition) and
-	  		self.condition == "Check"):
-			return True
-		return False
-
 #--------------------------------------------------------------------------------
 class LocalSinglePlayerPreGameSettings(State):
 
@@ -1143,13 +1145,6 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 		self.cho_player = self.player_guest if self.player_guest.color == "Cho" else self.player_host
 		self.active_player = None
 		self.waiting_player = None
-
-	def is_game_over(self):
-		if (not helper_funcs.resolve_condition(self.active_player, self.waiting_player, self.board, self.condition) and
-	  		self.condition == "Check"):
-			return True
-		return False
-
 	# Listen for and handle any event ticks (clicks/buttons)
 	# INPUT: pygame event object
 	# OUTPUT: User triggered game events are handled appropriately
@@ -1434,33 +1429,6 @@ class Multiplayer(State):
 		self.immediate_render = False
 		# get the player's mouse position for click tracking
 		mouse_pos = pygame.mouse.get_pos()
-
-		# check for game over conditions at the top of the player's turn
-		if self.is_game_over():
-				self.game_over = True
-				self.winner = self.opponent
-
-		# listen for an event trigger via click from right-mouse-button
-		elif self.is_left_click(event) and not self.game_over and self.opening_turn:
-			# OPENING TURN ONLY
-			if self.opening_turn:
-				# player may swap horses with elephants, confirm swap to end turn
-				# Han player chooses first then Cho
-				if self.swap_right_horse_button.is_clicked():
-					helper_funcs.swap_pieces(self.player, self.player.pieces[6], self.player.pieces[4])
-
-				elif self.swap_left_horse_button.is_clicked():
-					helper_funcs.swap_pieces(self.player, self.player.pieces[5], self.player.pieces[3])
-				
-				elif self.confirm_swap_button.is_clicked():
-					self.opening_turn = False
-					if self.opponent.color == "Cho":
-						helper_funcs.choose_ai_lineup(self.opponent)
-						self.player.is_turn = False
-						self.opponent.is_turn = True
-					else:
-						self.player.is_turn = True
-						self.opponent.is_turn = False
 
 	def render(self, window):
 		window.blit(self.menu_background, self.menu_background.get_rect(center = window.get_rect().center))
