@@ -5,6 +5,8 @@ o This file is to manage the button class for the button
 o Last Modified - November 11th 2024
 ----------------------------------------------------------
 """
+from operator import truediv
+
 import pygame
 
 # local file imports, see individ file for details
@@ -41,12 +43,21 @@ class Button:
 	# INPUT: pygame surface object (window)
 	# OUTPUT: Button is drawn to surface object, and will update button color if mouse collides with
     def draw_button(self, window):
+        center = False
         mouse_pos = pygame.mouse.get_pos()
         # change to hovering color if mouse hovers over button
         if self.rect.collidepoint(mouse_pos):
             color = self.hover_color if self.hover_color else self.background_color
         else:
             color = self.background_color
+
+        # *
+        if self.x == 1:
+            self.rect.center = window.get_rect().center
+            self.rect.centery = self.y
+            newx = self.rect.centerx
+            center = True
+
         pygame.draw.rect(window, color, self.rect)
 
         # dont display text in the button if button has no text
@@ -54,7 +65,10 @@ class Button:
             # render text
             text_surface = self.font.render(self.text, True, self.foreground_color)
             # center text onto button
-            text_rect = text_surface.get_rect(center=(self.x + self.width / 2, self.y + self.height / 2))
+            if center:
+                text_rect = text_surface.get_rect(center=(newx, self.y))
+            else:
+                text_rect = text_surface.get_rect(center=(self.x + self.width // 2, self.y + self.height // 2))
             window.blit(text_surface, text_rect)
 
     # Method to determine if a button was clicked
