@@ -311,8 +311,6 @@ def attempt_move(active_player, waiting_player, board, mouse_pos, condition):
 				# update the moved piece's collision rectangle
 				janggi_piece.collision_rect.topleft = (center_x, center_y)
 
-				
-
 				return True
 				
 	return False
