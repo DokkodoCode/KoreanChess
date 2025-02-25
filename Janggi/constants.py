@@ -125,7 +125,6 @@ resolutions = {
                 "cho_button":
                   {
                     "location": (800, 195),
-                    # "location": (eWidth/5, eHeight/5),
                     "size": (100, 40),
                     "text": 
                     {
@@ -139,8 +138,7 @@ resolutions = {
                   },
                 "han_button": 
                 {
-                    # "location": (1010, 195),
-                    "location": (eWidth/2, eHeight),
+                    "location": (1010, 195),
                     "size": (100, 40),
                     "text": 
                     {
