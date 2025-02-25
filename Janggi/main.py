@@ -55,7 +55,7 @@ def main():
 				constants.running = False
 			# if player resizes the window via dragging border
 			elif event.type == pygame.VIDEORESIZE:
-				window = pygame.display.set_mode(event.size, pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
+				window = pygame.display.set_mode(event.size, pygame.RESIZABLE)
 
 				constants.eWidth, constants.eHeight = event.size
 				if f"{constants.eWidth}x{constants.eHeight}" == "1920x1080":
