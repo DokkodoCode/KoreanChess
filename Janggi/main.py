@@ -19,6 +19,10 @@ def main():
 	# use user's machine's screen size as reference to screen width/height
 	os.environ['SDL_VIDEO_CENTERED'] = '1'
 
+	# *
+	info = pygame.display.Info()
+	width, height = info.current_w, info.current_h
+
 	# initialize pygame instance
 	pygame.init()
 	
@@ -31,7 +35,8 @@ def main():
 	pygame.display.set_icon(icon)
 
 	# create the window
-	window = pygame.display.set_mode((constants.screen_width, constants.screen_height), pygame.FULLSCREEN)
+	window = pygame.display.set_mode((width, height), pygame.RESIZABLE)
+	# window = pygame.display.set_mode((constants.screen_width, constants.screen_height), pygame.RESIZABLE)
 
 	pygame.display.update()
 	pygame.display.set_caption("Janggi")
@@ -51,6 +56,8 @@ def main():
 			# if player resizes the window via dragging border
 			elif event.type == pygame.VIDEORESIZE:
 				window = pygame.display.set_mode(event.size, pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
+				print(event.size)
+				# window = pygame.display.set_mode(event.size, pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
 
 			# otherwise call the state machine
 			else:
