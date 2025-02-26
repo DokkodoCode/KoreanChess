@@ -50,28 +50,30 @@ class State():
 	def update(self):
 		pass
 
-	# functions to handle input from player
-	def is_left_click(event):
+	# functions to detect the type of user input
+	def is_left_click(self, event):
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 			return True
 		return False
 	
-	def is_middle_click(event):
+	def is_middle_click(self, event):
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 2:
 			return True
 		return False
 	
-	def is_right_click(event):
+	def is_right_click(self, event):
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
 			return True
 		return False
 
-	def load_board(self, window):
+	# function that will load the board boarder image into memory
+	def load_board_boarder(self, window):
 		self.menu_background = pygame.image.load("Board/Janggi_Board_Border.png").convert_alpha()
 		self.menu_background = pygame.transform.scale(self.menu_background, constants.board_border_size)
 		self.center = window.get_rect().center
 
-	def render_board(self):
+	#  function that will load board into memory
+	def load_board(self):
 		self.playboard = pygame.image.load("Board/Janggi_Board.png").convert_alpha()
 		self.playboard = pygame.transform.scale(self.playboard, constants.board_size)
 		self.playboard_center = self.menu_background.get_rect().center
@@ -90,6 +92,55 @@ class State():
 	  		self.condition == "Check"):
 			return True
 		return False
+
+	# render functions
+	def render_check_ending(self, window):
+		# DRAW THE BACKGROUND FOR DISPLAYING GAME OVER TEXT
+		window.blit(self.game_over_background,
+			constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["location"])
+			
+		# DISPLAY GAME OVER TEXT
+		text = "Game Over!"
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["location"]
+		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["font_size"]
+		self.draw_text(window, text, x, y, font_size)
+		
+		# DISPLAY THE WINNER
+		text = f"{self.winner.color} wins!"
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["location"]
+		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["font_size"]
+		self.draw_text(window, text, x, y, font_size)
+
+		# DISPLAY REASONING
+		text = f"Check initiated by {self.winner.color} was unresolvable."
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
+		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
+		self.draw_text(window, text, x, y, font_size)
+		print("rendered check ending!")
+
+	def render_bikjang_ending(self, window):
+		# DRAW THE BACKGROUND FOR DISPLAYING GAME OVER TEXT
+		window.blit(self.game_over_background,
+		constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["location"])
+		
+		# DISPLAY GAME OVER TEXT
+		text = "Game Over!"
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["location"]
+		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["font_size"]
+		self.draw_text(window, text, x, y, font_size)
+
+		# DISPLAY ANY RESULT-AFFECTING CONDITIONS
+		text = f"Bikjang was initiated by {self.winner.color}."
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
+		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
+		self.draw_text(window, text, x, y, font_size)
+
+		# DISPLAY THE FINAL RESULT
+		text = "Draw..."
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["location"]
+		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["font_size"]
+		self.draw_text(window, text, x, y, font_size)
+		print("rendered bikjang ending!")
 
 #--------------------------------------------------------------------------------
 # MAIN MENU TO TRANSITION INTO SINGLEPLAYER/MULTIPLAYER/ETC...
@@ -363,7 +414,7 @@ class SinglePlayerPreGameSettings(State):
 	# OUTPUT: settings are set accordingly
 	def handle_event(self, event):
 		# on left mouse click, determine which button if any were clicked
-		if self.is_left_click():
+		if self.is_left_click(event):
 			# PLAY AS CHO
 			if self.cho_side_button.is_clicked():
 				self.player.color ="Cho"
@@ -492,8 +543,8 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 	def __init__(self, window):
 		super().__init__(window)
 		# load then display board image
-		self.load_board(window)
-		self.render_board()
+		self.load_board_boarder(window)
+		self.load_board()
 
 
 		# swap left-horse button
@@ -586,23 +637,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 				
 				# OPENING TURN ONLY
 				if self.opening_turn:
-					# player may swap horses with elephants, confirm swap to end turn
-					# Han player chooses first then Cho
-					if self.swap_right_horse_button.is_clicked():
-						helper_funcs.swap_pieces(self.player, self.player.pieces[6], self.player.pieces[4])
-
-					elif self.swap_left_horse_button.is_clicked():
-						helper_funcs.swap_pieces(self.player, self.player.pieces[5], self.player.pieces[3])
-					
-					elif self.confirm_swap_button.is_clicked():
-						self.opening_turn = False
-						if self.opponent.color == "Cho":
-							helper_funcs.choose_ai_lineup(self.opponent)
-							self.player.is_turn = False
-							self.opponent.is_turn = True
-						else:
-							self.player.is_turn = True
-							self.opponent.is_turn = False
+					self.handle_swap()
 
 				# GAMEPLAY TURN
 				elif self.player.is_turn:
@@ -640,7 +675,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 						pass
 
 		# if RMB clicked and ...
-		elif (self.is_right_click() 
+		elif (self.is_right_click(event) 
 				and self.player.is_turn 
 				and not self.bikjang 
 				and not self.check
@@ -738,63 +773,16 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			else:
 				render_funcs.render_check_highlight(self.player, window)
 
-		# DISPLAY GAME STATE INFORMATION
-		# if self.player is not None and self.opponent is not None:
-		# 	render_funcs.render_pieces(self.player, self.opponent, window)
-
-		# # COVER CASE WHERE NO PLAYER HAS STARTED THEIR TURN YET
-		# else:
-		# 	render_funcs.render_pieces(self.player, self.opponent, window)
 		render_funcs.render_pieces(self.player, self.opponent, window)
 
 		# DISPLAY END GAME CONDITIONS/GAME_STATES
 		# BIKJANG CONDITION
 		if self.game_over and self.bikjang:
-			# DRAW THE BACKGROUND FOR DISPLAYING GAME OVER TEXT
-			window.blit(self.game_over_background,
-			  	constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["location"])
-				
-			# DISPLAY GAME OVER TEXT
-			text = "Game Over!"
-			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["location"]
-			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["font_size"]
-			self.draw_text(window, text, x, y, font_size)
-
-			# DISPLAY ANY RESULT-AFFECTING CONDITIONS
-			text = f"Bikjang was initiated by {self.winner.color}."
-			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
-			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
-			self.draw_text(window, text, x, y, font_size)
-
-			# DISPLAY THE FINAL RESULT
-			text = "Draw..."
-			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["location"]
-			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["font_size"]
-			self.draw_text(window, text, x, y, font_size)
+			self.render_bikjang_ending(window)
 
 		# GAME ENDING CHECK
 		if self.game_over and self.check:
-			# DRAW THE BACKGROUND FOR DISPLAYING GAME OVER TEXT
-			window.blit(self.game_over_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["location"])
-				
-			# DISPLAY GAME OVER TEXT
-			text = "Game Over!"
-			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["location"]
-			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["font_size"]
-			self.draw_text(window, text, x, y, font_size)
-			
-			# DISPLAY THE WINNER
-			text = f"{self.winner.color} wins!"
-			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["location"]
-			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["font_size"]
-			self.draw_text(window, text, x, y, font_size)
-
-			# DISPLAY REASONING
-			text = f"Check initiated by {self.winner.color} was unresolvable."
-			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
-			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
-			self.draw_text(window, text, x, y, font_size)
+			self.render_check_ending(window)
 
 	# Prints out the fen string of the current board
 	def print_fen(self, optional_message=""):
@@ -813,6 +801,25 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		else:
 			self.active_player = self.player
 			self.waiting_player = self.opponent
+
+	# player may swap horses with elephants, confirm swap to end turn
+	# Han player chooses first then Cho
+	def handle_swap(self):
+		if self.swap_right_horse_button.is_clicked():
+			helper_funcs.swap_pieces(self.player, self.player.pieces[6], self.player.pieces[4])
+
+		elif self.swap_left_horse_button.is_clicked():
+			helper_funcs.swap_pieces(self.player, self.player.pieces[5], self.player.pieces[3])
+		
+		elif self.confirm_swap_button.is_clicked():
+			self.opening_turn = False
+			if self.opponent.color == "Cho":
+				helper_funcs.choose_ai_lineup(self.opponent)
+				self.player.is_turn = False
+				self.opponent.is_turn = True
+			else:
+				self.player.is_turn = True
+				self.opponent.is_turn = False
 
 #--------------------------------------------------------------------------------
 class LocalSinglePlayerPreGameSettings(State):
@@ -888,8 +895,8 @@ class LocalSinglePlayerPreGameSettings(State):
 		self.play_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
 		
 		# boards
-		self.load_board(window)
-		self.render_board()
+		self.load_board_boarder(window)
+		self.load_board()
 
 		# load button backgrounds
 		self.button_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
@@ -1034,8 +1041,8 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 	def __init__(self, window):
 		super().__init__(window)
 		# load then display board image
-		self.load_board(window)
-		self.render_board()
+		self.load_board_boarder(window)
+		self.load_board()
 
 		# host-side swap left-horse button
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["location"]
@@ -1166,11 +1173,14 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 				if self.han_player.is_host:
 					if self.host_swap_right_horse_button.is_clicked():
 						helper_funcs.swap_pieces(self.han_player, self.han_player.pieces[6], self.han_player.pieces[4])
+					
 					elif self.host_swap_left_horse_button.is_clicked():
 						helper_funcs.swap_pieces(self.han_player, self.han_player.pieces[5], self.han_player.pieces[3])
+					
 					elif self.host_confirm_swap_button.is_clicked():
 						self.waiting_player = self.han_player
 						self.waiting_player.is_ready = True
+				
 				# HAN IS GUEST
 				else:
 					if self.guest_swap_right_horse_button.is_clicked():
@@ -1180,6 +1190,7 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 					elif self.guest_confirm_swap_button.is_clicked():
 						self.waiting_player = self.han_player
 						self.waiting_player.is_ready = True
+			
 			# Cho player chooses second
 			elif self.opening_turn and not self.cho_player.is_ready:
 				# CHO IS HOST
@@ -1362,53 +1373,11 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 			render_funcs.render_pieces(self.player_host, self.player_guest, window)
 
 		# DISPLAY END GAME CONDITIONS/GAME_STATES
-		# BIKJANG CONDITION
 		if self.game_over and self.bikjang:
-			# DRAW THE BACKGROUND FOR DISPLAYING GAME OVER TEXT
-			window.blit(self.game_over_background,
-			  	constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["location"])
-				
-			# DISPLAY GAME OVER TEXT
-			text = "Game Over!"
-			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["location"]
-			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["font_size"]
-			self.draw_text(window, text, x, y, font_size)
+			self.render_bikjang_ending(window)
 
-			# DISPLAY ANY RESULT-AFFECTING CONDITIONS
-			text = f"Bikjang was initiated by {self.winner.color}."
-			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
-			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
-			self.draw_text(window, text, x, y, font_size)
-
-			# DISPLAY THE FINAL RESULT
-			text = "Draw..."
-			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["location"]
-			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["font_size"]
-			self.draw_text(window, text, x, y, font_size)
-
-		# GAME ENDING CHECK
 		if self.game_over and self.check:
-			# DRAW THE BACKGROUND FOR DISPLAYING GAME OVER TEXT
-			window.blit(self.game_over_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["location"])
-				
-			# DISPLAY GAME OVER TEXT
-			text = "Game Over!"
-			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["location"]
-			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["font_size"]
-			self.draw_text(window, text, x, y, font_size)
-			
-			# DISPLAY THE WINNER
-			text = f"{self.winner.color} wins!"
-			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["location"]
-			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["font_size"]
-			self.draw_text(window, text, x, y, font_size)
-
-			# DISPLAY REASONING
-			text = f"Check initiated by {self.winner.color} was unresolvable."
-			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
-			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
-			self.draw_text(window, text, x, y, font_size)
+			self.render_check_ending(window)
 
 # class MultiplayerPreGameSettings(State):
 # 	pass
@@ -1418,17 +1387,29 @@ class Multiplayer(State):
 	def __init__(self, window):
 		super().__init__()
 		# load and render board
-		self.load_board(window)
-		self.render_board()
+		self.load_board_boarder(window)
+		self.load_board()
 
 		# initalizing players
 		self.player_host = player.Player(is_host=True, board_perspective="Bottom")
 		self.player_guest = player.Player(is_host=False, board_perspective="Top")
+		
+		self.player_host.print_pieces()
+		helper_funcs.swap_pieces(self.player_host, self.player_host.pieces[5], self.player_host.pieces[3])
+		self.player_host.print_pieces()
+
+		self.board = board.Board()
 
 	def handle_event(self, event):
 		self.immediate_render = False
 		# get the player's mouse position for click tracking
 		mouse_pos = pygame.mouse.get_pos()
+
+
+
+		# escape from game to main menu
+		if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+			self.next_state = "Main Menu"
 
 	def render(self, window):
 		window.blit(self.menu_background, self.menu_background.get_rect(center = window.get_rect().center))

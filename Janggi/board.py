@@ -7,6 +7,7 @@ o Last Modified - November 11th 2024
 
 # libraries
 import pygame
+import pprint # NOTE: TEMP IMPORT, JUST USED FOR DEBUGGING
 
 # local file imports, see individ file for details
 import constants
@@ -31,6 +32,8 @@ class Board():
 		self.top_palace = [row[:3] for row in self.coordinates[3:6]]
 		self.top_palace_collisions  = self.han_assign_palace_collision_spots()
 		self.collisions = self.assign_collision_spots()
+
+		pprint.pp(self.coordinates) #DEBUG MESSAGE
 
 	def cho_assign_palace_collision_spots(self):
 		collision_rects = [] # hold the collision rectangles
