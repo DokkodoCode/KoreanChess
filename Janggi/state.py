@@ -142,6 +142,36 @@ class State():
 		self.draw_text(window, text, x, y, font_size)
 		print("rendered bikjang ending!")
 
+	def handle_piece_move(self, mouse_pos):
+		# finds possible spots for piece to move, if player clicks avaiable spot, returns true
+		if helper_funcs.attempt_move(self.player, self.opponent, self.board, mouse_pos, self.condition):
+
+			# reset is_clicked flags for player and piece
+			helper_funcs.player_piece_unclick(self.player)
+			
+			# if bikjang occurs, set appropriate flags
+			if helper_funcs.detect_bikjang(self.player, self.opponent):
+				self.bikjang = True
+				self.condition = "Bikjang"
+				self.winner = self.player
+				self.game_over = True
+
+			# if check occurs, set appropriate flags
+			elif helper_funcs.detect_check(self.opponent, self.player, self.board):
+				self.check = True
+				self.condition = "Check"
+				self.opponent.is_checked = True
+												
+			self.swap_turn()
+			self.immediate_render = True
+
+		# otherwise the player is clicking another piece or invalid spot
+		else:
+			# reset click state
+			helper_funcs.player_piece_unclick(self.player)
+			# update click to new piece if valid clicked
+			helper_funcs.player_piece_clicked(self.player, mouse_pos)
+
 #--------------------------------------------------------------------------------
 # MAIN MENU TO TRANSITION INTO SINGLEPLAYER/MULTIPLAYER/ETC...
 #--------------------------------------------------------------------------------
@@ -640,24 +670,30 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 					self.handle_swap()
 
 				# GAMEPLAY TURN
+				# if it is player's turn
 				elif self.player.is_turn:
-					self.print_fen("PLAYER:")
-					# check if the player is currently attempting to move a piece
+
+					# if player is attempting to move a piece
 					if self.player.is_clicked:
-						# unclick that piece if the move was successful/valid
+
+						# finds possible spots for piece to move, if player clicks avaiable spot, returns true
 						if helper_funcs.attempt_move(self.player, self.opponent, self.board, mouse_pos, self.condition):
+
+							# reset is_clicked flags for player and piece
 							helper_funcs.player_piece_unclick(self.player)
-							# end of turn update
+							
+							# if bikjang occurs, set appropriate flags
 							if helper_funcs.detect_bikjang(self.player, self.opponent):
 								self.bikjang = True
+								self.condition = "Bikjang"
 								self.winner = self.player
 								self.game_over = True
-								self.condition = "Bikjang"
 
+							# if check occurs, set appropriate flags
 							elif helper_funcs.detect_check(self.opponent, self.player, self.board):
 								self.check = True
-								self.opponent.is_checked = True
 								self.condition = "Check"
+								self.opponent.is_checked = True
 																
 							self.swap_turn()
 							self.immediate_render = True
@@ -1221,19 +1257,23 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 						self.opening_turn = False
 
 			# check if the player is currently attempting to move a piece
-			elif self.active_player is not None and self.active_player.is_clicked and not self.opening_turn:
+			elif self.active_player is not None and self.active_player.is_clicked:
 				# unclick that piece if the move was successful/valid
 				if helper_funcs.attempt_move(self.active_player, self.waiting_player, self.board, mouse_pos, self.condition):
+
 					helper_funcs.player_piece_unclick(self.active_player)
+					
 					# end of turn update
 					if helper_funcs.detect_bikjang(self.active_player, self.waiting_player):
 						self.bikjang = True
 						self.condition = "Bikjang"
 						self.winner = self.active_player
 						self.game_over = True
+					
 					elif helper_funcs.detect_check(self.waiting_player, self.active_player, self.board):
 						self.check = True
 						self.condition = "Check"
+					
 					# switch turns
 					temp_info = self.active_player
 					self.active_player = self.waiting_player
@@ -1379,13 +1419,215 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 		if self.game_over and self.check:
 			self.render_check_ending(window)
 
-# class MultiplayerPreGameSettings(State):
-# 	pass
+class MultiplayerPreGameSettings(State):
+	def __init__(self, window):
+		super().__init__() # inherit the parent initializer
+		self.next_state = None
+		self.font = pygame.font.SysFont("Arial",size=35)
+		# player and opponent will be created here to be inherited
+		self.player_host = player.Player(is_host=True, board_perspective="Bottom")
+		self.player_guest = player.Player(is_host=False, board_perspective="Top")
 
-class Multiplayer(State):
+		# host retains last settings, guest is opposite
+		if self.player_host.color == "Cho":
+			self.player_guest.color = "Han"
+		else:
+			self.player_guest.color = "Cho"
+
+		# DECLARE BUTTONS FOR PRE-GAME SETTINGS
+
+		# cho button
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["hover_color"]
+		self.cho_side_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+		
+		# han button
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["hover_color"]
+		self.han_side_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+		
+		# standard piece convention button
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["hover_color"]
+		self.standard_piece_convention_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+		
+		# international piece convention button
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["hover_color"]
+		self.internat_piece_convention_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+		
+		# play button
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["hover_color"]
+		self.play_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+		
+		# boards
+		self.load_board_boarder(window)
+		self.load_board()
+
+		# load button backgrounds
+		self.button_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
+
+		self.button_background = (
+			pygame.transform.scale(self.button_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["size"]))
+		
+		# play as cho/han button background
+		self.play_as_background = (
+			pygame.transform.scale(self.button_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["size"]))
+		
+		# piece convention button background
+		self.piece_convention_background = (
+			pygame.transform.scale(self.button_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["size"]))
+		
+		# play button background
+		self.play_button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
+		self.play_button_background = (pygame.transform.scale(self.play_button_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play"]["size"]))
+		
+		# player piece display background
+		self.player_piece_display_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
+		self.player_piece_display_background = pygame.transform.rotate(self.player_piece_display_background, 90)
+		self.player_piece_display_background = pygame.transform.scale(self.player_piece_display_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["size"])
+		
+		# player header background
+		self.player_header_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
+		self.player_header_background = pygame.transform.scale(self.player_header_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["player_header"]["size"])
+		
+		# opponent piece display background
+		self.opponent_piece_display_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
+		self.opponent_piece_display_background = pygame.transform.rotate(self.opponent_piece_display_background, 270)
+		self.opponent_piece_display_background = pygame.transform.scale(self.opponent_piece_display_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["opponent_piece_display"]["size"])
+
+	# Listen for and handle any event ticks (clicks/buttons)
+	# INPUT: pygame event object
+	# OUTPUT: settings are set accordingly
+	def handle_event(self, event):
+		# on left mouse click, determine which button if any were clicked
+		if self.is_left_click(event):
+			# PLAY AS CHO
+			if self.cho_side_button.is_clicked():
+				self.player_host.color ="Cho"
+				self.player_guest.color = "Han"
+			# PLAY AS HAN
+			elif self.han_side_button.is_clicked():
+				self.player_host.color = "Han"
+				self.player_guest.color = "Cho"
+			# PLAY WITH STANDARD PIECE LOGOS
+			elif self.standard_piece_convention_button.is_clicked():
+				self.player_host.piece_convention = "Standard"
+				self.player_guest.piece_convention = "Standard"
+			# PLAY WITH INTERNATIONAL PIECE LOGOS
+			elif self.internat_piece_convention_button.is_clicked():
+				self.player_host.piece_convention = "International"
+				self.player_guest.piece_convention = "International"
+			# CLICK CONFIRM SETTINGS IF ALL ARE SET
+			elif self.play_button.is_clicked():
+				helper_funcs.update_player_settings(self.player_host)
+				self.next_state = "Multi Player Game"
+						
+		# escape to main menu
+		elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+			self.next_state = "Main Menu"
+				
+	# Handle any rendering that needs to be done
+	# INPUT: pygame surface object (window to display to)
+	# OUTPUT: All pre-game settings attributes/actions are rendered
+	def render(self, window):
+		# USE BOARD AS BACKGROUND
+		window.blit(self.menu_background, self.menu_background.get_rect(center = window.get_rect().center))
+		window.blit(self.playboard, self.playboard.get_rect(center = window.get_rect().center))
+		
+		# SELECT PIECE SIDE TO PLAY AS (CHO/HAN)
+		window.blit(self.play_as_background, 
+			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["location"])
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["string"]
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["location"]
+		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["font_size"]
+
+		self.draw_text(window, text, x, y, font_size)
+		self.cho_side_button.draw_button(window)
+		self.han_side_button.draw_button(window)
+		
+		# SELECT PIECE TYPE CONVENTION TO PLAY WITH (STANDARD/INTERNATIONAL)
+		window.blit(self.piece_convention_background, 
+			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["location"])
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["string"]
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["location"]
+		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["font_size"]
+
+		self.draw_text(window, text, x, y, font_size)
+		self.standard_piece_convention_button.draw_button(window)
+		self.internat_piece_convention_button.draw_button(window)
+
+		# PLAY BUTTON
+		window.blit(self.play_button_background, 
+			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play"]["location"])
+		self.play_button.draw_button(window)
+
+		
+
+		# DISPLAY PREVIEW OF THE PIECES ON HOW THEY WILL LOOK	
+		if self.player_host is not None:
+
+			# player header to notify which display is player's
+			window.blit(self.player_header_background, 
+			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]
+			   ["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["player_header"]["location"])
+			
+			# player header text display
+			text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["text"]["string"]
+			x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["text"]["location"]
+			font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["text"]["font_size"]
+			self.draw_text(window, text, x, y, font_size)
+
+			# player piece display
+			window.blit(self.player_piece_display_background, 
+			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["location"])
+
+			   	
+			# opponent piece display
+			window.blit(self.opponent_piece_display_background, 
+			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["opponent_piece_display"]["location"])
+
+			# render pieces
+			render_funcs.PreGame_render_piece_display(window, self.player_host, self.player_guest)
+
+
+class Multiplayer(MultiplayerPreGameSettings):
 
 	def __init__(self, window):
-		super().__init__()
+		super().__init__(window)
 		# load and render board
 		self.load_board_boarder(window)
 		self.load_board()
@@ -1394,9 +1636,8 @@ class Multiplayer(State):
 		self.player_host = player.Player(is_host=True, board_perspective="Bottom")
 		self.player_guest = player.Player(is_host=False, board_perspective="Top")
 		
-		self.player_host.print_pieces()
-		helper_funcs.swap_pieces(self.player_host, self.player_host.pieces[5], self.player_host.pieces[3])
-		self.player_host.print_pieces()
+		self.active_player = self.player_host
+		self.waiting_player = self.player_guest
 
 		self.board = board.Board()
 
@@ -1405,6 +1646,74 @@ class Multiplayer(State):
 		# get the player's mouse position for click tracking
 		mouse_pos = pygame.mouse.get_pos()
 
+	# check for game over conditions at the top of the player's turn
+		if self.is_game_over():
+				self.game_over = True
+				self.winner = self.player_guest
+
+		# listen for an event trigger via click from right-mouse-button
+		elif self.is_left_click(event) and not self.game_over:
+				
+			# OPENING TURN ONLY
+			if self.opening_turn:
+				self.handle_swap()
+
+			# GAMEPLAY TURN
+
+			# if its host's turn
+			elif self.player_host.is_turn:
+
+				# check if the player is currently attempting to move a piece
+				if self.player.is_clicked:
+					
+					# if move was successful
+					if helper_funcs.attempt_move(self.player_host, self.player_guest, self.board, mouse_pos, self.condition):
+						
+						# reset flag of piece.is_clicked and player.is_clicked
+						helper_funcs.player_piece_unclick(self.player)
+						
+						# if move resulted in bikjang, set appropiate flags
+						if helper_funcs.detect_bikjang(self.player_host, self.player_guest):
+							self.bikjang = True
+							self.winner = self.player
+							self.game_over = True
+							self.condition = "Bikjang"
+
+						# if move resulted in check, set appropiate flags
+						elif helper_funcs.detect_check(self.player_guest, self.player_host, self.board):
+							self.check = True
+							self.opponent.is_checked = True
+							self.condition = "Check"
+															
+						self.swap_turn()
+						self.immediate_render = True
+
+					# otherwise the player is clicking another piece or invalid spot
+					else:
+						# reset flag of piece.is_clicked and player.is_clicked
+						helper_funcs.player_piece_unclick(self.player_host)
+						
+						# set flag self.is_clicked and piece.is_clicked if a piece is clicked
+						helper_funcs.player_piece_clicked(self.player_host, mouse_pos)
+
+				# otherwise, check if any player-side pieces were clicked
+				elif helper_funcs.player_piece_clicked(self.player_host, mouse_pos):
+					# FUTURE LOGIC HERE
+					pass
+
+		# if RMB clicked and ...
+		elif (self.is_right_click(event) 
+				and self.player_host.is_turn 
+				and not self.bikjang 
+				and not self.check
+				and not self.game_over):
+
+				if self.player is not None:
+					helper_funcs.player_piece_unclick(self.player_host)
+					# KING piece is always the first piece in the list
+					if self.player.pieces[0].collision_rect.collidepoint(mouse_pos):
+						# swap turns
+						self.swap_turn()
 
 
 		# escape from game to main menu
@@ -1416,3 +1725,20 @@ class Multiplayer(State):
 		window.blit(self.playboard, self.playboard.get_rect(center = window.get_rect().center))
 
 		render_funcs.render_pieces(self.player_host, self.player_guest, window)
+
+	def handle_swap(self):
+		if self.swap_right_horse_button.is_clicked():
+			helper_funcs.swap_pieces(self.player, self.player.pieces[6], self.player.pieces[4])
+
+		elif self.swap_left_horse_button.is_clicked():
+			helper_funcs.swap_pieces(self.player, self.player.pieces[5], self.player.pieces[3])
+		
+		elif self.confirm_swap_button.is_clicked():
+			self.opening_turn = False
+			if self.opponent.color == "Cho":
+				helper_funcs.choose_ai_lineup(self.opponent)
+				self.player.is_turn = False
+				self.opponent.is_turn = True
+			else:
+				self.player.is_turn = True
+				self.opponent.is_turn = False
