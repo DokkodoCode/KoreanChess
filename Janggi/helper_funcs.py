@@ -2378,14 +2378,3 @@ def get_image_center_location(image):
 	# return a reference to the center of the image
 	center_loc = image.get_rect().center
 	return center_loc
-
-#-----------------------------------------------------------------------------------
-# Function that will scale a coordinate (x, y) based on new screen dimension
-# INPUT: X / Y coordinate (x,y) and display info
-# OUTPUT: Rescaled X / Y coordinate
-#-----------------------------------------------------------------------------------
-def scale_x(x, info):
-	return int((x / 1920) * info.current_w)
-
-def scale_y(y, info):
-	return int((y / 1080) * info.current_h)
