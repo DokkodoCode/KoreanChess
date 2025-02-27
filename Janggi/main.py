@@ -12,7 +12,9 @@ import sys
 
 # local file imports, see individ file for details
 import constants
+import state
 import state_machine
+from helper_funcs import is_fullscr
 
 def main():
 
@@ -22,6 +24,7 @@ def main():
 	# *
 	info = pygame.display.Info()
 	width, height = info.current_w, info.current_h
+	print(width, height)
 
 	# initialize pygame instance
 	pygame.init()
@@ -56,12 +59,9 @@ def main():
 			# if player resizes the window via dragging border
 			elif event.type == pygame.VIDEORESIZE:
 				window = pygame.display.set_mode(event.size, pygame.RESIZABLE)
-
 				constants.eWidth, constants.eHeight = event.size
-				if f"{constants.eWidth}x{constants.eHeight}" == "1920x1080":
-					constants.screen_width, constants.screen_height = 1920, 1080
-				else:
-					constants.screen_width, constants.screen_height = 111, 111
+
+				constants.screen_width, constants.screen_height = is_fullscr(constants.eWidth, constants.eHeight)
 
 				# window = pygame.display.set_mode(event.size, pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
 
