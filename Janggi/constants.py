@@ -6,7 +6,7 @@ o Last Modified - November 19th 2024
 ------------------------------------------------------------------
 """
 import pygame
-from helper_funcs import scale_x, scale_y
+from helper_funcs import scale_x, scale_y, is_fullscr
 
 # initialize pygame instance
 pygame.init()
@@ -14,10 +14,13 @@ pygame.init()
 info = pygame.display.Info()
 eWidth, eHeight = info.current_w, info.current_h
 
-if f"{eWidth}x{eHeight}" == "1920x1080":
-    screen_width, screen_height = 1920, 1080
-else:
-    screen_width, screen_height = 111, 111
+# if f"{eWidth}x{eHeight}" == "1920x1080":
+#     screen_width, screen_height = 1920, 1080
+# else:
+#     screen_width, screen_height = 111, 111
+
+screen_width, screen_height = is_fullscr(eWidth, eHeight)
+print(screen_width, screen_height)
 
 # rectangle colors
 WHITE = (255,255,255)
@@ -45,8 +48,10 @@ resolutions = {
         "y_board_start_loc": 32.5,
         "y_board_end_loc": 960,
         "y_spacing": 106.4,
-        "x_coordinates": [448, 568, 688, 808, 928, 1047, 1168, 1288, 1406],
-        "y_coordinates": [29, 136.5, 245, 352, 460, 567, 675, 782, 890, 987],
+        # "x_coordinates": [448, 568, 688, 808, 928, 1047, 1168, 1288, 1406],
+        "x_coordinates": [eWidth // 7 + 20, 568, 688, 808, 928, 1047, 1168, 1288, eWidth // 7 + 985],
+        # "y_coordinates": [29, 136.5, 245, 352, 460, 567, 675, 782, 890, 987],
+        "y_coordinates": [29, 136.5, 245, 252, 360, 467, 575, 682, 790, 887],
         "piece_reformat_size": (32, 32),
         "spot_collision_size": (65, 65),
         "small_collision_size": (50, 50),
@@ -282,7 +287,8 @@ resolutions = {
             {
                 "cho_button":
                 {
-                    "location": (800, 195),
+                    # "location": (800, 195),
+                    "location": (scale_x(750, info), scale_y(210, info)),
                     "size": (100, 40),
                     "text": 
                     {
@@ -296,7 +302,8 @@ resolutions = {
                 },
                 "han_button": 
                 {
-                    "location": (1010, 195),
+                    # "location": (1010, 195),
+                    "location": (scale_x(1030, info), scale_y(210, info)),
                     "size": (100, 40),
                     "text": 
                     {
@@ -310,7 +317,8 @@ resolutions = {
                 },
                 "standard_piece_convention_button": 
                 {
-                    "location": (700, 455),
+                    # "location": (700, 455), 625 435
+                    "location": (scale_x(625, info), scale_y(475, info)),
                     "size": (175, 50),
                     "text": 
                     {
@@ -324,11 +332,13 @@ resolutions = {
                 },
                 "internat_piece_convention_button": 
                 {
-                    "location": (1050, 455),
+                    # "location": (1050, 455), 1075 435
+                    "location": (scale_x(1075, info), scale_y(475, info)),
                     "size": (175, 50),
                     "text": 
                     {
-                        "font" : pygame.font.SysFont("Arial",size=35),
+                        # "font" : pygame.font.SysFont("Arial",size=35),
+                        "font" : pygame.font.SysFont("Arial",size=30),
                         "string": "International",
                         "foreground_color": BLACK,
                         "background_color": WHITE,
@@ -339,7 +349,7 @@ resolutions = {
             
                 "play_button": 
                 {
-                    "location": (900, 895),
+                    "location": (1, scale_y(935, info)),
                     "size": (125, 50),
                     "text": 
                     {
@@ -589,10 +599,13 @@ resolutions = {
                         "text": 
                         {
                             "string" : "Select Side to Play As",
-                            "location": (815, 100),
-                            "font_size": 35,
+                            # "location": (815, 100),
+                            "location": (eWidth // 2 - 155, scale_y(100, info)),
+                            # "font_size": 35,
+                            "font_size": 30,
                         },
-                        "location": (780, 75),
+                        # "location": (780, 75),
+                        "location": (eWidth // 2 - 180, scale_y(75, info)),
                         "size": (350, 175)
                     },
                     "piece_convention": 
@@ -600,15 +613,18 @@ resolutions = {
                         "text": 
                         {
                             "string" : "Select Piece Convention",
-                            "location": (800, 355),
+                            # "location": (800, 355), 315
+                            "location": (eWidth // 2 - 165, scale_y(355, info)),
                             "font_size": 35,
                         },
-                        "location": (660, 300),
+                        # "location": (660, 300), 260
+                        "location": (eWidth // 2 - 300, scale_y(300, info)),
                         "size": (600, 225)
                     },
                     "play": 
                     {
-                        "location": (855, 815),
+                        # "location" : (855, 815) 775
+                        "location": (eWidth // 2 - 105, scale_y(815, info)),
                         "size": (210, 210)
                     },
                     "player_piece_display": 
@@ -616,14 +632,17 @@ resolutions = {
                         "text": 
                         {
                             "string" : "Your Pieces",
-                            "location": (430, 240),
-                            "font_size": 35,
+                            # "location": (430, 240),
+                            "location": (eWidth // 7 + 5, 140),
+                            "font_size": 30,
                         },
-                        "location": (410, 285),
+                        # "location": (410, 285),
+                        "location": (eWidth // 7 - 15, 185),
                         "size": (200, 810),
                         "player_header" :
                         {
-                            "location": (410, 230),
+                            # "location": (410, 230),
+                            "location": (eWidth // 7 - 15, 130),
                             "size": (200, 100)
                         }
                     },
@@ -631,10 +650,12 @@ resolutions = {
                     {
                         "text": 
                         {
-                            "location": (800, 100),
+                            # "location": (800, 100),
+                            "location": (eWidth // 7 + 905, 140),
                             "font_size": 35,
                         },
-                        "location": (1310, 285),
+                        # "location": (1310, 285),
+                        "location": (eWidth // 7 + 885, 185),
                         "size": (200, 810)
                     },
                     "host_swap_left_horse": 
@@ -748,6 +769,7 @@ resolutions = {
             {
                 "single_player_button":
                 {
+                    # "location": (715, 275),
                     "location": (715, 275),
                     "size": (500, 100),
                     "text":
@@ -762,7 +784,8 @@ resolutions = {
                 },
                 "local_multiplayer_button":
                 {
-                    "location": (715, 425),
+                    # "location": (715, 425),
+                    "location": (715, 475),
                     "size": (500, 100),
                     "text":
                     {
@@ -776,7 +799,8 @@ resolutions = {
                 },
                 "multiplayer_button":
                 {
-                    "location": (715, 570),
+                    # "location": (715, 570),
+                    "location": (715, 620),
                     "size": (500, 100),
                     "text":
                     {
@@ -790,7 +814,8 @@ resolutions = {
                 },
                 "close_button":
                 {
-                    "location": (715, 720),
+                    # "location": (715, 720),
+                    "location": (715, 770),
                     "size": (500, 100),
                     "text":
                     {
@@ -1011,7 +1036,8 @@ resolutions = {
                     "size": (175, 50),
                     "text":
                     {
-                        "font" : pygame.font.SysFont("Arial",size=35),
+                        # "font" : pygame.font.SysFont("Arial",size=35),
+                        "font" : pygame.font.SysFont("Arial",size=30),
                         "string": "International",
                         "foreground_color": BLACK,
                         "background_color": WHITE,
@@ -1022,7 +1048,8 @@ resolutions = {
 
                 "play_button":
                 {
-                    "location": (900, 895),
+                    # "location": (900, 895),
+                    "location": (900, 900),
                     "size": (125, 50),
                     "text":
                     {
