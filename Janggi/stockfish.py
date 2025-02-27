@@ -5,8 +5,8 @@ o Last Modified - November 19th 2024
 ------------------------------------------------------------------
 """
 
-# python imports
 import subprocess
+import time
 import os
 
 os_name = os.name
@@ -18,8 +18,9 @@ elif (os_name == 'nt'):
 else: 
     print("SOMETHING HAS GONE WRONG")
 
+
+
 # Start the engine process
-# Formality stuff
 engine = subprocess.Popen(
     [EXECUTABLE_PATH],
     stdin=subprocess.PIPE,
@@ -34,14 +35,27 @@ def send_command(command):
     engine.stdin.flush()
 
 # Initialize UCI mode and set the variant to Janggi.
-# This is just formality stuff
 send_command("uci")
 send_command("setoption name UCI_Variant value janggi")
 send_command("position startpos")
 
+# Set the difficulty of the engine
+def set_difficulty(difficulty="easy"):
+    # Send the appropriate skill level and depth based on difficulty
+    if difficulty == "easy":
+        send_command("setoption name Skill_Level value 1")  # Easy difficulty
+        send_command("go depth 1")
+    elif difficulty == "medium":
+        send_command("setoption name Skill_Level value 5")  # Medium difficulty
+        send_command("go depth 5")
+    elif difficulty == "hard":
+        send_command("setoption name Skill_Level value 20")  # Hard difficulty
+        send_command("go depth 20")
+
+    # Allow the engine to process the options set
+    time.sleep(1)  # Small delay to ensure options are set before moving on
+
 # Function to generate FEN string from the board state
-# The FEN string is a way of recording the current board state in string format.
-# This string format is what is passed to stockfish so that it can make a move.
 def generate_fen(board, active_player):
     fen_rows = []
     for row in board:
@@ -62,7 +76,6 @@ def generate_fen(board, active_player):
     return fen_string
 
 # Example board state
-# We need to import the current board state and convert it into this format.
 janggi_board = [
     ["r", "n", "b", "a", "k", "a", "b", "n", "r"],
     [".", "c", ".", ".", ".", ".", ".", "c", "."],
@@ -75,10 +88,9 @@ janggi_board = [
     [".", "C", ".", ".", ".", ".", ".", "C", "."],
     ["R", "N", "B", "A", "K", "A", "B", "N", "R"],
 ]
+
 # w means white in chess terms, in this case w = red.
-# b meand black in chess terms, in this case b = blue
-# This should be set to the opposite of what was chosen in the start
-# menu by the player.
+# b means black in chess terms, in this case b = blue
 active_player = "w"
 
 # Generate and send FEN string for the current board state
@@ -86,21 +98,19 @@ current_fen = generate_fen(janggi_board, active_player)
 send_command(f"position fen {current_fen}")
 
 # Function to get the best move from the engine.
-# The engine will output several lines. This searches the lines
-# to find the one labeled "bestmove", which we will use to update the board.
-# Best move will come out in a coordinate format similar to chess. eg. i3h3. 
-# which means move the piece at coordinate i3 to h3.
-def get_engine_move():
+def get_engine_move(timeout=5):
+    start_time = time.time()
     while True:
         output = engine.stdout.readline().strip()
+        print(f"Stockfish output: {output}")  # Debugging line
         if "bestmove" in output:
             best_move = output.split()[1]
             return best_move
+        if time.time() - start_time > timeout:
+            raise TimeoutError("Engine did not return a bestmove in time.")
 
-# Ask the engine to make a move (easy difficulty - depth 1)
-# Difficulty can be adjusted by changing the depth at which the engine searches
-# for a move, as shown here, or by limiting its thinking time.
-send_command("go depth 1")
+# Set AI difficulty (adjust as needed)
+set_difficulty("medium")  # This should now work based on the difficulty
 
 # Retrieve the engine's move
 try:
