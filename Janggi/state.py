@@ -1629,6 +1629,8 @@ class Multiplayer(MultiplayerPreGameSettings):
 		if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 			self.next_state = "Main Menu"
 
+		self.board.update_board_pieces(self.host, self.guest)
+		print(self.board.get_fen(self.host))
 		self.swap_turn()
 
 
