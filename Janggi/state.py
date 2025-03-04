@@ -38,15 +38,12 @@ class State():
 		self.game_over = False
 		self.winner = None        # set to a player object, used to display what player won
 
-	# event handler
 	def handle_event(self, event):
 		pass
 
-	# handle rendering
 	def render(self, window):
 		pass
 
-	# no current use, needed only by state machine
 	def update(self):
 		pass
 
@@ -169,7 +166,8 @@ class State():
 		self.play_button.draw_button(window)
 
 	def render_board(self, window):
-		pass
+		window.blit(self.menu_background, self.menu_background.get_rect(center = window.get_rect().center))
+		window.blit(self.playboard, self.playboard.get_rect(center = window.get_rect().center))
 
 	def handle_piece_move(self, host, guest, mouse_pos):
 		# finds possible spots for piece to move, if player clicks avaiable spot, returns true
@@ -227,7 +225,7 @@ class State():
 		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["hover_color"]
 		self.han_side_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
 
-	def load_piece_convention_menu(self):# piece convention button background
+	def load_piece_convention_menu(self):
 		self.piece_convention_background = (
 			pygame.transform.scale(self.button_background,
 				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["size"]))
@@ -252,7 +250,7 @@ class State():
 		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["hover_color"]
 		self.internat_piece_convention_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
 		
-	def load_play_button(self):# play button background
+	def load_play_button(self):
 		self.play_button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
 		self.play_button_background = (pygame.transform.scale(self.play_button_background,
 				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play"]["size"]))
@@ -317,7 +315,6 @@ class MainMenu(State):
 		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["text"]["hover_color"]
 		self.local_multiplayer_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
 
-		# FUTURE TODO: ONLINE MULTIPLAYER
 		# button for multiplayer
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["location"]
 		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["size"]
@@ -338,12 +335,8 @@ class MainMenu(State):
 		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["text"]["hover_color"]
 		self.exit_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
 
-		self.menu_background = pygame.image.load("Board/Janggi_Board_Border.png").convert_alpha()
-		self.menu_background = pygame.transform.scale(self.menu_background, constants.board_border_size)
-		self.center = window.get_rect().center
-
-		self.playboard = pygame.image.load("Board/Janggi_Board.png").convert_alpha()
-		self.playboard = pygame.transform.scale(self.playboard, constants.board_size)
+		self.load_board_boarder(window)
+		self.load_board()
 
 		self.button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
 		self.button_background = pygame.transform.scale(self.button_background,
@@ -380,7 +373,6 @@ class MainMenu(State):
 		# draw buttons to window
 		self.singleplayer_button.draw_button(window)
 		self.local_multiplayer_button.draw_button(window)
-		# FUTURE TODO: ONLINE MULTIPLAYER
 		self.multiplayer_button.draw_button(window)
 		self.exit_button.draw_button(window)
 
@@ -1268,9 +1260,6 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 
 	def swap_turn(self):
 		self.active_player, self. waiting_player = self.waiting_player, self.active_player
-		# temp_info = self.active_player
-		# self.active_player = self.waiting_player
-		# self.waiting_player = temp_info
 
 
 class MultiplayerPreGameSettings(State):
