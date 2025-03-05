@@ -419,7 +419,6 @@ class PreGameSettings(State):
 		self.ai_level = "Easy"
 		# player and opponent will be created here to be inherited
 		self.host = player.Player(is_host=True, board_perspective="Bottom")
-		self.guest = ai.OpponentAI(is_host=False, board_perspective="Top")
 
 		# host retains last settings, guest is opposite
 		if self.host.color == "Cho":
@@ -481,6 +480,7 @@ class SinglePlayerPreGameSettings(PreGameSettings):
 	# INPUT: No Input
 	# OUTPUT: Settings menu is ready to be interacted with by player
 	def __init__(self, window):
+		self.guest = ai.OpponentAI(is_host=False, board_perspective="Top")
 		super().__init__(window)
 		self.load_ai_buttons()
 
@@ -818,13 +818,14 @@ class LocalSinglePlayerPreGameSettings(PreGameSettings):
 	# INPUT: No Input
 	# OUTPUT: Settings menu is ready to be interacted with by player
 	def __init__(self, window):
+		self.guest = player.Player(is_host=False, board_perspective="Top")
 		super().__init__(window)
 
 	# Listen for and handle any event ticks (clicks/buttons)
 	# INPUT: pygame event object
 	# OUTPUT: settings are set accordingly
 	def handle_event(self, event):
-		super().handle_event(event)
+		self.handle_left_cick(event)
 				
 	# Handle any rendering that needs to be done
 	# INPUT: pygame surface object (window to display to)
@@ -1054,8 +1055,7 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 	# OUTPUT: All game attributes/actions are rendered
 	def render(self, window):
 		# display board to window
-		window.blit(self.menu_background, self.menu_background.get_rect(center = window.get_rect().center))
-		window.blit(self.playboard, self.playboard.get_rect(center = window.get_rect().center))
+		self.render_board()
 
 		# DISPLAY THE OPTION TO SWAP HORSES AT THE START OF THE GAME
 		# HAN
@@ -1160,14 +1160,15 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 
 class MultiplayerPreGameSettings(PreGameSettings):
 	def __init__(self, window):
-		super().__init__(window) # inherit the parent initializer
+		super().__init__(window)
+		self.guest = player.Player(is_host=False, board_perspective="Top")
 
 		
 	# Listen for and handle any event ticks (clicks/buttons)
 	# INPUT: pygame event object
 	# OUTPUT: settings are set accordingly
 	def handle_event(self, event):
-		super().handle_event(event)
+		self.handle_left_cick(event)
 				
 	# Handle any rendering that needs to be done
 	# INPUT: pygame surface object (window to display to)
