@@ -137,61 +137,9 @@ class State():
 		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["font_size"]
 		self.draw_text(window, text, x, y, font_size)
 
-	def render_player_color_menu(self, window):
-		# SELECT PIECE SIDE TO PLAY AS (CHO/HAN)
-		window.blit(self.play_as_background, 
-			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["location"])
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["string"]
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["location"]
-		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["font_size"]
-
-		self.draw_text(window, text, x, y, font_size)
-		self.cho_side_button.draw_button(window)
-		self.han_side_button.draw_button(window)
-	
-	def render_piece_convention_menu(self, window):
-		window.blit(self.piece_convention_background, 
-			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["location"])
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["string"]
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["location"]
-		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["font_size"]
-
-		self.draw_text(window, text, x, y, font_size)
-		self.standard_piece_convention_button.draw_button(window)
-		self.internat_piece_convention_button.draw_button(window)
-
-	def render_play_button(self, window):
-		window.blit(self.play_button_background, 
-		constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play"]["location"])
-		self.play_button.draw_button(window)
-
 	def render_board(self, window):
 		window.blit(self.menu_background, self.menu_background.get_rect(center = window.get_rect().center))
 		window.blit(self.playboard, self.playboard.get_rect(center = window.get_rect().center))
-
-	def render_player_piece_preview(self, window):
-		# player header to notify which display is player's
-		window.blit(self.player_header_background, 
-			constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]
-			["background_elements"]["single_player"]["button_background"]["player_piece_display"]["player_header"]["location"])
-		
-		# player header text display
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["player_piece_display"]["text"]["string"]
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["player_piece_display"]["text"]["location"]
-		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["player_piece_display"]["text"]["font_size"]
-		self.draw_text(window, text, x, y, font_size)
-
-		# player piece display
-		window.blit(self.player_piece_display_background, 
-			constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["player_piece_display"]["location"])
-
-			
-		# opponent piece display
-		window.blit(self.opponent_piece_display_background, 
-			constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["opponent_piece_display"]["location"])
-
-		# render pieces
-		render_funcs.PreGame_render_piece_display(window, self.host, self.guest)
 
 	def handle_piece_move(self, host, guest, mouse_pos):
 		# finds possible spots for piece to move, if player clicks avaiable spot, returns true
@@ -222,90 +170,6 @@ class State():
 			helper_funcs.player_piece_unclick(host)
 			# update click to new piece if valid clicked
 			helper_funcs.player_piece_clicked(host, mouse_pos)
-
-	def load_player_color_menu(self):
-		# play as cho/han button background
-		self.play_as_background = (
-			pygame.transform.scale(self.button_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["size"]))
-		
-		# cho button
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["hover_color"]
-		self.cho_side_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-		
-		# han button
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["hover_color"]
-		self.han_side_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-
-	def load_piece_convention_menu(self):
-		self.piece_convention_background = (
-			pygame.transform.scale(self.button_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["size"]))
-		
-		# standard piece convention button
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["hover_color"]
-		self.standard_piece_convention_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-		
-		# international piece convention button
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["hover_color"]
-		self.internat_piece_convention_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-		
-	def load_play_button(self):
-		self.play_button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
-		self.play_button_background = (pygame.transform.scale(self.play_button_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play"]["size"]))
-		
-		# play button
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["hover_color"]
-		self.play_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-
-	def load_player_piece_preview(self):
-		# player piece display background
-		self.player_piece_display_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
-		self.player_piece_display_background = pygame.transform.rotate(self.player_piece_display_background, 90)
-		self.player_piece_display_background = pygame.transform.scale(self.player_piece_display_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["size"])
-		
-		# player header background
-		self.player_header_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
-		self.player_header_background = pygame.transform.scale(self.player_header_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["player_header"]["size"])
-		
-		# opponent piece display background
-		self.opponent_piece_display_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
-		self.opponent_piece_display_background = pygame.transform.rotate(self.opponent_piece_display_background, 270)
-		self.opponent_piece_display_background = pygame.transform.scale(self.opponent_piece_display_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["opponent_piece_display"]["size"])
 	
 	def load_button_background(self):
 		# load button backgrounds
@@ -410,15 +274,13 @@ class MainMenu(State):
 # What does it contain?
 #  - loads and renders board, color selection, piece style, piece preview, and play button
 #  - handles button presses for those menus
-#  - inits board and players
+#  - inits board
 class PreGameSettings(State):
 	def __init__(self, window):
 		super().__init__() # inherit the parent initializer
 		self.next_state = None
 		self.font = pygame.font.SysFont("Arial",size=35)
-		self.ai_level = "Easy"
 		# player and opponent will be created here to be inherited
-		self.host = player.Player(is_host=True, board_perspective="Bottom")
 
 		# host retains last settings, guest is opposite
 		if self.host.color == "Cho":
@@ -429,10 +291,10 @@ class PreGameSettings(State):
 		self.load_button_background()
 		self.load_board_boarder(window)
 		self.load_board()
-		self.load_player_color_menu()
-		self.load_piece_convention_menu()
-		self.load_play_button()
-		self.load_player_piece_preview()
+		self.__load_player_color_menu()
+		self.__load_piece_convention_menu()
+		self.__load_play_button()
+		self.__load_player_piece_preview()
 
 	def handle_event(self, event):
 		pass
@@ -455,21 +317,265 @@ class PreGameSettings(State):
 			elif self.internat_piece_convention_button.is_clicked():
 				self.host.piece_convention = "International"
 				self.guest.piece_convention = "International"
-			# CLICK CONFIRM SETTINGS IF ALL ARE SET
-			elif (self.play_button.is_clicked() 
-		 		  and self.host is not None):
-				helper_funcs.update_player_settings(self.host)
-				self.next_state = "Single Player Game"
 
 		elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 			self.next_state = "Main Menu"
 
+	def handle_host_swap(self):
+		if self.host_swap_right_horse_button.is_clicked():
+			helper_funcs.swap_pieces(self.host, self.host.pieces[6], self.host.pieces[4])
+
+		elif self.host_swap_left_horse_button.is_clicked():
+			helper_funcs.swap_pieces(self.host, self.host.pieces[5], self.host.pieces[3])
+		
+		elif self.host_confirm_swap_button.is_clicked():
+			self.opening_turn = False
+			if self.guest.color == "Cho":
+				helper_funcs.choose_ai_lineup(self.guest)
+				self.host.is_turn = False
+				self.guest.is_turn = True
+
+			else:
+				self.host.is_turn = True
+				self.guest.is_turn = False
+
 	def render(self, window):
 		self.render_board(window)
-		self.render_player_color_menu(window)
-		self.render_piece_convention_menu(window)
-		self.render_player_piece_preview(window)
-		self.render_play_button(window)
+		self.__render_player_color_menu(window)
+		self.__render_piece_convention_menu(window)
+		self.__render_player_piece_preview(window)
+		self.__render_play_button(window)
+	
+	# LOADING AND RENDERING FUNCTIONS
+	def __load_player_color_menu(self):
+		# play as cho/han button background
+		self.play_as_background = (
+			pygame.transform.scale(self.button_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["size"]))
+		
+		# cho button
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["hover_color"]
+		self.cho_side_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+		
+		# han button
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["hover_color"]
+		self.han_side_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+
+	def __load_piece_convention_menu(self):
+		self.piece_convention_background = (
+			pygame.transform.scale(self.button_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["size"]))
+		
+		# standard piece convention button
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["hover_color"]
+		self.standard_piece_convention_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+		
+		# international piece convention button
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["hover_color"]
+		self.internat_piece_convention_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+		
+	def __load_play_button(self):
+		self.play_button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
+		self.play_button_background = (pygame.transform.scale(self.play_button_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play"]["size"]))
+		
+		# play button
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["hover_color"]
+		self.play_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+
+	def __load_player_piece_preview(self):
+		# player piece display background
+		self.player_piece_display_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
+		self.player_piece_display_background = pygame.transform.rotate(self.player_piece_display_background, 90)
+		self.player_piece_display_background = pygame.transform.scale(self.player_piece_display_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["size"])
+		
+		# player header background
+		self.player_header_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
+		self.player_header_background = pygame.transform.scale(self.player_header_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["player_header"]["size"])
+		
+		# opponent piece display background
+		self.opponent_piece_display_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
+		self.opponent_piece_display_background = pygame.transform.rotate(self.opponent_piece_display_background, 270)
+		self.opponent_piece_display_background = pygame.transform.scale(self.opponent_piece_display_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["opponent_piece_display"]["size"])
+
+	def __render_player_color_menu(self, window):
+		# SELECT PIECE SIDE TO PLAY AS (CHO/HAN)
+		window.blit(self.play_as_background, 
+			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["location"])
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["string"]
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["location"]
+		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["font_size"]
+
+		self.draw_text(window, text, x, y, font_size)
+		self.cho_side_button.draw_button(window)
+		self.han_side_button.draw_button(window)
+	
+	def __render_piece_convention_menu(self, window):
+		window.blit(self.piece_convention_background, 
+			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["location"])
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["string"]
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["location"]
+		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["font_size"]
+
+		self.draw_text(window, text, x, y, font_size)
+		self.standard_piece_convention_button.draw_button(window)
+		self.internat_piece_convention_button.draw_button(window)
+
+	def __render_play_button(self, window):
+		window.blit(self.play_button_background, 
+		constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play"]["location"])
+		self.play_button.draw_button(window)
+
+	def __render_player_piece_preview(self, window):
+		# player header to notify which display is player's
+		window.blit(self.player_header_background, 
+			constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]
+			["background_elements"]["single_player"]["button_background"]["player_piece_display"]["player_header"]["location"])
+		
+		# player header text display
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["player_piece_display"]["text"]["string"]
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["player_piece_display"]["text"]["location"]
+		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["player_piece_display"]["text"]["font_size"]
+		self.draw_text(window, text, x, y, font_size)
+
+		# player piece display
+		window.blit(self.player_piece_display_background, 
+			constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["player_piece_display"]["location"])
+
+			
+		# opponent piece display
+		window.blit(self.opponent_piece_display_background, 
+			constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["opponent_piece_display"]["location"])
+
+		# render pieces
+		render_funcs.PreGame_render_piece_display(window, self.host, self.guest)
+	
+	def load_host_side_swap_menu(self):
+		# host-side swap left-horse button
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["text"]["hover_color"]
+		self.host_swap_left_horse_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+
+		# host-side swap right-horse  button
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["text"]["hover_color"]
+		self.host_swap_right_horse_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+
+		# host-side swap left-horse background
+		self.host_swap_left_horse_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
+		self.host_swap_left_horse_background = pygame.transform.rotate(self.host_swap_left_horse_background, 180)
+		self.host_swap_left_horse_background = pygame.transform.scale(self.host_swap_left_horse_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["host_swap_left_horse"]["size"])
+
+		# host-side swap right-horse background
+		self.host_swap_right_horse_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
+		self.host_swap_right_horse_background = pygame.transform.rotate(self.host_swap_right_horse_background, 180)
+		self.host_swap_right_horse_background = pygame.transform.scale(self.host_swap_right_horse_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["host_swap_right_horse"]["size"])
+		
+		# host-side confirm swap button
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["text"]["hover_color"]
+		self.host_confirm_swap_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+
+		# host-side confirm swap button background
+		self.host_confirm_swap_button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
+		self.host_confirm_swap_button_background = pygame.transform.scale(self.host_confirm_swap_button_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["host_confirm_swap"]["size"])
+
+	def load_guest_side_swap_menu(self):
+		# guest-side swap left-horse button
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_left_horse_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_left_horse_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_left_horse_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_left_horse_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_left_horse_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_left_horse_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_left_horse_button"]["text"]["hover_color"]
+		self.guest_swap_left_horse_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+
+		# guest-side swap right-horse  button
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_right_horse_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_right_horse_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_right_horse_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_right_horse_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_right_horse_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_right_horse_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_right_horse_button"]["text"]["hover_color"]
+		self.guest_swap_right_horse_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+
+		# guest-side swap left-horse background
+		self.guest_swap_left_horse_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
+		self.guest_swap_left_horse_background = pygame.transform.scale(self.guest_swap_left_horse_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["guest_swap_left_horse"]["size"])
+
+		# guest-side swap right-horse background
+		self.guest_swap_right_horse_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
+		self.guest_swap_right_horse_background = pygame.transform.scale(self.guest_swap_right_horse_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["guest_swap_right_horse"]["size"])
+		
+		# guest-side confirm swap button
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_confirm_swap_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_confirm_swap_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_confirm_swap_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_confirm_swap_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_confirm_swap_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_confirm_swap_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_confirm_swap_button"]["text"]["hover_color"]
+		self.guest_confirm_swap_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+
+		# guest-side confirm swap button background
+		self.guest_confirm_swap_button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
+		self.guest_confirm_swap_button_background = pygame.transform.scale(self.guest_confirm_swap_button_background,
+				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["guest_confirm_swap"]["size"])
 
 #--------------------------------------------------------------------------------
 # THIS STATE WILL HANDLE SETTINGS FOR SETTING UP THE GAME AGAINST AN AI
@@ -480,12 +586,21 @@ class SinglePlayerPreGameSettings(PreGameSettings):
 	# INPUT: No Input
 	# OUTPUT: Settings menu is ready to be interacted with by player
 	def __init__(self, window):
+		print("calling ai init")
+		self.ai_level = "Easy"
+		self.host = player.Player(is_host=True, board_perspective="Bottom")
 		self.guest = ai.OpponentAI(is_host=False, board_perspective="Top")
 		super().__init__(window)
 		self.load_ai_buttons()
 
 	def handle_event(self, event):
 		self.handle_left_cick(event)
+
+		if self.play_button.is_clicked():
+				helper_funcs.update_player_settings(self.host)
+				self.next_state = "Single Player Game"
+
+		# loop to set ai difficulty if altered
 		for button in self.ai_level_buttons:
 			if button.is_clicked():
 				self.ai_level = button.text
@@ -495,7 +610,6 @@ class SinglePlayerPreGameSettings(PreGameSettings):
 	def render(self, window):
 		super().render(window)
 		self.render_ai_buttons(window)
-
 
 	def load_ai_buttons(self):
 		self.ai_level_buttons = []
@@ -560,56 +674,8 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 
 	def __init__(self, window):
 		super().__init__(window)
-		# load then display board image
-		self.load_board_boarder(window)
-		self.load_board()
 
-		# swap left-horse button
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_left_horse_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_left_horse_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_left_horse_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_left_horse_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_left_horse_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_left_horse_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_left_horse_button"]["text"]["hover_color"]
-		self.swap_left_horse_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-
-		# swap right-horse  button
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_right_horse_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_right_horse_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_right_horse_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_right_horse_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_right_horse_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_right_horse_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_right_horse_button"]["text"]["hover_color"]
-		self.swap_right_horse_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-
-		# swap left-horse background
-		self.swap_left_horse_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
-		self.swap_left_horse_background = pygame.transform.rotate(self.swap_left_horse_background, 180)
-		self.swap_left_horse_background = pygame.transform.scale(self.swap_left_horse_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["swap_left_horse"]["size"])
-
-		# swap right-horse background
-		self.swap_right_horse_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
-		self.swap_right_horse_background = pygame.transform.rotate(self.swap_right_horse_background, 180)
-		self.swap_right_horse_background = pygame.transform.scale(self.swap_right_horse_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["swap_right_horse"]["size"])
-		
-		# confirm swap button
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["confirm_swap_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["confirm_swap_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["confirm_swap_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["confirm_swap_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["confirm_swap_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["confirm_swap_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["confirm_swap_button"]["text"]["hover_color"]
-		self.confirm_swap_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-
-		# confirm swap button background
-		self.confirm_swap_button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
-		self.confirm_swap_button_background = pygame.transform.scale(self.confirm_swap_button_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["confirm_swap"]["size"])
+		self.load_host_side_swap_menu()
 		
 		# condition warning/turn tab
 		self.game_state_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
@@ -652,7 +718,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 				
 				# OPENING TURN ONLY
 				if self.opening_turn:
-					self.handle_swap()
+					self.handle_host_swap()
 
 				# GAMEPLAY TURN
 				# if it is player's turn
@@ -689,73 +755,35 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 # AI STUFF IS HERE
 		# Handle AI Opponent's turn
 		# check for game over conditions at the top of the ai's turn
-		if self.is_game_over():
-				self.game_over = True
-				self.winner = self.host
-
-		# ai move logic
-		elif not self.immediate_render and self.guest.is_turn and not self.opening_turn and not self.game_over:
-			new_board = self.guest.convert_board(self.board, self.host)
-			fen = self.guest.generate_fen(new_board)
-				
-			self.print_fen("AI:")
-
-			if self.ai_level == "Easy":
-				depth = 1
-			elif self.ai_level == "Medium":
-				depth = 5
-			elif self.ai_level == "Hard":
-				depth = 10
-			
-			self.guest.send_command(f"position fen {fen}")
-			self.guest.send_command(f"go depth {str(depth)}")
-			best_move = self.guest.get_engine_move()
-			
-			if helper_funcs.ai_move(self.host, self.guest, self.board, best_move, new_board, fen):
-				if helper_funcs.detect_bikjang(self.guest, self.host):
-					self.bikjang = True
-					self.winner = self.guest
-					self.condition = "Bikjang"
-					self.game_over = True
-
-				elif helper_funcs.detect_check(self.host, self.guest, self.board):
-					self.check = True
-					self.condition = "Check"
-			
-			self.swap_turn()
-			self.guest.is_checked = False
+		
 
 	# Handle any rendering that needs to be done
 	# INPUT: pygame surface object (window to display to)
 	# OUTPUT: All game attributes/actions are rendered
 	def render(self, window):
 		# display board to window
-		window.blit(self.menu_background, self.menu_background.get_rect(center = window.get_rect().center))
-		window.blit(self.playboard, self.playboard.get_rect(center = window.get_rect().center))
+		self.render_board(window)
 
 		# DISPLAY THE OPTION TO SWAP HORSES AT THE START OF THE GAME
 		if self.opening_turn:
-			window.blit(self.swap_left_horse_background, 
+			window.blit(self.host_swap_left_horse_background, 
 			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["swap_left_horse"]["location"])
-			self.swap_left_horse_button.draw_button(window)
+			self.host_swap_left_horse_button.draw_button(window)
 
-			window.blit(self.swap_right_horse_background,
+			window.blit(self.host_swap_right_horse_background,
 			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["swap_right_horse"]["location"])
-			self.swap_right_horse_button.draw_button(window)
+			self.host_swap_right_horse_button.draw_button(window)
 
 		# if player has a piece currently clicked, render where it can go
 		if self.host is not None and self.host.is_clicked:
 			render_funcs.render_possible_spots(self.host, self.guest, self.board, window, self.condition)
 
-		# render collision rectangles for the pieces on both sides
-		#render_funcs.render_piece_collisions(self.active_player, self.waiting_player, window)
-
 		# display confirm button for swapping pieces
 		if self.opening_turn:
 			# confirm swap button
-			window.blit(self.confirm_swap_button_background,
+			window.blit(self.host_confirm_swap_button_background,
 			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["confirm_swap"]["location"])
-			self.confirm_swap_button.draw_button(window)
+			self.host_confirm_swap_button.draw_button(window)
 
 		# HIGHLIGHT BIKJANG/CHECK CONDITIONS WHEN APPLICABLE
 		if self.bikjang:
@@ -791,24 +819,40 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 			self.active_player = self.host
 			self.waiting_player = self.guest
 
-	# player may swap horses with elephants, confirm swap to end turn
-	# Han player chooses first then Cho
-	def handle_swap(self):
-		if self.swap_right_horse_button.is_clicked():
-			helper_funcs.swap_pieces(self.host, self.host.pieces[6], self.host.pieces[4])
+	def handle_ai_move(self):
+		if self.is_game_over():
+				self.game_over = True
+				self.winner = self.host
 
-		elif self.swap_left_horse_button.is_clicked():
-			helper_funcs.swap_pieces(self.host, self.host.pieces[5], self.host.pieces[3])
-		
-		elif self.confirm_swap_button.is_clicked():
-			self.opening_turn = False
-			if self.guest.color == "Cho":
-				helper_funcs.choose_ai_lineup(self.guest)
-				self.host.is_turn = False
-				self.guest.is_turn = True
-			else:
-				self.host.is_turn = True
-				self.guest.is_turn = False
+		# ai move logic
+		elif not self.immediate_render and self.guest.is_turn and not self.opening_turn and not self.game_over:
+			new_board = self.guest.convert_board(self.board, self.host)
+			fen = self.guest.generate_fen(new_board)
+				
+			if self.ai_level == "Easy":
+				depth = 1
+			elif self.ai_level == "Medium":
+				depth = 5
+			elif self.ai_level == "Hard":
+				depth = 10
+			
+			self.guest.send_command(f"position fen {fen}")
+			self.guest.send_command(f"go depth {str(depth)}")
+			best_move = self.guest.get_engine_move()
+			
+			if helper_funcs.ai_move(self.host, self.guest, self.board, best_move, new_board, fen):
+				if helper_funcs.detect_bikjang(self.guest, self.host):
+					self.bikjang = True
+					self.winner = self.guest
+					self.condition = "Bikjang"
+					self.game_over = True
+
+				elif helper_funcs.detect_check(self.host, self.guest, self.board):
+					self.check = True
+					self.condition = "Check"
+			
+			self.swap_turn()
+			self.guest.is_checked = False
 
 #--------------------------------------------------------------------------------
 class LocalSinglePlayerPreGameSettings(PreGameSettings):
@@ -819,6 +863,7 @@ class LocalSinglePlayerPreGameSettings(PreGameSettings):
 	# OUTPUT: Settings menu is ready to be interacted with by player
 	def __init__(self, window):
 		self.guest = player.Player(is_host=False, board_perspective="Top")
+		self.host = player.Player(is_host=True, board_perspective="Bottom")
 		super().__init__(window)
 
 	# Listen for and handle any event ticks (clicks/buttons)
@@ -826,6 +871,10 @@ class LocalSinglePlayerPreGameSettings(PreGameSettings):
 	# OUTPUT: settings are set accordingly
 	def handle_event(self, event):
 		self.handle_left_cick(event)
+		if (self.play_button.is_clicked() 
+			and self.host is not None):
+				helper_funcs.update_player_settings(self.host)
+				self.next_state = "Local Single Player Game"
 				
 	# Handle any rendering that needs to be done
 	# INPUT: pygame surface object (window to display to)
@@ -842,102 +891,13 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 	# OUTPUT: Gamestate is initialized and ready for playing
 	def __init__(self, window):
 		super().__init__(window)
+		print("locala sinhle player game called")
 		# load then display board image
 		self.load_board_boarder(window)
 		self.load_board()
-
-		# host-side swap left-horse button
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["text"]["hover_color"]
-		self.host_swap_left_horse_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-
-		# host-side swap right-horse  button
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["text"]["hover_color"]
-		self.host_swap_right_horse_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-
-		# host-side swap left-horse background
-		self.host_swap_left_horse_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
-		self.host_swap_left_horse_background = pygame.transform.rotate(self.host_swap_left_horse_background, 180)
-		self.host_swap_left_horse_background = pygame.transform.scale(self.host_swap_left_horse_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["host_swap_left_horse"]["size"])
-
-		# host-side swap right-horse background
-		self.host_swap_right_horse_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
-		self.host_swap_right_horse_background = pygame.transform.rotate(self.host_swap_right_horse_background, 180)
-		self.host_swap_right_horse_background = pygame.transform.scale(self.host_swap_right_horse_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["host_swap_right_horse"]["size"])
+		self.load_host_side_swap_menu()
+		self.load_guest_side_swap_menu()
 		
-		# host-side confirm swap button
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["text"]["hover_color"]
-		self.host_confirm_swap_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-
-		# host-side confirm swap button background
-		self.host_confirm_swap_button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
-		self.host_confirm_swap_button_background = pygame.transform.scale(self.host_confirm_swap_button_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["host_confirm_swap"]["size"])
-		
-		# guest-side swap left-horse button
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_left_horse_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_left_horse_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_left_horse_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_left_horse_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_left_horse_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_left_horse_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_left_horse_button"]["text"]["hover_color"]
-		self.guest_swap_left_horse_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-
-		# guest-side swap right-horse  button
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_right_horse_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_right_horse_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_right_horse_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_right_horse_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_right_horse_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_right_horse_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_swap_right_horse_button"]["text"]["hover_color"]
-		self.guest_swap_right_horse_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-
-		# guest-side swap left-horse background
-		self.guest_swap_left_horse_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
-		self.guest_swap_left_horse_background = pygame.transform.scale(self.guest_swap_left_horse_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["guest_swap_left_horse"]["size"])
-
-		# guest-side swap right-horse background
-		self.guest_swap_right_horse_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
-		self.guest_swap_right_horse_background = pygame.transform.scale(self.guest_swap_right_horse_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["guest_swap_right_horse"]["size"])
-		
-		# guest-side confirm swap button
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_confirm_swap_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_confirm_swap_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_confirm_swap_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_confirm_swap_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_confirm_swap_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_confirm_swap_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_confirm_swap_button"]["text"]["hover_color"]
-		self.guest_confirm_swap_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-
-		# guest-side confirm swap button background
-		self.guest_confirm_swap_button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
-		self.guest_confirm_swap_button_background = pygame.transform.scale(self.guest_confirm_swap_button_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["guest_confirm_swap"]["size"])
-
 		# condition warning/turn tab
 		self.game_state_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
 		self.game_state_background = pygame.transform.scale(self.game_state_background,
@@ -973,6 +933,7 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 				# Han player chooses first then Cho
 				# HAN IS HOST
 				if self.han_player.is_host:
+					# self.handle_host_swap()
 					if self.host_swap_right_horse_button.is_clicked():
 						helper_funcs.swap_pieces(self.han_player, self.han_player.pieces[6], self.han_player.pieces[4])
 					
@@ -997,16 +958,7 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 			elif self.opening_turn and not self.cho_player.is_ready:
 				# CHO IS HOST
 				if self.cho_player.is_host:
-					if self.host_swap_right_horse_button.is_clicked():
-						helper_funcs.swap_pieces(self.cho_player, self.cho_player.pieces[6], self.cho_player.pieces[4])
-					
-					elif self.host_swap_left_horse_button.is_clicked():
-						helper_funcs.swap_pieces(self.cho_player, self.cho_player.pieces[5], self.cho_player.pieces[3])
-					
-					elif self.host_confirm_swap_button.is_clicked():
-						self.active_player = self.cho_player
-						self.active_player.is_ready = True
-						self.opening_turn = False
+					self.handle_host_swap()
 				
 				# CHO IS GUEST
 				else:
@@ -1055,7 +1007,7 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 	# OUTPUT: All game attributes/actions are rendered
 	def render(self, window):
 		# display board to window
-		self.render_board()
+		self.render_board(window)
 
 		# DISPLAY THE OPTION TO SWAP HORSES AT THE START OF THE GAME
 		# HAN
@@ -1160,15 +1112,19 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 
 class MultiplayerPreGameSettings(PreGameSettings):
 	def __init__(self, window):
-		super().__init__(window)
+		self.host = player.Player(is_host=True, board_perspective="Bottom")
 		self.guest = player.Player(is_host=False, board_perspective="Top")
-
+		super().__init__(window)
 		
 	# Listen for and handle any event ticks (clicks/buttons)
 	# INPUT: pygame event object
 	# OUTPUT: settings are set accordingly
 	def handle_event(self, event):
 		self.handle_left_cick(event)
+		if (self.play_button.is_clicked() 
+			and self.host is not None):
+				helper_funcs.update_player_settings(self.host)
+				self.next_state = "Multi Player Game"
 				
 	# Handle any rendering that needs to be done
 	# INPUT: pygame surface object (window to display to)
@@ -1182,15 +1138,13 @@ class Multiplayer(MultiplayerPreGameSettings):
 		super().__init__(window)
 		self.load_board_boarder(window)
 		self.load_board()
+		self.load_host_side_swap_menu()
+		self.load_guest_side_swap_menu()
+		self.board = board.Board()
 
-		self.host = player.Player(is_host=True, board_perspective="Bottom")
-		self.guest = player.Player(is_host=False, board_perspective="Top")
 		self.active_player = self.host
 		self.waiting_player = self.guest
 
-		self.board = board.Board()
-
-		self.load_swap_menu()
 
 	def handle_event(self, event):
 		self.immediate_render = False
@@ -1207,7 +1161,7 @@ class Multiplayer(MultiplayerPreGameSettings):
 				
 			# OPENING TURN ONLY
 			if self.opening_turn:
-				self.handle_swap()
+				self.handle_host_swap()
 
 			# GAMEPLAY TURN
 			# if it is player's turn
@@ -1248,46 +1202,27 @@ class Multiplayer(MultiplayerPreGameSettings):
 
 		render_funcs.render_pieces(self.host, self.guest, window)
 
-	def handle_swap(self):
-		if self.swap_right_horse_button.is_clicked():
-			helper_funcs.swap_pieces(self.host, self.host.pieces[6], self.host.pieces[4])
-
-		elif self.swap_left_horse_button.is_clicked():
-			helper_funcs.swap_pieces(self.host, self.host.pieces[5], self.host.pieces[3])
-		
-		elif self.confirm_swap_button.is_clicked():
-			self.opening_turn = False
-			if self.guest.color == "Cho":
-				self.host.is_turn = False
-				self.guest.is_turn = True
-			else:
-				self.host.is_turn = True
-				self.guest.is_turn = False
-
 	def render_swap_menu(self, window):		
 		# DISPLAY THE OPTION TO SWAP HORSES AT THE START OF THE GAME
 		if self.opening_turn:
-			window.blit(self.swap_left_horse_background, 
+			window.blit(self.host_swap_left_horse_background, 
 			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["swap_left_horse"]["location"])
-			self.swap_left_horse_button.draw_button(window)
+			self.host_swap_left_horse_button.draw_button(window)
 
-			window.blit(self.swap_right_horse_background,
+			window.blit(self.host_swap_right_horse_background,
 			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["swap_right_horse"]["location"])
-			self.swap_right_horse_button.draw_button(window)
+			self.host_swap_right_horse_button.draw_button(window)
 
 		# if player has a piece currently clicked, render where it can go
 		if self.host is not None and self.host.is_clicked:
 			render_funcs.render_possible_spots(self.host, self.guest, self.board, window, self.condition)
 
-		# render collision rectangles for the pieces on both sides
-		#render_funcs.render_piece_collisions(self.active_player, self.waiting_player, window)
-
 		# display confirm button for swapping pieces
 		if self.opening_turn:
 			# confirm swap button
-			window.blit(self.confirm_swap_button_background,
+			window.blit(self.host_confirm_swap_button_background,
 			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["confirm_swap"]["location"])
-			self.confirm_swap_button.draw_button(window)
+			self.host_confirm_swap_button.draw_button(window)
 
 	# inverts turn flags and swaps the active and waiting player variables
 	def swap_turn(self):
