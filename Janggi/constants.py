@@ -2071,6 +2071,7 @@ info = pygame.display.Info()
 # set window sizes based on user's machine
 # screen_width, screen_height = info.current_w, info.current_h
 # screen_width, screen_height = 1920, 1080
+=======
 screen_width, screen_height = 1440, 900
 #screen_width, screen_height = 640, 480
 
