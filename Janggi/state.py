@@ -1338,10 +1338,6 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_confirm_swap"]["location"])
 				self.guest_confirm_swap_button.draw_button(window)
 
-		# RENDER WHERE CLICKED PIECE MAY GO
-		if self.active_player is not None and self.active_player.is_clicked:
-			render_funcs.render_possible_spots(self.active_player, self.waiting_player, self.board, window, self.condition)
-
 		# HIGHLIGHT BIKJANG/CHECK CONDITIONS WHEN APPLICABLE
 		if self.bikjang:
 			render_funcs.render_bikjang_highlight(self.active_player, self.waiting_player, window)
@@ -1355,6 +1351,14 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 		# COVER CASE WHERE NO PLAYER HAS STARTED THEIR TURN YET
 		else:
 			render_funcs.render_pieces(self.player_host, self.player_guest, window)
+
+
+
+	    
+		# RENDER WHERE CLICKED PIECE MAY GO
+		if self.active_player is not None and self.active_player.is_clicked:
+			render_funcs.render_possible_spots(self.active_player, self.waiting_player, self.board, window, self.condition)
+
 
 		# DISPLAY END GAME CONDITIONS/GAME_STATES
 		# BIKJANG CONDITION
