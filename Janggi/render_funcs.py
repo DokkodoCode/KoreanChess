@@ -427,36 +427,7 @@ def render_king_possible_spots(janggi_piece, active_player, waiting_player, boar
 							new_spot = palace[new_rank][new_file]
 							
 							# consider move limitations based on conditions
-							if (condition == "None" or
-								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-									helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-									# hold memory of piece location and collision for valid move
-									temp = janggi_piece.location
-									temp_rect = janggi_piece.collision_rect.topleft
-									janggi_piece.location = new_spot
-									janggi_piece.collision_rect.topleft = new_spot
-
-									# make sure move does not leave own king vulnerable, cancel move if it does
-									if (helper_funcs.detect_check(active_player, waiting_player, board) and 
-										helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
-												
-									# valid move was made
-									else:
-										# rectangle for displaying the jump-to image "blank"
-										rectangle = (new_spot[0], new_spot[1], 
-													jump_to_image.get_rect().size[0], 
-													jump_to_image.get_rect().size[1])
-										
-										# allign jump-to image then display
-										piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
-										window.blit(jump_to_image, piece_image_pos)
-										
-										# reset piece location and collision for next iteration
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
+							compute_move_limitations(active_player, waiting_player, janggi_piece, new_spot, board, jump_to_image, window, condition)
 
 	return
 
@@ -537,36 +508,7 @@ def render_advisor_possible_spots(janggi_piece, active_player, waiting_player, b
 							new_spot = palace[new_rank][new_file]
 							
 							# consider move limitations based on conditions
-							if (condition == "None" or
-								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-									helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-									# hold memory of piece location and collision for valid move
-									temp = janggi_piece.location
-									temp_rect = janggi_piece.collision_rect.topleft
-									janggi_piece.location = new_spot
-									janggi_piece.collision_rect.topleft = new_spot
-
-									# make sure move does not leave own king vulnerable, cancel move if it does
-									if (helper_funcs.detect_check(active_player, waiting_player, board) and 
-										helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
-												
-									# valid move was made
-									else:
-										# rectangle for displaying the jump-to image "blank"
-										rectangle = (new_spot[0], new_spot[1], 
-													jump_to_image.get_rect().size[0], 
-													jump_to_image.get_rect().size[1])
-												
-										# allign jump-to image then display
-										piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
-										window.blit(jump_to_image, piece_image_pos)
-
-										# reset piece location and collision for next iteration
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
+							compute_move_limitations(active_player, waiting_player, janggi_piece, new_spot, board, jump_to_image, window, condition)
 	return
 
 #-----------------------------------------------------------------------------------
@@ -652,36 +594,7 @@ def render_elephant_possible_spots(janggi_piece, active_player, waiting_player, 
 													 if piece != janggi_piece)):
 							
 							# consider move limitations based on conditions
-							if (condition == "None" or
-								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-									helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-									# hold memory of piece location and collision for valid move
-									temp = janggi_piece.location
-									temp_rect = janggi_piece.collision_rect.topleft
-									janggi_piece.location = new_spot
-									janggi_piece.collision_rect.topleft = new_spot
-
-									# make sure move does not leave own king vulnerable, cancel move if it does
-									if (helper_funcs.detect_check(active_player, waiting_player, board) and 
-										helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
-												
-									# valid move was made
-									else:
-										# rectangle for displaying the jump-to image "blank"
-										rectangle = (new_spot[0], new_spot[1], 
-													jump_to_image.get_rect().size[0], 
-													jump_to_image.get_rect().size[1])
-												
-										# allign jump-to image then display
-										piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
-										window.blit(jump_to_image, piece_image_pos)
-
-										# reset piece location and collision for next iteration
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
+							compute_move_limitations(active_player, waiting_player, janggi_piece, new_spot, board, jump_to_image, window, condition)
 	return
 
 #-----------------------------------------------------------------------------------
@@ -749,36 +662,7 @@ def render_horse_possible_spots(janggi_piece, active_player, waiting_player, boa
 													 for piece in waiting_player.pieces 
 													 if piece != janggi_piece)):
 							# consider move limitations based on conditions
-							if (condition == "None" or
-								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-									helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-									# hold memory of piece location and collision for valid move
-									temp = janggi_piece.location
-									temp_rect = janggi_piece.collision_rect.topleft
-									janggi_piece.location = new_spot
-									janggi_piece.collision_rect.topleft = new_spot
-
-									# make sure move does not leave own king vulnerable, cancel move if it does
-									if (helper_funcs.detect_check(active_player, waiting_player, board) and 
-										helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
-												
-									# valid move was made
-									else:
-										# rectangle for displaying the jump-to image "blank"
-										rectangle = (new_spot[0], new_spot[1], 
-													jump_to_image.get_rect().size[0], 
-													jump_to_image.get_rect().size[1])
-												
-										# allign jump-to image then display
-										piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
-										window.blit(jump_to_image, piece_image_pos)
-
-										# reset piece location and collision for next iteration
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
+							compute_move_limitations(active_player, waiting_player, janggi_piece, new_spot, board, jump_to_image, window, condition)
 	return
 
 #-----------------------------------------------------------------------------------
@@ -866,36 +750,7 @@ def render_cannon_possible_spots(janggi_piece, active_player, waiting_player, bo
 																for piece in active_player.pieces 
 																if piece != janggi_piece):
 										# consider move limitations based on conditions
-										if (condition == "None" or
-											condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-											(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-												helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-												# hold memory of piece location and collision for valid move
-												temp = janggi_piece.location
-												temp_rect = janggi_piece.collision_rect.topleft
-												janggi_piece.location = new_spot
-												janggi_piece.collision_rect.topleft = new_spot
-
-												# make sure move does not leave own king vulnerable, cancel move if it does
-												if (helper_funcs.detect_check(active_player, waiting_player, board) and 
-													helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-													janggi_piece.location = temp
-													janggi_piece.collision_rect.topleft = temp_rect
-															
-												# valid move was made
-												else:
-													# rectangle for displaying the jump-to image "blank"
-													rectangle = (new_spot[0], new_spot[1], 
-																jump_to_image.get_rect().size[0], 
-																jump_to_image.get_rect().size[1])
-															
-													# allign jump-to image then display
-													piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
-													window.blit(jump_to_image, piece_image_pos)
-
-													# reset piece location and collision for next iteration
-													janggi_piece.location = temp
-													janggi_piece.collision_rect.topleft = temp_rect
+										compute_move_limitations(active_player, waiting_player, janggi_piece, new_spot, board, jump_to_image, window, condition)
 
 									# Keep moving
 									new_rank += move[0]
@@ -910,36 +765,7 @@ def render_cannon_possible_spots(janggi_piece, active_player, waiting_player, bo
 																				and (check_piece.piece_type.value != "Cannon")
 																				and (board.coordinates[new_rank][new_file] == check_piece.location)):
 											# consider move limitations based on conditions
-											if (condition == "None" or
-												condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-												(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-												helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-													# hold memory of piece location and collision for valid move
-													temp = janggi_piece.location
-													temp_rect = janggi_piece.collision_rect.topleft
-													janggi_piece.location = new_spot
-													janggi_piece.collision_rect.topleft = new_spot
-
-													# make sure move does not leave own king vulnerable, cancel move if it does
-													if (helper_funcs.detect_check(active_player, waiting_player, board) and 
-														helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-														janggi_piece.location = temp
-														janggi_piece.collision_rect.topleft = temp_rect
-																
-													# valid move was made
-													else:
-														# rectangle for displaying the jump-to image "blank"
-														rectangle = (new_spot[0], new_spot[1], 
-																	jump_to_image.get_rect().size[0], 
-																	jump_to_image.get_rect().size[1])
-																
-														# allign jump-to image then display
-														piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
-														window.blit(jump_to_image, piece_image_pos)
-
-														# reset piece location and collision for next iteration
-														janggi_piece.location = temp
-														janggi_piece.collision_rect.topleft = temp_rect
+											compute_move_limitations(active_player, waiting_player, janggi_piece, new_spot, board, jump_to_image, window, condition)
 									break
 
 							# Return back to move-in-possible-moves loop so it cant skip pieces
@@ -1022,36 +848,7 @@ def render_chariot_possible_spots(janggi_piece, active_player, waiting_player, b
 						if not any(new_rect.colliderect(piece.collision_rect) for piece in active_player.pieces if piece != janggi_piece):
 
 							# consider move limitations based on conditions
-							if (condition == "None" or
-								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-									helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-									# hold memory of piece location and collision for valid move
-									temp = janggi_piece.location
-									temp_rect = janggi_piece.collision_rect.topleft
-									janggi_piece.location = new_spot
-									janggi_piece.collision_rect.topleft = new_spot
-
-									# make sure move does not leave own king vulnerable, cancel move if it does
-									if (helper_funcs.detect_check(active_player, waiting_player, board) and 
-										helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
-												
-									# valid move was made
-									else:
-										# rectangle for displaying the jump-to image "blank"
-										rectangle = (new_spot[0], new_spot[1], 
-													jump_to_image.get_rect().size[0], 
-													jump_to_image.get_rect().size[1])
-												
-										# allign jump-to image then display
-										piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
-										window.blit(jump_to_image, piece_image_pos)
-
-										# reset piece location and collision for next iteration
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
+							compute_move_limitations(active_player, waiting_player, janggi_piece, new_spot, board, jump_to_image, window, condition)
 	return
 
 #-----------------------------------------------------------------------------------
@@ -1114,36 +911,7 @@ def render_pawn_possible_spots(janggi_piece, active_player, waiting_player, boar
 							new_spot = board.coordinates[new_rank][new_file]
 							
 							# consider move limitations based on conditions
-							if (condition == "None" or
-								condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-									helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-									# hold memory of piece location and collision for valid move
-									temp = janggi_piece.location
-									temp_rect = janggi_piece.collision_rect.topleft
-									janggi_piece.location = new_spot
-									janggi_piece.collision_rect.topleft = new_spot
-
-									# make sure move does not leave own king vulnerable, cancel move if it does
-									if (helper_funcs.detect_check(active_player, waiting_player, board) and 
-										helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
-												
-									# valid move was made
-									else:
-										# rectangle for displaying the jump-to image "blank"
-										rectangle = (new_spot[0], new_spot[1], 
-													jump_to_image.get_rect().size[0], 
-													jump_to_image.get_rect().size[1])
-												
-										# allign jump-to image then display
-										piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
-										window.blit(jump_to_image, piece_image_pos)
-
-										# reset piece location and collision for next iteration
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
+							compute_move_limitations(active_player, waiting_player, janggi_piece, new_spot, board, jump_to_image, window, condition)
 	return
 
 #-----------------------------------------------------------------------------------
@@ -1198,35 +966,40 @@ def render_pawn_possible_palace_spots(active_player, waiting_player, window, jan
 								new_spot = palace[new_rank][new_file]
 								
 									# consider move limitations based on conditions
-								if (condition == "None" or
-									condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-									(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-									helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-										# hold memory of piece location and collision for valid move
-										temp = janggi_piece.location
-										temp_rect = janggi_piece.collision_rect.topleft
-										janggi_piece.location = new_spot
-										janggi_piece.collision_rect.topleft = new_spot
-
-										# make sure move does not leave own king vulnerable, cancel move if it does
-										if (helper_funcs.detect_check(active_player, waiting_player, board) and 
-											helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-											janggi_piece.location = temp
-											janggi_piece.collision_rect.topleft = temp_rect
-													
-										# valid move was made
-										else:
-											# rectangle for displaying the jump-to image "blank"
-											rectangle = (new_spot[0], new_spot[1], 
-														jump_to_image.get_rect().size[0], 
-														jump_to_image.get_rect().size[1])
-													
-											# allign jump-to image then display
-											piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
-											window.blit(jump_to_image, piece_image_pos)
-
-											# reset piece location and collision for next iteration
-											janggi_piece.location = temp
-											janggi_piece.collision_rect.topleft = temp_rect
+								compute_move_limitations(active_player, waiting_player, janggi_piece, new_spot, board, jump_to_image, window, condition)
 	
 	return
+
+# consider move limitations based on conditions
+def compute_move_limitations(active_player, waiting_player, janggi_piece, new_spot, board, jump_to_image, window, condition):
+	if (condition == "None" or
+		condition == "Bikjang" and helper_funcs.move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
+		(condition == "Check" and (helper_funcs.move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
+			helper_funcs.find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
+
+			# hold memory of piece location and collision for valid move
+			temp = janggi_piece.location
+			temp_rect = janggi_piece.collision_rect.topleft
+			janggi_piece.location = new_spot
+			janggi_piece.collision_rect.topleft = new_spot
+
+			# make sure move does not leave own king vulnerable, cancel move if it does
+			if (helper_funcs.detect_check(active_player, waiting_player, board) and 
+				helper_funcs.find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
+				janggi_piece.location = temp
+				janggi_piece.collision_rect.topleft = temp_rect
+						
+			# valid move was made
+			else:
+				# rectangle for displaying the jump-to image "blank"
+				rectangle = (new_spot[0], new_spot[1], 
+							jump_to_image.get_rect().size[0], 
+							jump_to_image.get_rect().size[1])
+				
+				# allign jump-to image then display
+				piece_image_pos = helper_funcs.reformat_piece(rectangle, jump_to_image)
+				window.blit(jump_to_image, piece_image_pos)
+				
+				# reset piece location and collision for next iteration
+				janggi_piece.location = temp
+				janggi_piece.collision_rect.topleft = temp_rect

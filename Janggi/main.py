@@ -40,7 +40,7 @@ def main():
 	pygame.display.set_icon(icon)
 
 	# create the window
-	window = pygame.display.set_mode((constants.screen_width, constants.screen_height), pygame.FULLSCREEN)
+	window = pygame.display.set_mode((constants.screen_width, constants.screen_height), pygame.RESIZABLE)
 
 	pygame.display.update()
 	pygame.display.set_caption("Janggi")

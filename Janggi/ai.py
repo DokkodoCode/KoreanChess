@@ -51,6 +51,7 @@ class OpponentAI:
         else:
             self.fen_color = "b"
 
+
         self.is_turn = False
         self.pieces = self.fill_pieces()
 
