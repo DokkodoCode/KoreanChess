@@ -6,10 +6,13 @@ o Last Modified - November 19th 2024
 ------------------------------------------------------------------
 """
 import pygame
+
 from helper_funcs import scale_x, scale_y, is_fullscr
+
 
 # initialize pygame instance
 pygame.init()
+
 
 info = pygame.display.Info()
 eWidth, eHeight = info.current_w, info.current_h
@@ -32,11 +35,14 @@ GREEN = (30,100,0)
 LIGHT_GREEN = (35,200,0)
 
 # UI mapping for resolution sizes
+
 # 111x111 -> MAC/Resize
+
 # 1920x1080 -> Supported
 # 1440x900 -> Supported
 # 680x480 -> In Developement
 resolutions = {
+
     "111x111":
     {
         "vertical_offset": 50,
@@ -743,6 +749,7 @@ resolutions = {
         },
     },
     "1920x1080":
+
     {
         "vertical_offset": 50,
         "board_border_size": (1080, 1080),
@@ -763,7 +770,7 @@ resolutions = {
         "med_size": (90,90),
         "large_collision_size": (105, 105),
         "large_size": (115,115),
-        "buttons":
+        "buttons": 
         {
             "main_menu" :
             {
@@ -772,7 +779,7 @@ resolutions = {
                     # "location": (715, 275),
                     "location": (715, 275),
                     "size": (500, 100),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=50),
                         "string": "Play Against an AI",
@@ -787,7 +794,7 @@ resolutions = {
                     # "location": (715, 425),
                     "location": (715, 475),
                     "size": (500, 100),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=50),
                         "string": "Play by Yourself",
@@ -802,7 +809,7 @@ resolutions = {
                     # "location": (715, 570),
                     "location": (715, 620),
                     "size": (500, 100),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=50),
                         "string": "Play Against a Friend",
@@ -817,7 +824,7 @@ resolutions = {
                     # "location": (715, 720),
                     "location": (715, 770),
                     "size": (500, 100),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=50),
                         "string": "Close The Application",
@@ -826,15 +833,15 @@ resolutions = {
                         "hover_color": LIGHT_GREEN
 
                     }
-                }
+                }       
             },
-            "single_player" :
+            "single_player" : 
             {
                 "cho_button":
                   {
                     "location": (800, 195),
                     "size": (100, 40),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Cho",
@@ -844,11 +851,11 @@ resolutions = {
 
                     }
                   },
-                "han_button":
+                "han_button": 
                 {
                     "location": (1010, 195),
                     "size": (100, 40),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Han",
@@ -858,11 +865,11 @@ resolutions = {
 
                     }
                 },
-                "standard_piece_convention_button":
+                "standard_piece_convention_button": 
                 {
                     "location": (700, 455),
                     "size": (175, 50),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Standard",
@@ -872,11 +879,11 @@ resolutions = {
 
                     }
                 },
-                "internat_piece_convention_button":
+                "internat_piece_convention_button": 
                 {
                     "location": (1050, 455),
                     "size": (175, 50),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "International",
@@ -886,11 +893,11 @@ resolutions = {
 
                     }
                 },
-                "easy_ai_button":
+                "easy_ai_button": 
                 {
                     "location": (700, 725),
                     "size": (125, 50),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Easy",
@@ -900,11 +907,11 @@ resolutions = {
 
                     }
                 },
-                "medium_ai_button":
+                "medium_ai_button": 
                 {
                     "location": (900, 725),
                     "size": (125, 50),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Medium",
@@ -914,11 +921,11 @@ resolutions = {
 
                     }
                 },
-                "hard_ai_button":
+                "hard_ai_button": 
                 {
                     "location": (1100, 725),
                     "size": (125, 50),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Hard",
@@ -928,11 +935,11 @@ resolutions = {
 
                     }
                 },
-                "play_button":
+                "play_button": 
                 {
                     "location": (910, 895),
                     "size": (100, 50),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Play",
@@ -942,11 +949,11 @@ resolutions = {
 
                     }
                 },
-                "swap_left_horse_button":
+                "swap_left_horse_button": 
                 {
                         "location": (610, 890),
                         "size": (100, 50),
-                        "text":
+                        "text": 
                         {
                             "font" : pygame.font.SysFont("Arial",size=35),
                             "string": "Swap",
@@ -956,12 +963,12 @@ resolutions = {
 
                         }
                 },
-                "swap_right_horse_button":
+                "swap_right_horse_button": 
                 {
 
                     "location": (1210, 890),
                     "size": (100, 50),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Swap",
@@ -971,11 +978,11 @@ resolutions = {
 
                     }
                 },
-                "confirm_swap_button":
+                "confirm_swap_button": 
                 {
                     "location": (910, 895),
                     "size": (100, 50),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Confirm",
@@ -986,13 +993,13 @@ resolutions = {
                     }
                 },
             },
-            "local_MP" :
+            "local_MP" : 
             {
                 "cho_button":
                 {
                     "location": (800, 195),
                     "size": (100, 40),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Cho",
@@ -1002,11 +1009,11 @@ resolutions = {
 
                     }
                 },
-                "han_button":
+                "han_button": 
                 {
                     "location": (1010, 195),
                     "size": (100, 40),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Han",
@@ -1016,11 +1023,11 @@ resolutions = {
 
                     }
                 },
-                "standard_piece_convention_button":
+                "standard_piece_convention_button": 
                 {
                     "location": (700, 455),
                     "size": (175, 50),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Standard",
@@ -1030,11 +1037,11 @@ resolutions = {
 
                     }
                 },
-                "internat_piece_convention_button":
+                "internat_piece_convention_button": 
                 {
                     "location": (1050, 455),
                     "size": (175, 50),
-                    "text":
+                    "text": 
                     {
                         # "font" : pygame.font.SysFont("Arial",size=35),
                         "font" : pygame.font.SysFont("Arial",size=30),
@@ -1045,13 +1052,13 @@ resolutions = {
 
                     }
                 },
-
-                "play_button":
+            
+                "play_button": 
                 {
                     # "location": (900, 895),
                     "location": (900, 900),
                     "size": (125, 50),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Play",
@@ -1061,11 +1068,11 @@ resolutions = {
 
                     }
                 },
-                "host_swap_left_horse_button":
+                "host_swap_left_horse_button": 
                 {
                         "location": (610, 890),
                         "size": (100, 50),
-                        "text":
+                        "text": 
                         {
                             "font" : pygame.font.SysFont("Arial",size=35),
                             "string": "Swap",
@@ -1075,12 +1082,12 @@ resolutions = {
 
                         }
                 },
-                "host_swap_right_horse_button":
+                "host_swap_right_horse_button": 
                 {
 
                     "location": (1210, 890),
                     "size": (100, 50),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Swap",
@@ -1090,11 +1097,11 @@ resolutions = {
 
                     }
                 },
-                "host_confirm_swap_button":
+                "host_confirm_swap_button": 
                 {
                     "location": (910, 895),
                     "size": (100, 50),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Confirm",
@@ -1104,11 +1111,11 @@ resolutions = {
 
                     }
                 },
-                "guest_swap_left_horse_button":
+                "guest_swap_left_horse_button": 
                 {
                         "location": (610, 135),
                         "size": (100, 50),
-                        "text":
+                        "text": 
                         {
                             "font" : pygame.font.SysFont("Arial",size=35),
                             "string": "Swap",
@@ -1118,12 +1125,12 @@ resolutions = {
 
                         }
                 },
-                "guest_swap_right_horse_button":
+                "guest_swap_right_horse_button": 
                 {
 
                     "location": (1210, 135),
                     "size": (100, 50),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Swap",
@@ -1133,11 +1140,11 @@ resolutions = {
 
                     }
                 },
-                "guest_confirm_swap_button":
+                "guest_confirm_swap_button": 
                 {
                     "location": (910, 140),
                     "size": (100, 60),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=35),
                         "string": "Confirm",
@@ -1149,19 +1156,19 @@ resolutions = {
                 }
             }
         },
-        "background_elements":
+        "background_elements": 
         {
-            "main_menu":
+            "main_menu": 
             {
-                "menu_background_size": (1000, 1000)
+                "menu_background_size": (1000, 1000) 
             },
-            "single_player":
+            "single_player": 
             {
-                "button_background" :
+                "button_background" : 
                 {
-                    "play_as":
+                    "play_as": 
                     {
-                        "text":
+                        "text": 
                         {
                             "string" : "Select Side to Play As",
                             "location": (815, 100),
@@ -1170,9 +1177,9 @@ resolutions = {
                         "location": (780, 75),
                         "size": (350, 175)
                     },
-                    "piece_convention":
+                    "piece_convention": 
                     {
-                        "text":
+                        "text": 
                         {
                             "string" : "Select Piece Convention",
                             "location": (800, 355),
@@ -1181,9 +1188,9 @@ resolutions = {
                         "location": (660, 300),
                         "size": (600, 225)
                     },
-                    "ai_level":
+                    "ai_level": 
                     {
-                        "text":
+                        "text": 
                         {
                             "string" : "Selected AI Difficulty:",
                             "location": (775, 625),
@@ -1193,14 +1200,14 @@ resolutions = {
                         "location": (660, 570),
                         "size": (600, 225)
                     },
-                    "play":
+                    "play": 
                     {
                         "location": (855, 815),
                         "size": (210, 210)
                     },
-                    "player_piece_display":
+                    "player_piece_display": 
                     {
-                        "text":
+                        "text": 
                         {
                             "string" : "Your Pieces",
                             "location": (430, 240),
@@ -1214,9 +1221,9 @@ resolutions = {
                             "size": (200, 100)
                         }
                     },
-                    "opponent_piece_display":
+                    "opponent_piece_display": 
                     {
-                        "text":
+                        "text": 
                         {
                             "location": (800, 100),
                             "font_size": 35,
@@ -1224,12 +1231,12 @@ resolutions = {
                         "location": (1310, 285),
                         "size": (200, 810)
                     },
-                    "swap_left_horse":
+                    "swap_left_horse": 
                     {
                         "location": (535, 865),
                         "size": (250, 210)
                     },
-                    "swap_right_horse":
+                    "swap_right_horse": 
                     {
                         "location": (1135, 865),
                         "size": (250, 210)
@@ -1261,7 +1268,7 @@ resolutions = {
                                 "font_size": 75
                             },
                         },
-
+                        
                         "turn":
                         {
                             "location": (245, 385),
@@ -1290,13 +1297,13 @@ resolutions = {
                     }
                 }
             },
-            "local_MP":
+            "local_MP": 
             {
-                "button_background" :
+                "button_background" : 
                 {
-                    "play_as":
+                    "play_as": 
                     {
-                        "text":
+                        "text": 
                         {
                             "string" : "Select Side to Play As",
                             "location": (815, 100),
@@ -1305,9 +1312,9 @@ resolutions = {
                         "location": (780, 75),
                         "size": (350, 175)
                     },
-                    "piece_convention":
+                    "piece_convention": 
                     {
-                        "text":
+                        "text": 
                         {
                             "string" : "Select Piece Convention",
                             "location": (800, 355),
@@ -1316,14 +1323,14 @@ resolutions = {
                         "location": (660, 300),
                         "size": (600, 225)
                     },
-                    "play":
+                    "play": 
                     {
                         "location": (855, 815),
                         "size": (210, 210)
                     },
-                    "player_piece_display":
+                    "player_piece_display": 
                     {
-                        "text":
+                        "text": 
                         {
                             "string" : "Your Pieces",
                             "location": (430, 240),
@@ -1337,9 +1344,9 @@ resolutions = {
                             "size": (200, 100)
                         }
                     },
-                    "opponent_piece_display":
+                    "opponent_piece_display": 
                     {
-                        "text":
+                        "text": 
                         {
                             "location": (800, 100),
                             "font_size": 35,
@@ -1347,12 +1354,12 @@ resolutions = {
                         "location": (1310, 285),
                         "size": (200, 810)
                     },
-                    "host_swap_left_horse":
+                    "host_swap_left_horse": 
                     {
                         "location": (535, 865),
                         "size": (250, 210)
                     },
-                    "host_swap_right_horse":
+                    "host_swap_right_horse": 
                     {
                         "location": (1135, 865),
                         "size": (250, 210)
@@ -1362,12 +1369,12 @@ resolutions = {
                         "location": (855, 815),
                         "size": (210, 210)
                     },
-                    "guest_swap_left_horse":
+                    "guest_swap_left_horse": 
                     {
                         "location": (535, 0),
                         "size": (250, 210)
                     },
-                    "guest_swap_right_horse":
+                    "guest_swap_right_horse": 
                     {
                         "location": (1135, 0),
                         "size": (250, 210)
@@ -1399,7 +1406,7 @@ resolutions = {
                                 "font_size": 75
                             },
                         },
-
+                        
                         "turn":
                         {
                             "location": (245, 385),
@@ -1426,7 +1433,7 @@ resolutions = {
                             "font_size": 60
                         }
                     }
-
+                    
                 },
             }
         },
@@ -1450,7 +1457,7 @@ resolutions = {
         "med_size": (70,70),
         "large_collision_size": (80, 80),
         "large_size": (90,90),
-        "buttons":
+        "buttons": 
         {
             "main_menu" :
             {
@@ -1458,7 +1465,7 @@ resolutions = {
                 {
                     "location": (615, 229.17),
                     "size": (375, 83.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=40),
                         "string": "Play Against an AI",
@@ -1472,7 +1479,7 @@ resolutions = {
                 {
                     "location": (615, 354.17),
                     "size": (375, 83.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=40),
                         "string": "Play by Yourself",
@@ -1486,7 +1493,7 @@ resolutions = {
                 {
                     "location": (615, 475),
                     "size": (375, 83.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=40),
                         "string": "Play Against a Friend",
@@ -1500,7 +1507,7 @@ resolutions = {
                 {
                     "location": (615, 600),
                     "size": (375, 83.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=40),
                         "string": "Close The Application",
@@ -1509,15 +1516,15 @@ resolutions = {
                         "hover_color": LIGHT_GREEN
 
                     }
-                }
+                }       
             },
-            "single_player" :
+            "single_player" : 
             {
                 "cho_button":
                   {
                     "location": (660, 200),
                     "size": (75, 33.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Cho",
@@ -1527,11 +1534,11 @@ resolutions = {
 
                     }
                   },
-                "han_button":
+                "han_button": 
                 {
                     "location": (860, 200),
                     "size": (75, 33.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Han",
@@ -1541,11 +1548,11 @@ resolutions = {
 
                     }
                 },
-                "standard_piece_convention_button":
+                "standard_piece_convention_button": 
                 {
                     "location": (600, 390),
                     "size": (125, 33.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Standard",
@@ -1555,11 +1562,11 @@ resolutions = {
 
                     }
                 },
-                "internat_piece_convention_button":
+                "internat_piece_convention_button": 
                 {
                     "location": (880, 390),
                     "size": (125, 33.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "International",
@@ -1569,11 +1576,11 @@ resolutions = {
 
                     }
                 },
-                "easy_ai_button":
+                "easy_ai_button": 
                 {
                     "location": (600, 570),
                     "size": (100, 33.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Easy",
@@ -1583,11 +1590,11 @@ resolutions = {
 
                     }
                 },
-                "medium_ai_button":
+                "medium_ai_button": 
                 {
                     "location": (750, 570),
                     "size": (100, 33.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Medium",
@@ -1597,11 +1604,11 @@ resolutions = {
 
                     }
                 },
-                "hard_ai_button":
+                "hard_ai_button": 
                 {
                     "location": (900, 570),
                     "size": (100, 33.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Hard",
@@ -1611,11 +1618,11 @@ resolutions = {
 
                     }
                 },
-                "play_button":
+                "play_button": 
                 {
                     "location": (762.5, 750),
                     "size": (75, 33.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Play",
@@ -1625,11 +1632,11 @@ resolutions = {
 
                     }
                 },
-                "swap_left_horse_button":
+                "swap_left_horse_button": 
                 {
                         "location": (510, 760),
                         "size": (75, 33.33),
-                        "text":
+                        "text": 
                         {
                             "font" : pygame.font.SysFont("Arial",size=25),
                             "string": "Swap",
@@ -1639,12 +1646,12 @@ resolutions = {
 
                         }
                 },
-                "swap_right_horse_button":
+                "swap_right_horse_button": 
                 {
 
                     "location": (1010, 760),
                     "size": (75, 33.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Swap",
@@ -1654,11 +1661,11 @@ resolutions = {
 
                     }
                 },
-                "confirm_swap_button":
+                "confirm_swap_button": 
                 {
                     "location": (755, 745),
                     "size": (90, 50),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Confirm",
@@ -1669,13 +1676,13 @@ resolutions = {
                     }
                 },
             },
-            "local_MP" :
+            "local_MP" : 
             {
                 "cho_button":
                   {
                     "location": (660, 200),
                     "size": (75, 33.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Cho",
@@ -1685,11 +1692,11 @@ resolutions = {
 
                     }
                   },
-                "han_button":
+                "han_button": 
                 {
                     "location": (860, 200),
                     "size": (75, 33.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Han",
@@ -1699,11 +1706,11 @@ resolutions = {
 
                     }
                 },
-                "standard_piece_convention_button":
+                "standard_piece_convention_button": 
                 {
                     "location": (600, 390),
                     "size": (125, 33.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Standard",
@@ -1713,11 +1720,11 @@ resolutions = {
 
                     }
                 },
-                "internat_piece_convention_button":
+                "internat_piece_convention_button": 
                 {
                     "location": (880, 390),
                     "size": (125, 33.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "International",
@@ -1727,11 +1734,11 @@ resolutions = {
 
                     }
                 },
-                "play_button":
+                "play_button": 
                 {
                     "location": (762.5, 750),
                     "size": (75, 33.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Play",
@@ -1741,11 +1748,11 @@ resolutions = {
 
                     }
                 },
-                "host_swap_left_horse_button":
+                "host_swap_left_horse_button": 
                 {
                         "location": (510, 760),
                         "size": (75, 33.33),
-                        "text":
+                        "text": 
                         {
                             "font" : pygame.font.SysFont("Arial",size=25),
                             "string": "Swap",
@@ -1755,12 +1762,12 @@ resolutions = {
 
                         }
                 },
-                "host_swap_right_horse_button":
+                "host_swap_right_horse_button": 
                 {
 
                     "location": (1010, 760),
                     "size": (75, 33.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Swap",
@@ -1770,11 +1777,11 @@ resolutions = {
 
                     }
                 },
-                "host_confirm_swap_button":
+                "host_confirm_swap_button": 
                 {
                     "location": (755, 745),
                     "size": (90, 50),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Confirm",
@@ -1784,11 +1791,11 @@ resolutions = {
 
                     }
                 },
-                "guest_swap_left_horse_button":
+                "guest_swap_left_horse_button": 
                 {
                         "location": (510, 110),
                         "size": (75, 33.33),
-                        "text":
+                        "text": 
                         {
                             "font" : pygame.font.SysFont("Arial",size=25),
                             "string": "Swap",
@@ -1798,12 +1805,12 @@ resolutions = {
 
                         }
                 },
-                "guest_swap_right_horse_button":
+                "guest_swap_right_horse_button": 
                 {
 
                     "location": (1010, 110),
                     "size": (75, 33.33),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Swap",
@@ -1813,11 +1820,11 @@ resolutions = {
 
                     }
                 },
-                "guest_confirm_swap_button":
+                "guest_confirm_swap_button": 
                 {
                     "location": (755, 118),
                     "size": (90, 50),
-                    "text":
+                    "text": 
                     {
                         "font" : pygame.font.SysFont("Arial",size=25),
                         "string": "Confirm",
@@ -1829,19 +1836,19 @@ resolutions = {
                 }
             }
         },
-        "background_elements":
+        "background_elements": 
         {
-            "main_menu":
+            "main_menu": 
             {
-                "menu_background_size": (750, 750)
+                "menu_background_size": (750, 750) 
             },
-            "single_player":
+            "single_player": 
             {
-                "button_background" :
+                "button_background" : 
                 {
-                    "play_as":
+                    "play_as": 
                     {
-                        "text":
+                        "text": 
                         {
                             "string" : "Select Side to Play As",
                             "location": (680, 135),
@@ -1850,9 +1857,9 @@ resolutions = {
                         "location": (625, 100),
                         "size": (350, 150)
                     },
-                    "piece_convention":
+                    "piece_convention": 
                     {
-                        "text":
+                        "text": 
                         {
                             "string" : "Select Piece Convention",
                             "location": (665, 325),
@@ -1861,9 +1868,9 @@ resolutions = {
                         "location": (575, 295),
                         "size": (450, 145)
                     },
-                    "ai_level":
+                    "ai_level": 
                     {
-                        "text":
+                        "text": 
                         {
                             "string" : "Selected AI Difficulty:",
                             "location": (635, 500),
@@ -1873,14 +1880,14 @@ resolutions = {
                         "location": (575, 470),
                         "size": (485, 170)
                     },
-                    "play":
+                    "play": 
                     {
                         "location": (710, 676),
                         "size": (180, 180)
                     },
-                    "player_piece_display":
+                    "player_piece_display": 
                     {
-                        "text":
+                        "text": 
                         {
                             "string" : "Your Pieces",
                             "location": (360, 210),
@@ -1894,9 +1901,9 @@ resolutions = {
                             "size": (140, 80)
                         }
                     },
-                    "opponent_piece_display":
+                    "opponent_piece_display": 
                     {
-                        "text":
+                        "text": 
                         {
                             "location": (800, 210),
                             "font_size": 35,
@@ -1904,12 +1911,12 @@ resolutions = {
                         "location": (1110, 245),
                         "size": (140, 700)
                     },
-                    "swap_left_horse":
+                    "swap_left_horse": 
                     {
                         "location": (450, 750),
                         "size": (200, 150)
                     },
-                    "swap_right_horse":
+                    "swap_right_horse": 
                     {
                         "location": (950, 750),
                         "size": (200, 150)
@@ -1923,7 +1930,7 @@ resolutions = {
                     {
                         "location": (0, 240),
                         "size": (400, 200),
-
+                        
                     },
                     "game_over":
                     {
@@ -1947,13 +1954,13 @@ resolutions = {
                     }
                 }
             },
-            "local_MP":
+            "local_MP": 
             {
-                "button_background" :
+                "button_background" : 
                 {
-                    "play_as":
+                    "play_as": 
                     {
-                        "text":
+                        "text": 
                         {
                             "string" : "Select Side to Play As",
                             "location": (680, 135),
@@ -1962,9 +1969,9 @@ resolutions = {
                         "location": (625, 100),
                         "size": (350, 150)
                     },
-                    "piece_convention":
+                    "piece_convention": 
                     {
-                        "text":
+                        "text": 
                         {
                             "string" : "Select Piece Convention",
                             "location": (665, 325),
@@ -1973,14 +1980,14 @@ resolutions = {
                         "location": (575, 295),
                         "size": (450, 145)
                     },
-                    "play":
+                    "play": 
                     {
                         "location": (710, 676),
                         "size": (180, 180)
                     },
-                    "player_piece_display":
+                    "player_piece_display": 
                     {
-                        "text":
+                        "text": 
                         {
                             "string" : "Your Pieces",
                             "location": (360, 210),
@@ -1994,9 +2001,9 @@ resolutions = {
                             "size": (140, 80)
                         }
                     },
-                    "opponent_piece_display":
+                    "opponent_piece_display": 
                     {
-                        "text":
+                        "text": 
                         {
                             "location": (800, 210),
                             "font_size": 35,
@@ -2004,12 +2011,12 @@ resolutions = {
                         "location": (1110, 245),
                         "size": (140, 700)
                     },
-                    "host_swap_left_horse":
+                    "host_swap_left_horse": 
                     {
                         "location": (450, 750),
                         "size": (200, 150)
                     },
-                    "host_swap_right_horse":
+                    "host_swap_right_horse": 
                     {
                         "location": (950, 750),
                         "size": (200, 150)
@@ -2019,12 +2026,12 @@ resolutions = {
                         "location": (710, 676),
                         "size": (180, 180)
                     },
-                    "guest_swap_left_horse":
+                    "guest_swap_left_horse": 
                     {
                         "location": (450, 0),
                         "size": (200, 150)
                     },
-                    "guest_swap_right_horse":
+                    "guest_swap_right_horse": 
                     {
                         "location": (950, 0),
                         "size": (200, 150)
@@ -2038,7 +2045,7 @@ resolutions = {
                     {
                         "location": (0, 240),
                         "size": (400, 200),
-
+                        
                     },
                     "game_over":
                     {
@@ -2064,29 +2071,27 @@ resolutions = {
             }
         },
     },
-
-    # "640x480": {
-    #     "vertical_offset": 15,
-    #     "board_border_size": (640, 640),
-    #     "board_size": (540, 540),
-    #     "x_board_start_loc": 88,
-    #     "x_board_end_loc": 716,
-    #     "x_spacing": 69.78,
-    #     "y_board_start_loc": -8,
-    #     "y_board_end_loc": 558,
-    #     "y_spacing": 62,
-    #     "x_coordinates": [98, 166, 233, 301, 368, 436, 503.5, 571, 637],
-    #     "y_coordinates": [0, 60, 120, 181, 241, 301, 362, 422, 483, 538],
-    #     "spot_collision_size": (30, 30),
-    #     "small_collision_size": (35, 35),
-    #     "small_size": (35, 35),
-    #     "med_collision_size": (50, 50),
-    #     "med_size": (50,50),
-    #     "large_collision_size": (70, 70),
-    #     "large_size": (70,70),
-    # }
-
-
+    
+    "640x480": {
+        "vertical_offset": 15,
+        "board_border_size": (640, 640),
+        "board_size": (540, 540),
+        "x_board_start_loc": 88,
+        "x_board_end_loc": 716,
+        "x_spacing": 69.78,
+        "y_board_start_loc": -8,
+        "y_board_end_loc": 558,
+        "y_spacing": 62,
+        "x_coordinates": [98, 166, 233, 301, 368, 436, 503.5, 571, 637],
+        "y_coordinates": [0, 60, 120, 181, 241, 301, 362, 422, 483, 538],
+        "spot_collision_size": (30, 30),
+        "small_collision_size": (35, 35),
+        "small_size": (35, 35),
+        "med_collision_size": (50, 50),
+        "med_size": (50,50),
+        "large_collision_size": (70, 70),
+        "large_size": (70,70),
+    }    
 }
 
 # flag for app run loop
@@ -2096,12 +2101,12 @@ running = True
 info = pygame.display.Info()
 
 # set window sizes based on user's machine
-# screen_width, screen_height = info.current_w, info.current_h
-# screen_width, screen_height = 1920, 1080
+screen_width, screen_height = info.current_w, info.current_h
+#screen_width, screen_height = 1920, 1080
 #screen_width, screen_height = 1440, 900
 #screen_width, screen_height = 640, 480
 
-# set window variables for GUI elements
+# set window variables ofr GUI elements
 vertical_offset = resolutions[f"{screen_width}x{screen_height}"]["vertical_offset"]
 board_border_size = resolutions[f"{screen_width}x{screen_height}"]["board_border_size"]
 board_size = resolutions[f"{screen_width}x{screen_height}"]["board_size"]

@@ -2377,6 +2377,7 @@ def get_window_center_location():
 def get_image_center_location(image):
 	# return a reference to the center of the image
 	center_loc = image.get_rect().center
+
 	return center_loc
 
 #-----------------------------------------------------------------------------------
@@ -2402,3 +2403,4 @@ def is_fullscr(w, h):
 	else:
 		width, height = 111, 111
 	return width, height
+

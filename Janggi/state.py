@@ -1189,9 +1189,9 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 				# CHO IS GUEST
 				else:
 					if self.guest_swap_right_horse_button.is_clicked():
-						helper_funcs.swap_pieces(self.cho_player.pieces[6], self.cho_player.pieces[4])
+						helper_funcs.swap_pieces(self.cho_player, self.cho_player.pieces[6], self.cho_player.pieces[4])
 					elif self.guest_swap_left_horse_button.is_clicked():
-						helper_funcs.swap_pieces(self.cho_player.pieces[5], self.cho_player.pieces[3])
+						helper_funcs.swap_pieces(self.cho_player, self.cho_player.pieces[5], self.cho_player.pieces[3])
 					elif self.guest_confirm_swap_button.is_clicked():
 						self.active_player = self.cho_player
 						self.active_player.is_ready = True
