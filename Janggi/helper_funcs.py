@@ -2377,6 +2377,7 @@ def get_window_center_location():
 def get_image_center_location(image):
 	# return a reference to the center of the image
 	center_loc = image.get_rect().center
+
 	return center_loc
 
 #-----------------------------------------------------------------------------------
@@ -2389,3 +2390,17 @@ def scale_x(x, info):
 
 def scale_y(y, info):
 	return int((y / 1080) * info.current_h)
+
+#-----------------------------------------------------------------------------------
+# Function that will detect if the window is in fullscreen by screen dimensions
+# and return the corresponding resolution setting
+# INPUT: Screen Width and Height
+# OUTPUT: Resolution pair
+#-----------------------------------------------------------------------------------
+def is_fullscr(w, h):
+	if f"{w}x{h}" == "1920x1080":
+		width, height = 1920, 1080
+	else:
+		width, height = 111, 111
+	return width, height
+
