@@ -28,6 +28,7 @@ What does the client need to do?
 
 import socket
 
+
 class SocketConnection:
     def __init__(self, host, port):
         self.HOST = host
@@ -62,6 +63,8 @@ class Server(SocketConnection):
 
     def __init__(self, host, port):
         super().__init__(host, port)
+        self.client_sock = None
+        self.addr = None
 
     def bind_socket(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -71,9 +74,32 @@ class Server(SocketConnection):
         self.sock.listen()
 
     def accept_client(self):
-        self.sock, self.addr = self.sock.accept()
+        self.client_sock, self.addr = self.sock.accept()
         print(f"accepted client connection {self.addr[1]}")
-        return self.sock
+        return self.client_sock
+        
+    def send(self, message):
+        try:
+            if self.client_sock:
+                self.client_sock.sendall(message.encode())
+            else:
+                print("No client connected")
+        except Exception as err:
+            print("sending message unsuccessful:", err)
+
+    def receive(self, bytes=1024):
+        try:
+            if self.client_sock:
+                return self.client_sock.recv(bytes).decode()
+            else:
+                print("No client connected")
+                return None
+        except UnicodeDecodeError:
+            print("Couldn't decode message received.")
+        except TimeoutError:
+            print("message wasn't received")
+        except Exception as err:
+            print("Error receiving:", err)
 
 class Client(SocketConnection):
     
@@ -88,57 +114,3 @@ class Client(SocketConnection):
         except ConnectionRefusedError:
             print("Connection not successful")
             exit(1)
-
-def start_server(host, port):
-    # set up server
-    server = Server(host, port)
-    server.create_socket()
-    server.bind_socket()
-    server.listen()
-
-    # Accept client
-    client_sock = server.accept_client()
-    print("accepted connection")
-
-    # repeat 
-    while True:
-        msg = server.receive()
-        if msg == 'exit':
-            server.close()
-            break
-        else:
-            print("message received:", msg)
-            server.send(msg)
-
-def start_client(host, port):
-    # set up client
-    tcp = Client(host, port)
-    tcp.create_socket()
-    tcp.connect()
-
-    while True:
-        msg = input("enter a message to send ('exit' to exit): ")
-        tcp.send(msg)
-
-        if msg == 'exit':
-            tcp.close()
-            break
-
-if __name__ == "__main__":
-    option = input("Would you like to be a host(1), or a client(2): ")
-
-    match option:
-        case "1":
-            # become a host
-            host = "127.0.0.1"
-            port = 12345
-            start_server(host, port)
-
-        case "2":
-            # become a clinet
-            host = "127.0.0.1"
-            port = 12345
-            start_client(host, port)
-
-        case _:
-            print("not a valid option")
