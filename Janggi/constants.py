@@ -2109,7 +2109,7 @@ info = pygame.display.Info()
 
 screen_width, screen_height = 1440, 900
 
-screen_width, screen_height = info.current_w, info.current_h
+#screen_width, screen_height = info.current_w, info.current_h
 #screen_width, screen_height = 1920, 1080
 #screen_width, screen_height = 1440, 900
 

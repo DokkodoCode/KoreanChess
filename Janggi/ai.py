@@ -13,7 +13,6 @@ from piece import Piece, PieceCollisionSize, PieceType, OpponentPiecePosition
 from helper_funcs import reformat_piece_collision
 import os 
 
-
 os_name = os.name
 EXECUTABLE_PATH = ""
 if (os_name == "posix"):
@@ -263,3 +262,5 @@ class OpponentAI:
 # b meand black in chess terms, in this case b = blue
 # This should be set to the opposite of what was chosen in the start
 # menu by the player.
+
+

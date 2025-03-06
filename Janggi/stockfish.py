@@ -19,7 +19,6 @@ else:
     print("SOMETHING HAS GONE WRONG")
 
 
-
 # Start the engine process
 engine = subprocess.Popen(
     [EXECUTABLE_PATH],
