@@ -9,10 +9,20 @@ o Last Modified - November 19th 2024
 import numpy as np
 import pygame
 import subprocess
+import os
 
 # local imports
 from piece import Piece, PieceCollisionSize, PieceType, OpponentPiecePosition
 from helper_funcs import reformat_piece_collision
+
+os_name = os.name
+EXECUTABLE_PATH = ""
+if (os_name == "posix"):
+    EXECUTABLE_PATH = "./stockfish"
+elif (os_name == 'nt'):
+    EXECUTABLE_PATH = "./fairy-stockfish-largeboard_x86-64"
+else: 
+    print("SOMETHING HAS GONE WRONG")
 
 #######		Please Read		########
 # Update if changed
@@ -42,7 +52,7 @@ class OpponentAI:
 		# Start the engine process
 		# Formality stuff
 		self.engine = subprocess.Popen(
-			["./fairy-stockfish-largeboard_x86-64"],
+			[EXECUTABLE_PATH],
 			stdin=subprocess.PIPE,
 			stdout=subprocess.PIPE,
 			stderr=subprocess.PIPE,
@@ -64,7 +74,7 @@ class OpponentAI:
 	def restart_engine(self):
 		self.engine.terminate()
 		self.engine = subprocess.Popen(
-			["./fairy-stockfish-largeboard_x86-64"],
+			[EXECUTABLE_PATH],
 			stdin=subprocess.PIPE,
 			stdout=subprocess.PIPE,
 			stderr=subprocess.PIPE,
