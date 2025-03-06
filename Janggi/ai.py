@@ -210,7 +210,6 @@ class OpponentAI:
 		
 		# Add the opponent's pieces to the template
 		new_board = self.add_opponent_pieces(new_board, board, piece_type_mapping)
-		#new_board = self.test(new_board, player, board)
 	
 		new_board = np.flipud(new_board)
 		new_board = np.fliplr(new_board)

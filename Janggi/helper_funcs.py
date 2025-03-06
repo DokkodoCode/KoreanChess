@@ -12,73 +12,6 @@ import re
 # local file imports, see individ file for details
 import constants
 
-"""#-----------------------------------------------------------------------------------
-# Function that will send player's board data to other player for synchronization
-# INPUT: 
-# OUTPUT: 
-#-----------------------------------------------------------------------------------
-def send_move_over_network(move_data):
-	# Send the JSON data to the other user
-	pass
-
-#-----------------------------------------------------------------------------------
-# Function that will receive board data from other player for synchronization
-# INPUT: 
-# OUTPUT: 
-#-----------------------------------------------------------------------------------
-def get_move_from_network(move_data, player, opponent, board):
-	# Deserialize the JSON data
-	try:
-		move_info = json.loads(move_data)
-	except json.JSONDecodeError:
-		print("Received invalid move data")
-		return
-
-	piece_type = move_info.get("piece_type")
-	image_location = move_info.get("image_location")
-	collision_rect_topleft = move_info.get("collision_rect.topleft")
-	from_pos = move_info.get("from")
-	to_pos = move_info.get("to")
-
-	# Validate and update the board
-	if piece_type and image_location and from_pos and to_pos:
-		from_rank, from_file = from_pos
-		to_rank, to_file = to_pos
-
-		# Find the piece that needs to be moved
-		piece_to_move = next((p for p in opponent.pieces if p.piece_type.value == piece_type and p.location == (from_rank, from_file)), None)
-		if piece_to_move:
-			# Here you might want to add specific logic to validate the move
-			# For example, check if the move is valid according to game rules
-			# This would typically involve calling the same move functions you used earlier
-
-			# Update the piece's location
-			piece_to_move.location = (to_rank, to_file)
-			# Update collision rectangle and image location if necessary
-			piece_to_move.collision_rect.topleft = collision_rect_topleft
-			piece_to_move.image_location = image_location
-			# (this would depend on how you're managing piece graphics)
-
-			# Update the piece's collision rectangle based on the new location
-			# (Assuming you have a way to convert the location back to a collision rectangle)
-			# update_collision_rect(piece_to_move, board)
-
-			# You may also need to handle removing opponent pieces if they are captured
-			print(f"Moved {piece_type} from {from_pos} to {to_pos}")
-		else:
-			print("Piece to move not found or move invalid.")
-	else:
-		print("Received incomplete move data.")
-	pass
-
-def read_move(str):
-	str = str.split(",")
-	return int(str[0]), int(str[1])
-
-def make_move(tup):
-	return str(tup[0] + "," + tup[1])
-
-"""
 #-----------------------------------------------------------------------------------
 # Function that will center the piece image in its spot on the board
 # INPUT: coordinate of the piece object, image path asssociated with the object
@@ -240,8 +173,6 @@ def ai_move(player, opponent, board, best_move, new_board, fen):
 		selected_piece.collision_rect.topleft = new_spot
 		selected_piece.image_location = new_spot
 
-		new_board = opponent.convert_board(board, player)
-
 		# Check if the valid move resulted in a capture
 		if detect_capture(player, selected_piece):
 			capture_piece(player, selected_piece)
@@ -310,8 +241,6 @@ def attempt_move(active_player, waiting_player, board, mouse_pos, condition):
 	
 				# update the moved piece's collision rectangle
 				janggi_piece.collision_rect.topleft = (center_x, center_y)
-
-				
 
 				return True
 				
@@ -396,33 +325,8 @@ def move_king(janggi_piece, board, mouse_pos, active_player, waiting_player, con
 													 if piece != janggi_piece)):
 							
 							# consider move limitations based on conditions
-							if (condition == "None" or
-								condition == "Bikjang" and move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								(condition == "Check" and (move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-								find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-									# update piece location and collision for valid move
-									temp = janggi_piece.location
-									temp_rect = janggi_piece.collision_rect.topleft
-									temp_image = janggi_piece.image_location
-
-									janggi_piece.location = new_spot
-									janggi_piece.collision_rect.topleft = new_spot
-									janggi_piece.image_location = new_spot
-
-									# make sure move does not leave own king vulnerable, cancel move if it does
-									if (detect_check(active_player, waiting_player, board) and 
-										find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
-										janggi_piece.image_location = temp_image
-
-									# valid move was made
-									else:
-										# now check if the valid move resulted in a capture
-										if detect_capture(waiting_player, janggi_piece):
-											capture_piece(waiting_player, janggi_piece)
-										# valid move was made
-										return True
+							if handle_move(condition, active_player, waiting_player, janggi_piece, board, new_spot):
+								return True
 						
 	# no valid move was made
 	return False
@@ -499,34 +403,8 @@ def	move_advisor(janggi_piece, board, mouse_pos, active_player, waiting_player, 
 													 if piece != janggi_piece)):
 							
 							# consider move limitations based on conditions
-							if (condition == "None" or
-								condition == "Bikjang" and move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								(condition == "Check" and (move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-								find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-									# update piece location and collision for valid move
-									temp = janggi_piece.location
-									temp_rect = janggi_piece.collision_rect.topleft
-									temp_image = janggi_piece.image_location
-
-									janggi_piece.location = new_spot
-									janggi_piece.collision_rect.topleft = new_spot
-									janggi_piece.image_location = new_spot
-
-									# make sure move does not leave own king vulnerable, cancel move if it does
-									if (detect_check(active_player, waiting_player, board) and 
-										find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
-										janggi_piece.image_location = temp_image
-										
-									# valid move was made
-									else:
-										# now check if the valid move resulted in a capture
-										if detect_capture(waiting_player, janggi_piece):
-											capture_piece(waiting_player, janggi_piece)
-
-										# valid move was made
-										return True
+							if handle_move(condition, active_player, waiting_player, janggi_piece, board, new_spot):
+								return True
 						
 	# no valid move was made
 	return False
@@ -610,34 +488,8 @@ def move_elephant(janggi_piece, board, active_player, waiting_player, mouse_pos,
 													 if piece != janggi_piece)):
 							
 							# consider move limitations based on conditions
-							if (condition == "None" or
-								condition == "Bikjang" and move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								(condition == "Check" and (move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-								find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-									# update piece location and collision for valid move
-									temp = janggi_piece.location
-									temp_rect = janggi_piece.collision_rect.topleft
-									temp_image = janggi_piece.image_location
-
-									janggi_piece.location = new_spot
-									janggi_piece.collision_rect.topleft = new_spot
-									janggi_piece.image_location = new_spot
-
-									# make sure move does not leave own king vulnerable, cancel move if it does
-									if (detect_check(active_player, waiting_player, board) and 
-										find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
-										janggi_piece.image_location = temp_image
-										
-									# valid move was made
-									else:
-										# now check if the valid move resulted in a capture
-										if detect_capture(waiting_player, janggi_piece):
-											capture_piece(waiting_player, janggi_piece)
-
-										# valid move was made
-										return True
+							if handle_move(condition, active_player, waiting_player, janggi_piece, board, new_spot):
+								return True
 	return False
 
 #-----------------------------------------------------------------------------------
@@ -701,35 +553,8 @@ def move_horse(janggi_piece, board, active_player, waiting_player, mouse_pos, co
 													 for piece in waiting_player.pieces 
 													 if piece != janggi_piece)):
 							# consider move limitations based on conditions
-							if (
-		   						condition == "None" or
-								condition == "Bikjang" and move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								(condition == "Check" and (move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-								find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-									# update piece location and collision for valid move
-									temp = janggi_piece.location
-									temp_rect = janggi_piece.collision_rect.topleft
-									temp_image = janggi_piece.image_location
-
-									janggi_piece.location = new_spot
-									janggi_piece.collision_rect.topleft = new_spot
-									janggi_piece.image_location = new_spot
-
-									# make sure move does not leave own king vulnerable, cancel move if it does
-									if (detect_check(active_player, waiting_player, board) and 
-										find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
-										janggi_piece.image_location = temp_image
-										
-									# valid move was made
-									else:
-										# now check if the valid move resulted in a capture
-										if detect_capture(waiting_player, janggi_piece):
-											capture_piece(waiting_player, janggi_piece)
-
-										# valid move was made
-										return True
+							if handle_move(condition, active_player, waiting_player, janggi_piece, board, new_spot):
+								return True
 	return False
 
 #-----------------------------------------------------------------------------------
@@ -817,35 +642,9 @@ def move_cannon(janggi_piece, board, mouse_pos, active_player, waiting_player, c
 										
 										# Check if this is the destination (the spot clicked by the mouse)
 										# consider move limitations based on conditions
-										if (new_rect.collidepoint(mouse_pos) and
-											condition == "None" or
-											condition == "Bikjang" and move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-											(condition == "Check" and (move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-											find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-												# update piece location and collision for valid move
-												temp = janggi_piece.location
-												temp_rect = janggi_piece.collision_rect.topleft
-												temp_image = janggi_piece.image_location
-
-												janggi_piece.location = new_spot
-												janggi_piece.collision_rect.topleft = new_spot
-												janggi_piece.image_location = new_spot
-
-												# make sure move does not leave own king vulnerable, cancel move if it does
-												if (detect_check(active_player, waiting_player, board) and 
-													find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-													janggi_piece.location = temp
-													janggi_piece.collision_rect.topleft = temp_rect
-													janggi_piece.image_location = temp_image
-													
-												# valid move was made
-												else:
-													# now check if the valid move resulted in a capture
-													if detect_capture(waiting_player, janggi_piece):
-														capture_piece(waiting_player, janggi_piece)
-
-													# valid move was made
-													return True
+										if new_rect.collidepoint(mouse_pos) and \
+											handle_move(condition, active_player, waiting_player, janggi_piece, board, new_spot):
+												return True
 
 									# Keep moving
 									new_rank += move[0]
@@ -861,36 +660,9 @@ def move_cannon(janggi_piece, board, mouse_pos, active_player, waiting_player, c
 																				and (board.coordinates[new_rank][new_file] == check_piece.location)):
 											# Check if this is the destination (the spot clicked by the mouse)
 											# consider move limitations based on conditions
-											if (new_rect.collidepoint(mouse_pos)):
-												if (
-												condition == "None" or
-												condition == "Bikjang" and move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-												(condition == "Check" and (move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-												find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-													# update piece location and collision for valid move
-													temp = janggi_piece.location
-													temp_rect = janggi_piece.collision_rect.topleft
-													temp_image = janggi_piece.image_location
-
-													janggi_piece.location = new_spot
-													janggi_piece.collision_rect.topleft = new_spot
-													janggi_piece.image_location = new_spot
-
-													# make sure move does not leave own king vulnerable, cancel move if it does
-													if (detect_check(active_player, waiting_player, board) and 
-														find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-														janggi_piece.location = temp
-														janggi_piece.collision_rect.topleft = temp_rect
-														janggi_piece.image_location = temp_image
-														
-													# valid move was made
-													else:
-														# now check if the valid move resulted in a capture
-														if detect_capture(waiting_player, janggi_piece):
-															capture_piece(waiting_player, janggi_piece)
-
-														# valid move was made
-														return True
+											if (new_rect.collidepoint(mouse_pos)) and \
+												handle_move(condition, active_player, waiting_player, janggi_piece, board, new_spot):
+												return True
 									break		
 
 							# Return back to move-in-possible-moves loop so it cant skip pieces
@@ -956,36 +728,9 @@ def move_chariot(janggi_piece, board, mouse_pos, active_player, waiting_player, 
 							
 							# Check if this is the destination (the spot clicked by the mouse)
 							# consider move limitations based on conditions
-							if (new_rect.collidepoint(mouse_pos)):
-								if (
-		   						condition == "None" or
-								condition == "Bikjang" and move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								(condition == "Check" and (move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-								find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-									# update piece location and collision for valid move
-									temp = janggi_piece.location
-									temp_rect = janggi_piece.collision_rect.topleft
-									temp_image = janggi_piece.image_location
-
-									janggi_piece.location = new_spot
-									janggi_piece.collision_rect.topleft = new_spot
-									janggi_piece.image_location = new_spot
-
-									# make sure move does not leave own king vulnerable, cancel move if it does
-									if (detect_check(active_player, waiting_player, board) and 
-										find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
-										janggi_piece.image_location = temp_image
-										
-									# valid move was made
-									else:
-										# now check if the valid move resulted in a capture
-										if detect_capture(waiting_player, janggi_piece):
-											capture_piece(waiting_player, janggi_piece)
-
-										# valid move was made
-										return True
+							if (new_rect.collidepoint(mouse_pos)) and \
+								handle_move(condition, active_player, waiting_player, janggi_piece, board, new_spot):
+								return True
 
 							# Stop if there's an opponent's piece (can move here but not beyond)
 							if any(new_rect.colliderect(piece.collision_rect) 
@@ -1054,35 +799,8 @@ def move_pawn(janggi_piece, board, mouse_pos, active_player, waiting_player, con
 														for piece in active_player.pieces 
 														if piece != janggi_piece)):
 								# consider move limitations based on conditions
-								if (
-		   						condition == "None" or
-								condition == "Bikjang" and move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								(condition == "Check" and (move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-								find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-									# update piece location and collision for valid move
-									temp = janggi_piece.location
-									temp_rect = janggi_piece.collision_rect.topleft
-									temp_image = janggi_piece.image_location
-
-									janggi_piece.location = new_spot
-									janggi_piece.collision_rect.topleft = new_spot
-									janggi_piece.image_location = new_spot
-
-									# make sure move does not leave own king vulnerable, cancel move if it does
-									if (detect_check(active_player, waiting_player, board) and 
-										find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
-										janggi_piece.image_location = temp_image
-										
-									# valid move was made
-									else:
-										# now check if the valid move resulted in a capture
-										if detect_capture(waiting_player, janggi_piece):
-											capture_piece(waiting_player, janggi_piece)
-
-										# valid move was made
-										return True
+								if handle_move(condition, active_player, waiting_player, janggi_piece, board, new_spot):
+									return True
 							
 	# no valid move made
 	return False
@@ -1134,34 +852,8 @@ def move_pawn_palace(active_player, waiting_player, janggi_piece, board, mouse_p
 										if piece != janggi_piece)):
 							
 							# consider move limitations based on conditions
-							if (condition == "None" or
-								condition == "Bikjang" and move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
-								(condition == "Check" and (move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
-								find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
-									# update piece location and collision for valid move
-									temp = janggi_piece.location
-									temp_rect = janggi_piece.collision_rect.topleft
-									temp_image = janggi_piece.image_location
-
-									janggi_piece.location = new_spot
-									janggi_piece.collision_rect.topleft = new_spot
-									janggi_piece.image_location = new_spot
-
-									# make sure move does not leave own king vulnerable, cancel move if it does
-									if (detect_check(active_player, waiting_player, board) and 
-										find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
-										janggi_piece.location = temp
-										janggi_piece.collision_rect.topleft = temp_rect
-										janggi_piece.image_location = temp_image
-										
-									# valid move was made
-									else:
-										# now check if the valid move resulted in a capture
-										if detect_capture(waiting_player, janggi_piece):
-											capture_piece(waiting_player, janggi_piece)
-
-										# valid move was made
-										return True
+							if handle_move(condition, active_player, waiting_player, janggi_piece, board, new_spot):
+								return True
 						
 	# no valid move was made
 	return False
@@ -2404,3 +2096,54 @@ def is_fullscr(w, h):
 		width, height = 111, 111
 	return width, height
 
+
+
+
+# Wrapper functions that checks if there are valid moves avaliable.
+# if there is no valid move, it will return false.
+# otherwise, it will do the move and capture a piece if avaliable
+def handle_move(condition, active_player, waiting_player, janggi_piece, board, new_spot):
+	if is_valid_move(condition, active_player, waiting_player, janggi_piece, board, new_spot):
+			# update piece location and collision for valid move
+			temp = janggi_piece.location
+			temp_rect = janggi_piece.collision_rect.topleft
+			temp_image = janggi_piece.image_location
+
+			janggi_piece.location = new_spot
+			janggi_piece.collision_rect.topleft = new_spot
+			janggi_piece.image_location = new_spot
+
+			# make sure move does not leave own king vulnerable, cancel move if it does
+			if is_king_vulnerable(active_player, waiting_player, board, janggi_piece):
+				janggi_piece.location = temp
+				janggi_piece.collision_rect.topleft = temp_rect
+				janggi_piece.image_location = temp_image
+				
+			# valid move was made
+			else:
+				# now check if the valid move resulted in a capture
+				if detect_capture(waiting_player, janggi_piece):
+					capture_piece(waiting_player, janggi_piece)
+
+				# valid move was made
+				return True
+	return False
+	
+# checks if the move done will cause the king to be threatened
+# if is threatened, return True
+# otherwise return False
+def is_king_vulnerable(active_player, waiting_player, board, janggi_piece):
+	if (detect_check(active_player, waiting_player, board) and 
+		find_piece_causing_check(active_player, waiting_player, board).location != janggi_piece.location):
+		return True
+	return False
+
+# checks if given move (new_spot) is a valid move given restrictions from check or bikjang
+def is_valid_move(condition, active_player, waiting_player, janggi_piece, board, new_spot):
+	if (
+		condition == "None" or
+		condition == "Bikjang" and move_can_break_bikjang(active_player, waiting_player, janggi_piece, new_spot) or
+		(condition == "Check" and (move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot))  or 
+		find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
+		return True
+	return False

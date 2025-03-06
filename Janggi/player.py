@@ -65,6 +65,10 @@ class Player():
 				# add to the list to return
 				pieces.append(piece)
 		return pieces
+	
+	def print_pieces(self):
+		for piece in self.pieces:
+			print(piece.piece_type)
 
 	# Method to populate the player's settings used last game played
 	# INPUT: None
