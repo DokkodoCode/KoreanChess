@@ -1,32 +1,5 @@
-'''
-MULTIPLAYER.PY
-
-
-So, what's the game plan?
-
-One player will be a Host, and the other will be the client that connects to the host
-
-What does the host need to do?
-    1. create a socket
-    2. create a password
-    3. listen for and accept client
-    4. initialize game
-
-What does the client need to do?
-    1. enter a code
-    2. connect to host
-
-    Loop:
-        - client recieves packet
-        - unpack packet
-        - get FEN string from packet
-        - client makes a move
-        - create new FEN string after client has made a move
-        - send to server
-
-'''
-
 import socket
+PORT = 5000
 
 class SocketConnection:
     def __init__(self, host, port):
@@ -125,20 +98,15 @@ def start_client(host, port):
             break
 
 if __name__ == "__main__":
+    host = socket.gethostbyname(socket.gethostname())
     option = input("Would you like to be a host(1), or a client(2): ")
 
     match option:
         case "1":
-            # become a host
-            host = "127.0.0.1"
-            port = 12345
-            start_server(host, port)
+            start_server(host, PORT)
 
         case "2":
-            # become a clinet
-            host = "127.0.0.1"
-            port = 12345
-            start_client(host, port)
+            start_client(host, PORT)
 
         case _:
             print("not a valid option")
