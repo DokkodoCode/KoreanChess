@@ -17,6 +17,7 @@ import constants
 import helper_funcs
 import player
 import render_funcs
+import piece
 import multiplayer
 
 #--------------------------------------------------------------------------------
@@ -1805,3 +1806,103 @@ class Multiplayer(MultiplayerPreGameSettings):
         else:
             self.active_player = self.host
             self.waiting_player = self.guest
+
+            
+def update_board_from_fen(self, fen_string):
+    """
+    Update the board state and pieces based on a FEN string received from the opponent.
+    1.Parses FEN string into the board's array representation
+    2.Recreates all the piece objects for both players with correct positions
+    3.Sets the turn based on the FEN string's active color
+    """
+        
+    # Split the FEN string into board representation and active color
+    parts = fen_string.split()
+    board_fen = parts[0]
+    active_color = parts[1]  # 'w' or 'b'  (fen string uses w for han and b for cho)
+    
+    # Clear the current board representation
+    self.board.clear_board_as_array_of_strings()
+    
+    # Parse the FEN board representation
+    rows = board_fen.split('/')
+    
+    # Fill in board_as_array_of_strings based on FEN
+    for i, row in enumerate(rows):
+        col_idx = 0
+        for char in row:
+            if char.isdigit():
+                # Skip empty squares
+                empty_count = int(char)
+                for j in range(empty_count):
+                    self.board.board_as_array_of_strings[i][col_idx] = "."
+                    col_idx += 1
+            else:
+                # Place a piece
+                self.board.board_as_array_of_strings[i][col_idx] = char
+                col_idx += 1
+    
+    # Reset both players' pieces
+    self.host.pieces = []
+    self.guest.pieces = []
+    
+    # Define piece type mapping
+    piece_mapping = {
+        'r': piece.PieceType.CHARIOT, 'h': piece.PieceType.HORSE, 'e': piece.PieceType.ELEPHANT, 
+        'a': piece.PieceType.ADVISOR, 'k': piece.PieceType.KING, 'c': piece.PieceType.CANNON, 
+        'p': piece.PieceType.PAWN,
+        'R': piece.PieceType.CHARIOT, 'H': piece.PieceType.HORSE, 'E': piece.PieceType.ELEPHANT, 
+        'A': piece.PieceType.ADVISOR, 'K': piece.PieceType.KING, 'C': piece.PieceType.CANNON, 
+        'P': piece.PieceType.PAWN
+    }
+    
+    # Create new piece objects based on the board state
+    for row in range(len(self.board.board_as_array_of_strings)):
+        for col in range(len(self.board.board_as_array_of_strings[row])):
+            piece_char = self.board.board_as_array_of_strings[row][col]
+            if piece_char != '.':
+                # Determine piece owner based on case
+                is_upper = piece_char.isupper()
+                
+                # Map to the correct player (Han is uppercase, Cho is lowercase)
+                owner = None
+                if (is_upper and self.host.color == "Han") or (not is_upper and self.host.color == "Cho"):
+                    owner = self.host
+                else:
+                    owner = self.guest
+                
+                # Get the piece type
+                piece_type = piece_mapping[piece_char]
+                
+                # Get board coordinates for the piece
+                location = self.board.coordinates[row][col]
+                
+                # Create collision rectangle
+                collision_rect = pygame.Rect(
+                    location[0], location[1],
+                    piece.PieceCollisionSize[piece_type.name].value[0],
+                    piece.PieceCollisionSize[piece_type.name].value[1]
+                )
+                collision_rect = helper_funcs.reformat_piece_collision(location, collision_rect)
+                
+                # Create the piece and add it to the owner's pieces
+                new_piece = piece.Piece(piece_type, location, location, collision_rect, piece_type.value)
+                owner.pieces.append(new_piece)
+    
+    # Set the correct turn based on the active color
+    if active_color == 'w':  # Han's turn
+        han_player = self.host if self.host.color == "Han" else self.guest
+        cho_player = self.host if self.host.color == "Cho" else self.guest
+        
+        han_player.is_turn = True
+        cho_player.is_turn = False
+        self.active_player = han_player
+        self.waiting_player = cho_player
+    else:  # 'b', Cho's turn
+        han_player = self.host if self.host.color == "Han" else self.guest
+        cho_player = self.host if self.host.color == "Cho" else self.guest
+        
+        han_player.is_turn = False
+        cho_player.is_turn = True
+        self.active_player = cho_player
+        self.waiting_player = han_player
