@@ -751,11 +751,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 			self.next_state = "Main Menu"
 
-#--------------------------------------------------------------------------------
-# AI STUFF IS HERE
-		# Handle AI Opponent's turn
-		# check for game over conditions at the top of the ai's turn
-		
+		self.handle_ai_move()
 
 	# Handle any rendering that needs to be done
 	# INPUT: pygame surface object (window to display to)
