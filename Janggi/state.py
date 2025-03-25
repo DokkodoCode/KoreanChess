@@ -1456,10 +1456,6 @@ class Multiplayer(MultiplayerPreGameSettings):
         self.load_board_boarder(window)
         self.load_board()
         self.board = board.Board()
-        self.condition = "None"
-        self.bikjang = False
-        self.check = False
-        self.game_over = False
         self.immediate_render = False
         self.last_move_time = 0
         self.sync_cooldown = 100  # milliseconds between syncs

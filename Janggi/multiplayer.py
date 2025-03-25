@@ -11,6 +11,7 @@ Communication protocol is message-based with formats:
 
 import socket
 import json
+PORT = 5000
 
 class SocketConnection:
     def __init__(self, host, port):
@@ -306,3 +307,18 @@ def serialize_turn_info(active_player_color, condition=None):
     }
     import json
     return f"TURN:|{json.dumps(turn_data)}"
+
+
+# if __name__ == "__main__":
+#     host = socket.gethostbyname(socket.gethostname())
+#     option = input("Would you like to be a host(1), or a client(2): ")
+
+#     match option:
+#         case "1":
+#             start_server(host, PORT)
+
+#         case "2":
+#             start_client(host, PORT)
+
+#         case _:
+#             print("not a valid option")
