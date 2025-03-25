@@ -127,6 +127,7 @@ def start_client(host, port):
 if __name__ == "__main__":
     option = input("Would you like to be a host(1), or a client(2): ")
     host, port = socket.gethostbyname(socket.gethostname()), 5000
+    print(f"Enter this on the other computer: {host}")
 
     match option:
         case "1":
