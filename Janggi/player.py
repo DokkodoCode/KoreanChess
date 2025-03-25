@@ -38,32 +38,37 @@ class Player():
 	# OUTPUT: A list of the piece objects
 	def fill_pieces(self):
 		pieces = [] # store the piece objects
-
+		
+		# Use board_perspective instead of is_host
+		# This ensures pieces are placed correctly on the board
+		if self.board_perspective == "Bottom":
+			positions_to_use = PlayerPiecePosition  # Bottom pieces
+		else:
+			positions_to_use = OpponentPiecePosition  # Top pieces
+		
 		# for each piece in PieceType(enum) list
 		for piece_type in PieceType:
 			# lookup the list of starting positions based on the enum PieceType
-			if self.is_host:
-				positions = PlayerPiecePosition[piece_type.name].value
-			else:
-				positions = OpponentPiecePosition[piece_type.name].value
-			#print(f"pos:\n{positions}")
+			positions = positions_to_use[piece_type.name].value
+			
 			# iterate through that list of starting positions
 			for pos in positions:
 				# assign point value to current piece based on PieceType(enum)
 				point_value = PieceType[piece_type.name].value
-				# assign the location that piece will be nad where to display its image
+				# assign the location that piece will be and where to display its image
 				location = pos
 				image_location = pos
 				# create a collision rectangle using the enum size for collisions based
 				collision_rect = pygame.Rect(pos[0], pos[1],
-											 PieceCollisionSize[piece_type.name].value[0], 
-											 PieceCollisionSize[piece_type.name].value[1])
+											PieceCollisionSize[piece_type.name].value[0], 
+											PieceCollisionSize[piece_type.name].value[1])
 				# center the rectangle to fit appropriately onto the board
 				collision_rect = reformat_piece_collision(location, collision_rect)
 				# create the piece based on those parameters
 				piece = Piece(piece_type, location, image_location, collision_rect, point_value)
 				# add to the list to return
 				pieces.append(piece)
+		
 		return pieces
 	
 	def print_pieces(self):
