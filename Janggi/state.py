@@ -1109,19 +1109,17 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 	def swap_turn(self):
 		self.active_player, self. waiting_player = self.waiting_player, self.active_player
 
-class MultiplayerPreGameSettings(State):
+class MultiplayerPreGameSettings(PreGameSettings):
     def __init__(self, window):
-        super().__init__()  # inherit the parent initializer
+        self.host = player.Player(is_host=True, board_perspective="Bottom")
+        self.guest = player.Player(is_host=False, board_perspective="Top")
+        super().__init__(window)  # need to init host and guest before calling init
         self.next_state = None
         self.font = pygame.font.SysFont("Arial", size=35)
         self.is_host = None
         self.connection = None
         self.settings_confirmed = False
         
-        # Initialize players
-        self.host = player.Player(is_host=True, board_perspective="Bottom")
-        self.guest = player.Player(is_host=False, board_perspective="Top")
-
         # Initialize UI elements
         self.__init_buttons()
         self.load_board_boarder(window)
@@ -1363,10 +1361,7 @@ class MultiplayerPreGameSettings(State):
             self.next_state = "Main Menu"
                 
     def render(self, window):
-        # USE BOARD AS BACKGROUND
-        window.blit(self.menu_background, self.menu_background.get_rect(center = window.get_rect().center))
-        window.blit(self.playboard, self.playboard.get_rect(center = window.get_rect().center))
-        
+        self.render_board(window)
         # Show connection status
         status_x = constants.screen_width - 200
         status_y = 30
@@ -1504,8 +1499,7 @@ class Multiplayer(MultiplayerPreGameSettings):
             self.active_player = self.guest          # Will be client's turn after host swaps
             self.waiting_player = self.host
         
-        # Initialize swap UI
-        self.init_swap_menu()
+        self.load_host_side_swap_menu()
 
     def initialize_pieces(self):
         """Initialize pieces for both players with correct perspectives"""
@@ -2239,6 +2233,9 @@ class Multiplayer(MultiplayerPreGameSettings):
         self.confirm_swap_button.draw_button(window)
 
     def render(self, window):
+        # Display board
+        self.render_board(window)
+
         # EMERGENCY CHECK - validate pieces at start of frame
         if not self.opening_turn and (len(self.host.pieces) < 16 or len(self.guest.pieces) < 16):
             print("EMERGENCY: Missing pieces detected, restoring from backups")
@@ -2247,10 +2244,6 @@ class Multiplayer(MultiplayerPreGameSettings):
             self.check = False
             self.condition = "None"
             self.game_over = False
-        
-        # Display board
-        window.blit(self.menu_background, self.menu_background.get_rect(center=window.get_rect().center))
-        window.blit(self.playboard, self.playboard.get_rect(center=window.get_rect().center))
 
         # Display connection status
         status_x = constants.screen_width - 200
