@@ -173,8 +173,6 @@ def ai_move(player, opponent, board, best_move, new_board, fen):
 		selected_piece.collision_rect.topleft = new_spot
 		selected_piece.image_location = new_spot
 
-		new_board = opponent.convert_board(board, player)
-
 		# Check if the valid move resulted in a capture
 		if detect_capture(player, selected_piece):
 			capture_piece(player, selected_piece)

@@ -1,30 +1,4 @@
-'''
-MULTIPLAYER.PY
-
-
-So, what's the game plan?
-
-One player will be a Host, and the other will be the client that connects to the host
-
-What does the host need to do?
-    1. create a socket
-    2. create a password
-    3. listen for and accept client
-    4. initialize game
-
-What does the client need to do?
-    1. enter a code
-    2. connect to host
-
-    Loop:
-        - client recieves packet
-        - unpack packet
-        - get FEN string from packet
-        - client makes a move
-        - create new FEN string after client has made a move
-        - send to server
-
-'''
+# MULTIPLAYER.py
 
 import socket
 
@@ -113,4 +87,57 @@ class Client(SocketConnection):
 
         except ConnectionRefusedError:
             print("Connection not successful")
+            exit(1)
+
+def start_server(host, port):
+    # set up server
+    server = Server(host, port)
+    server.create_socket()
+    server.bind_socket()
+    server.listen()
+
+    # Accept client
+    client_sock = server.accept_client()
+    print("accepted connection")
+
+    # repeat 
+    while True:
+        msg = server.receive()
+        if msg == 'exit':
+            server.close()
+            break
+        else:
+            print("message received:", msg)
+            server.send(msg)
+
+def start_client(host, port):
+    # set up client
+    tcp = Client(host, port)
+    tcp.create_socket()
+    tcp.connect()
+
+    while True:
+        msg = input("enter a message to send ('exit' to exit): ")
+        tcp.send(msg)
+
+        if msg == 'exit':
+            tcp.close()
+            break
+
+if __name__ == "__main__":
+    option = input("Would you like to be a host(1), or a client(2): ")
+    host, port = socket.gethostbyname(socket.gethostname()), 5000
+
+    match option:
+        case "1":
+            # become a host
+            start_server(host, port)
+
+        case "2":
+            # become a clinet
+            host = input("enter the host ip: ")
+            start_client(host, port)
+
+        case _:
+            print("not a valid option")
             exit(1)
