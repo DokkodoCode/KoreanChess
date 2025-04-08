@@ -63,7 +63,10 @@ class Button:
             # render text
             text_surface = self.font.render(self.text, True, self.foreground_color)
             # center text onto button
-            text_rect = text_surface.get_rect(center=(self.x + self.width / 2, self.y + self.height / 2))
+            if center:
+                text_rect = text_surface.get_rect(center=(newx, self.y))
+            else:
+                text_rect = text_surface.get_rect(center=(self.x + self.width // 2, self.y + self.height // 2))
             window.blit(text_surface, text_rect)
 
     # Method to determine if a button was clicked
