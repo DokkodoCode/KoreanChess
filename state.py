@@ -472,6 +472,9 @@ class SinglePlayerPreGameSettings(State):
                         self.ai_level = button.text
                         self.host.ai_level = button.text
                         self.guest.ai_level = button.text
+                        # Store AI difficulty in constants
+                        constants.stored_difficulty = button.text
+                        self.guest.set_difficulty(button.text.lower())
                         
     # escape to main menu
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -633,6 +636,10 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
         # create game objects
         self.board = board.Board()
 
+        self.ai_level = constants.stored_difficulty
+        print("Stored difficulty is " + constants.stored_difficulty)
+        self.guest.set_difficulty(constants.stored_difficulty.lower())
+
         # pre-set ai if it goes first
         # Han player chooses first horse swaps
         if self.guest.color == "Han":
@@ -716,6 +723,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
             elif self.ai_level == "Hard":
                 depth = 10
             
+            print(f"Making move with depth of {depth}")
             self.guest.send_command(f"position fen {fen}")
             self.guest.send_command(f"go depth {str(depth)}")
             best_move = self.guest.get_engine_move()
