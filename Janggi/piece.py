@@ -119,6 +119,85 @@ class PreGamePieceDisplay(Enum):
 	CHARIOT = (constants.x_coordinates[0],constants.y_coordinates[8])
 	PAWN = (constants.x_coordinates[0],constants.y_coordinates[9])
 
+def update_piece_positions():
+    # Update PlayerPiecePosition
+    PlayerPiecePosition.KING._value_ = [(constants.x_coordinates[4], constants.y_coordinates[8])]
+    PlayerPiecePosition.ADVISOR._value_ = [
+        (constants.x_coordinates[3], constants.y_coordinates[9]),
+        (constants.x_coordinates[5], constants.y_coordinates[9])
+    ]
+    PlayerPiecePosition.ELEPHANT._value_ = [
+        (constants.x_coordinates[2], constants.y_coordinates[9]),
+        (constants.x_coordinates[7], constants.y_coordinates[9])
+    ]
+    PlayerPiecePosition.HORSE._value_ = [
+        (constants.x_coordinates[1], constants.y_coordinates[9]),
+        (constants.x_coordinates[6], constants.y_coordinates[9])
+    ]
+    PlayerPiecePosition.CANNON._value_ = [
+        (constants.x_coordinates[1], constants.y_coordinates[7]),
+        (constants.x_coordinates[7], constants.y_coordinates[7])
+    ]
+    PlayerPiecePosition.CHARIOT._value_ = [
+        (constants.x_coordinates[0], constants.y_coordinates[9]),
+        (constants.x_coordinates[8], constants.y_coordinates[9])
+    ]
+    PlayerPiecePosition.PAWN._value_ = [
+        (constants.x_coordinates[0], constants.y_coordinates[6]),
+        (constants.x_coordinates[2], constants.y_coordinates[6]),
+        (constants.x_coordinates[4], constants.y_coordinates[6]),
+        (constants.x_coordinates[6], constants.y_coordinates[6]),
+        (constants.x_coordinates[8], constants.y_coordinates[6])
+    ]
+
+    # Update OpponentPiecePosition
+    OpponentPiecePosition.KING._value_ = [(constants.x_coordinates[4], constants.y_coordinates[1])]
+    OpponentPiecePosition.ADVISOR._value_ = [
+        (constants.x_coordinates[3], constants.y_coordinates[0]),
+        (constants.x_coordinates[5], constants.y_coordinates[0])
+    ]
+    OpponentPiecePosition.ELEPHANT._value_ = [
+        (constants.x_coordinates[2], constants.y_coordinates[0]),
+        (constants.x_coordinates[7], constants.y_coordinates[0])
+    ]
+    OpponentPiecePosition.HORSE._value_ = [
+        (constants.x_coordinates[1], constants.y_coordinates[0]),
+        (constants.x_coordinates[6], constants.y_coordinates[0])
+    ]
+    OpponentPiecePosition.CANNON._value_ = [
+        (constants.x_coordinates[1], constants.y_coordinates[2]),
+        (constants.x_coordinates[7], constants.y_coordinates[2])
+    ]
+    OpponentPiecePosition.CHARIOT._value_ = [
+        (constants.x_coordinates[0], constants.y_coordinates[0]),
+        (constants.x_coordinates[8], constants.y_coordinates[0])
+    ]
+    OpponentPiecePosition.PAWN._value_ = [
+        (constants.x_coordinates[0], constants.y_coordinates[3]),
+        (constants.x_coordinates[2], constants.y_coordinates[3]),
+        (constants.x_coordinates[4], constants.y_coordinates[3]),
+        (constants.x_coordinates[6], constants.y_coordinates[3]),
+        (constants.x_coordinates[8], constants.y_coordinates[3])
+    ]
+
+    # Update PreGamePieceDisplay
+    PreGamePieceDisplay.KING._value_ = (constants.x_coordinates[0], constants.y_coordinates[3])
+    PreGamePieceDisplay.ADVISOR._value_ = (constants.x_coordinates[0], constants.y_coordinates[4])
+    PreGamePieceDisplay.ELEPHANT._value_ = (constants.x_coordinates[0], constants.y_coordinates[5])
+    PreGamePieceDisplay.HORSE._value_ = (constants.x_coordinates[0], constants.y_coordinates[6])
+    PreGamePieceDisplay.CANNON._value_ = (constants.x_coordinates[0], constants.y_coordinates[7])
+    PreGamePieceDisplay.CHARIOT._value_ = (constants.x_coordinates[0], constants.y_coordinates[8])
+    PreGamePieceDisplay.PAWN._value_ = (constants.x_coordinates[0], constants.y_coordinates[9])
+
+    # Update GuestPreGamePieceDisplay
+    GuestPreGamePieceDisplay.KING._value_ = (constants.x_coordinates[8], constants.y_coordinates[3])
+    GuestPreGamePieceDisplay.ADVISOR._value_ = (constants.x_coordinates[8], constants.y_coordinates[4])
+    GuestPreGamePieceDisplay.ELEPHANT._value_ = (constants.x_coordinates[8], constants.y_coordinates[5])
+    GuestPreGamePieceDisplay.HORSE._value_ = (constants.x_coordinates[8], constants.y_coordinates[6])
+    GuestPreGamePieceDisplay.CANNON._value_ = (constants.x_coordinates[8], constants.y_coordinates[7])
+    GuestPreGamePieceDisplay.CHARIOT._value_ = (constants.x_coordinates[8], constants.y_coordinates[8])
+    GuestPreGamePieceDisplay.PAWN._value_ = (constants.x_coordinates[8], constants.y_coordinates[9])
+
 # Class object for the Piece
 class Piece():
 	# Class initializer

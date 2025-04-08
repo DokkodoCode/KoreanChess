@@ -47,6 +47,9 @@ class State():
 	def update(self):
 		pass
 
+	def resize(self, window):
+		pass
+
 	# functions to detect the type of user input
 	def is_left_click(self, event):
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -270,6 +273,57 @@ class MainMenu(State):
 		self.multiplayer_button.draw_button(window)
 		self.exit_button.draw_button(window)
 
+	# Function that resizes the buttons in the main menuwhen the window is resized
+	def resize(self, window):
+
+		# Resize the board and background if the window size changes
+		self.load_board_boarder(window)
+		self.load_board()
+
+		# button for single player
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["text"]["hover_color"]
+		self.singleplayer_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+
+		# button for local-mulyiplayer player
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["text"]["hover_color"]
+		self.local_multiplayer_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+
+		# button for multiplayer
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["hover_color"]
+		self.multiplayer_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+
+		# button for exiting application
+		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["location"]
+		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["size"]
+		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["text"]["font"]
+		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["text"]["string"]
+		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["text"]["foreground_color"]
+		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["text"]["background_color"]
+		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["text"]["hover_color"]
+		self.exit_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+
+		self.button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
+		self.button_background = pygame.transform.scale(self.button_background,
+									constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["main_menu"]["menu_background_size"])
+
 # SUBCLASS for pregame settings
 # What does it contain?
 #  - loads and renders board, color selection, piece style, piece preview, and play button
@@ -345,6 +399,15 @@ class PreGameSettings(State):
 		self.__render_piece_convention_menu(window)
 		self.__render_player_piece_preview(window)
 		self.__render_play_button(window)
+
+	def resize(self, window):
+		self.load_button_background()
+		self.load_board_boarder(window)
+		self.load_board()
+		self.__load_player_color_menu()
+		self.__load_piece_convention_menu()
+		self.__load_play_button()
+		self.__load_player_piece_preview()
 	
 	# LOADING AND RENDERING FUNCTIONS
 	def __load_player_color_menu(self):
@@ -611,6 +674,10 @@ class SinglePlayerPreGameSettings(PreGameSettings):
 		super().render(window)
 		self.render_ai_buttons(window)
 
+	def resize(self, window):
+		super().resize(window)
+		self.load_ai_buttons()
+
 	def load_ai_buttons(self):
 		self.ai_level_buttons = []
 
@@ -800,6 +867,10 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		# GAME ENDING CHECK
 		if self.game_over and self.check:
 			self.render_check_ending(window)
+####################################################################################################
+
+####################################################################################################
+
 
 	# Prints out the fen string of the current board
 
@@ -877,6 +948,7 @@ class LocalSinglePlayerPreGameSettings(PreGameSettings):
 	# OUTPUT: All pre-game settings attributes/actions are rendered
 	def render(self, window):
 		super().render(window)
+
 #--------------------------------------------------------------------------------
 # Inherited State for single player gaming against an ai
 #--------------------------------------------------------------------------------
@@ -1105,6 +1177,8 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 
 		if self.game_over and self.check:
 			self.render_check_ending(window)
+
+
 
 	def swap_turn(self):
 		self.active_player, self. waiting_player = self.waiting_player, self.active_player

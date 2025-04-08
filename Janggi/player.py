@@ -110,3 +110,5 @@ class Player():
 				settings = '|'.join(player_settings)
 				outfile.write(settings)
 			return player_settings
+
+
