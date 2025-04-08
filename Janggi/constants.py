@@ -1512,41 +1512,41 @@ possible_piece_convention = ("Standard", "International")
 possible_ai_level = ("Easy", "Medium", "Hard")
 
 def get_resolution_config(res):
-"""
-Returns the configuration dictionary for the given resolution.
-Defaults to the configuration for "1360x796".
-"""
-return resolutions.get(res, resolutions["1360x796"])
+    """
+    Returns the configuration dictionary for the given resolution.
+    Defaults to the configuration for "1360x796".
+    """
+    return resolutions.get(res, resolutions["1360x796"])
 
 def initialize_constants(config):
-"""
-Updates global resolution-dependent constants using the provided config dictionary.
-This function sets the global values which will be used elsewhere in your program.
-"""
-global vertical_offset, board_border_size, board_size
-global x_board_start_loc, x_board_end_loc, x_spacing
-global y_board_start_loc, y_board_end_loc, y_spacing
-global spot_collision_size, small_collision_size, small_size
-global med_collision_size, med_size, large_collision_size, large_size
-global x_coords, y_coords, x_coordinates, y_coordinates
+    """
+    Updates global resolution-dependent constants using the provided config dictionary.
+    This function sets the global values which will be used elsewhere in your program.
+    """
+    global vertical_offset, board_border_size, board_size
+    global x_board_start_loc, x_board_end_loc, x_spacing
+    global y_board_start_loc, y_board_end_loc, y_spacing
+    global spot_collision_size, small_collision_size, small_size
+    global med_collision_size, med_size, large_collision_size, large_size
+    global x_coords, y_coords, x_coordinates, y_coordinates
 
-vertical_offset = config["vertical_offset"]
-board_border_size = config["board_border_size"]
-board_size = config["board_size"]
-x_board_start_loc = config["x_board_start_loc"]
-x_board_end_loc = config["x_board_end_loc"]
-x_spacing = config["x_spacing"]
-y_board_start_loc = config["y_board_start_loc"]
-y_board_end_loc = config["y_board_end_loc"]
-y_spacing = config["y_spacing"]
-spot_collision_size = config["spot_collision_size"]
-small_collision_size = config["small_collision_size"]
-small_size = config["small_size"]
-med_collision_size = config["med_collision_size"]
-med_size = config["med_size"]
-large_collision_size = config["large_collision_size"]
-large_size = config["large_size"]
-x_coords = config["x_coordinates"]
-y_coords = config["y_coordinates"]
-x_coordinates = [coordinate for coordinate in x_coords]
-y_coordinates = [coordinate for coordinate in y_coords]
+    vertical_offset = config["vertical_offset"]
+    board_border_size = config["board_border_size"]
+    board_size = config["board_size"]
+    x_board_start_loc = config["x_board_start_loc"]
+    x_board_end_loc = config["x_board_end_loc"]
+    x_spacing = config["x_spacing"]
+    y_board_start_loc = config["y_board_start_loc"]
+    y_board_end_loc = config["y_board_end_loc"]
+    y_spacing = config["y_spacing"]
+    spot_collision_size = config["spot_collision_size"]
+    small_collision_size = config["small_collision_size"]
+    small_size = config["small_size"]
+    med_collision_size = config["med_collision_size"]
+    med_size = config["med_size"]
+    large_collision_size = config["large_collision_size"]
+    large_size = config["large_size"]
+    x_coords = config["x_coordinates"]
+    y_coords = config["y_coordinates"]
+    x_coordinates = [coordinate for coordinate in x_coords]
+    y_coordinates = [coordinate for coordinate in y_coords]

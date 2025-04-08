@@ -41,7 +41,7 @@ class Button:
 	# INPUT: pygame surface object (window)
 	# OUTPUT: Button is drawn to surface object, and will update button color if mouse collides with
     def draw_button(self, window):
-	center = False
+        center = False
         mouse_pos = pygame.mouse.get_pos()
         # change to hovering color if mouse hovers over button
         if self.rect.collidepoint(mouse_pos):
@@ -55,7 +55,7 @@ class Button:
             self.rect.centery = self.y
             newx = self.rect.centerx
             center = True
-	
+
         pygame.draw.rect(window, color, self.rect)
 
         # dont display text in the button if button has no text
