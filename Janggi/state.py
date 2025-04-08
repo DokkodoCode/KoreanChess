@@ -1111,6 +1111,8 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 	def swap_turn(self):
 		self.active_player, self. waiting_player = self.waiting_player, self.active_player
 
+from socket import gethostbyname, gethostname
+HOST, PORT = gethostbyname(gethostname()), 5000
 
 class Multiplayer(State):    
     def __init__(self, window):
@@ -1185,10 +1187,9 @@ class Multiplayer(State):
         if choice == 'h':
             # Creating a server (host)
             print("Starting as host. Waiting for client to connect...")
-            host = "127.0.0.1"  # Using localhost for testing
-            port = 12345
+            print(HOST)
             
-            self.connection = multiplayer.Server(host, port)
+            self.connection = multiplayer.Server(HOST, PORT)
             if not self.connection.create_socket():
                 print("Failed to create server socket")
                 return
@@ -1219,10 +1220,9 @@ class Multiplayer(State):
         elif choice == 'c':
             # Creating a client
             print("Starting as client. Connecting to host...")
-            host = "127.0.0.1"  # localhost
-            port = 12345
+            host = input("enter IP of host: ")
             
-            self.connection = multiplayer.Client(host, port)
+            self.connection = multiplayer.Client(host, PORT)
             if self.connection.connect(timeout=5):
                 print("Connected to host!")
                 self.is_host = False
