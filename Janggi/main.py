@@ -12,14 +12,10 @@ from turtle import Screen
 import pygame
 import sys
 
-# local file imports, see individ file for details
+# local file imports, see individual files for details
 import button
 import constants
 import res_config
-
-# import state
-# import state_machine
-# from helper_funcs import is_fullscr
 
 def res_select():
 
