@@ -2113,32 +2113,6 @@ def get_image_center_location(image):
 
 	return center_loc
 
-#-----------------------------------------------------------------------------------
-# Function that will scale a coordinate (x, y) based on new screen dimension
-# INPUT: X / Y coordinate (x,y) and display info
-# OUTPUT: Rescaled X / Y coordinate
-#-----------------------------------------------------------------------------------
-def scale_x(x, info):
-	return int((x / 1920) * info.current_w)
-
-def scale_y(y, info):
-	return int((y / 1080) * info.current_h)
-
-#-----------------------------------------------------------------------------------
-# Function that will detect if the window is in fullscreen by screen dimensions
-# and return the corresponding resolution setting
-# INPUT: Screen Width and Height
-# OUTPUT: Resolution pair
-#-----------------------------------------------------------------------------------
-def is_fullscr(w, h):
-	if f"{w}x{h}" == "1920x1080":
-		width, height = 1920, 1080
-	else:
-		width, height = 111, 111
-	return width, height
-
-
-
 
 # Wrapper functions that checks if there are valid moves avaliable.
 # if there is no valid move, it will return false.
