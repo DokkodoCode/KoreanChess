@@ -1,5 +1,5 @@
 """
-----------------------state.py----------------------------
+----------------------button.py----------------------------
 o This file is to manage the button class for the button
     objects for player to interact with
 o Last Modified - November 11th 2024
@@ -41,12 +41,21 @@ class Button:
 	# INPUT: pygame surface object (window)
 	# OUTPUT: Button is drawn to surface object, and will update button color if mouse collides with
     def draw_button(self, window):
+	center = False
         mouse_pos = pygame.mouse.get_pos()
         # change to hovering color if mouse hovers over button
         if self.rect.collidepoint(mouse_pos):
             color = self.hover_color if self.hover_color else self.background_color
         else:
             color = self.background_color
+
+        # if x is set to 1, button should be in the center of the screen
+        if self.x == 1:
+            self.rect.center = window.get_rect().center
+            self.rect.centery = self.y
+            newx = self.rect.centerx
+            center = True
+	
         pygame.draw.rect(window, color, self.rect)
 
         # dont display text in the button if button has no text
