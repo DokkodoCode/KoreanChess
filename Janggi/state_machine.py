@@ -2,11 +2,17 @@
 ----------------------state_machine.py----------------------------
 o This file is the actual state machine that will handle the 
 	transitioning between gamestates (Menu,Game, etc...)
-o Last Modified - Novemeber 11th 2024
+o Last Modified - April 5, 2025
 ----------------------------------------------------------
 """
+# libraries
+import pygame
+import time
+import traceback
+
 # specific local file importing of the States
 import state
+import multiplayer
 
 # The State Machine that will transiton the program between states
 class StateManager():
@@ -26,8 +32,7 @@ class StateManager():
 			"Single Player Game" : state.SinglePlayerGame,
 			"Local Single Player Pre-Game Settings" : state.LocalSinglePlayerPreGameSettings,
 			"Local Single Player Game" : state.LocalSinglePlayerGame,
-			#"Multi Player Pre-Game Settings" : state.MultiPlayerPreGameSettings,
-			#"Multi Player Game" : state.MultiPlayerGame <-- Future Implementation
+			"Multi Player Game" : state.Multiplayer
 		}
 		
 		self.states_unitialized = {}
@@ -82,16 +87,32 @@ class StateManager():
 				del self.states_unitialized["Main Menu"]
 			self.states_unitialized["Main Menu"] = state.MainMenu(window)
 
-		# FUTURE TODO: ONLINE MULTIPLAYER
-		elif new_state == "Multi Player Pre-Game Settings":
-			if "Multi Player Pre-Game Settings" in self.states_unitialized:
-				del self.states_unitialized["Multi Player Pre-Game Settings"]
-			self.states_unitialized["Multi Player Pre-Game Settings"] = state.MultiplayerPreGameSettings(window)
-
 		elif new_state == "Multi Player Game":
-			if "Multi Player Game" in self.states_unitialized:
-				del self.states_unitialized["Multi Player Game"]
-			self.states_unitialized["Multi Player Game"] = state.Multiplayer(window)
+			# Initialize the new refactored Multiplayer class
+			try:
+				# Create a new multiplayer game instance with fresh connection
+				if "Multi Player Game" in self.states_unitialized:
+					# Try to properly close any existing connection
+					try:
+						if hasattr(self.states_unitialized["Multi Player Game"], 'connection') and \
+						   self.states_unitialized["Multi Player Game"].connection is not None:
+							self.states_unitialized["Multi Player Game"].connection.close()
+					except:
+						traceback.print_exc()
+					
+					del self.states_unitialized["Multi Player Game"]
+				
+				# Initialize the new Multiplayer class
+				self.states_unitialized["Multi Player Game"] = state.Multiplayer(window)
+				
+				print(f"Initialized new multiplayer game")
+
+			except Exception as e:
+				print(f"Error initializing multiplayer game: {e}")
+				traceback.print_exc()
+				# Fallback to main menu in case of error
+				new_state = "Main Menu"
+				self.states_unitialized["Main Menu"] = state.MainMenu(window)
 
 		# change to the newly initialized state
 		self.current_state = self.states_unitialized[new_state]

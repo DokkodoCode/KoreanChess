@@ -144,104 +144,105 @@ def PreGame_render_piece_display(window, player, opponent):
 # OUTPUT: All active-in-play pieces will be rendered
 #-----------------------------------------------------------------------------------
 def render_pieces(player, opponent, window):
-	# load Han-side piece images
-	han_piece_images = {
-		PieceType.KING: pygame.image.load("Pieces/Han_King.png").convert_alpha(),
-		PieceType.ADVISOR: pygame.image.load("Pieces/Han_Advisor.png").convert_alpha(),
-		PieceType.ELEPHANT: pygame.image.load("Pieces/Han_Elephant.png").convert_alpha(),
-		PieceType.HORSE: pygame.image.load("Pieces/Han_Horse.png").convert_alpha(),
-		PieceType.CANNON: pygame.image.load("Pieces/Han_Cannon.png").convert_alpha(),
-		PieceType.CHARIOT: pygame.image.load("Pieces/Han_Chariot.png").convert_alpha(),
-		PieceType.PAWN: pygame.image.load("Pieces/Han_Pawn.png").convert_alpha()
-	}
+    # load Han-side piece images
+    han_piece_images = {
+        PieceType.KING: pygame.image.load("Pieces/Han_King.png").convert_alpha(),
+        PieceType.ADVISOR: pygame.image.load("Pieces/Han_Advisor.png").convert_alpha(),
+        PieceType.ELEPHANT: pygame.image.load("Pieces/Han_Elephant.png").convert_alpha(),
+        PieceType.HORSE: pygame.image.load("Pieces/Han_Horse.png").convert_alpha(),
+        PieceType.CANNON: pygame.image.load("Pieces/Han_Cannon.png").convert_alpha(),
+        PieceType.CHARIOT: pygame.image.load("Pieces/Han_Chariot.png").convert_alpha(),
+        PieceType.PAWN: pygame.image.load("Pieces/Han_Pawn.png").convert_alpha()
+    }
 
-	# load Cho-side piece images
-	cho_piece_images = {
-		PieceType.KING : pygame.image.load("Pieces/Cho_King.png").convert_alpha(),
-		PieceType.ADVISOR : pygame.image.load("Pieces/Cho_Advisor.png").convert_alpha(),
-		PieceType.ELEPHANT: pygame.image.load("Pieces/Cho_Elephant.png").convert_alpha(),
-		PieceType.HORSE: pygame.image.load("Pieces/Cho_Horse.png").convert_alpha(),
-		PieceType.CANNON: pygame.image.load("Pieces/Cho_Cannon.png").convert_alpha(),
-		PieceType.CHARIOT: pygame.image.load("Pieces/Cho_Chariot.png").convert_alpha(),
-		PieceType.PAWN: pygame.image.load("Pieces/Cho_Pawn.png").convert_alpha()
-	}
+    # load Cho-side piece images
+    cho_piece_images = {
+        PieceType.KING : pygame.image.load("Pieces/Cho_King.png").convert_alpha(),
+        PieceType.ADVISOR : pygame.image.load("Pieces/Cho_Advisor.png").convert_alpha(),
+        PieceType.ELEPHANT: pygame.image.load("Pieces/Cho_Elephant.png").convert_alpha(),
+        PieceType.HORSE: pygame.image.load("Pieces/Cho_Horse.png").convert_alpha(),
+        PieceType.CANNON: pygame.image.load("Pieces/Cho_Cannon.png").convert_alpha(),
+        PieceType.CHARIOT: pygame.image.load("Pieces/Cho_Chariot.png").convert_alpha(),
+        PieceType.PAWN: pygame.image.load("Pieces/Cho_Pawn.png").convert_alpha()
+    }
 
-	# load International Han-side piece images
-	I_han_piece_images = {
-		PieceType.KING: pygame.image.load("Pieces/I_Han_King.png").convert_alpha(),
-		PieceType.ADVISOR: pygame.image.load("Pieces/I_Han_Advisor.png").convert_alpha(),
-		PieceType.ELEPHANT: pygame.image.load("Pieces/I_Han_Elephant.png").convert_alpha(),
-		PieceType.HORSE: pygame.image.load("Pieces/I_Han_Horse.png").convert_alpha(),
-		PieceType.CANNON: pygame.image.load("Pieces/I_Han_Cannon.png").convert_alpha(),
-		PieceType.CHARIOT: pygame.image.load("Pieces/I_Han_Chariot.png").convert_alpha(),
-		PieceType.PAWN: pygame.image.load("Pieces/I_Han_Pawn.png").convert_alpha()
-	}
+    # load International Han-side piece images
+    I_han_piece_images = {
+        PieceType.KING: pygame.image.load("Pieces/I_Han_King.png").convert_alpha(),
+        PieceType.ADVISOR: pygame.image.load("Pieces/I_Han_Advisor.png").convert_alpha(),
+        PieceType.ELEPHANT: pygame.image.load("Pieces/I_Han_Elephant.png").convert_alpha(),
+        PieceType.HORSE: pygame.image.load("Pieces/I_Han_Horse.png").convert_alpha(),
+        PieceType.CANNON: pygame.image.load("Pieces/I_Han_Cannon.png").convert_alpha(),
+        PieceType.CHARIOT: pygame.image.load("Pieces/I_Han_Chariot.png").convert_alpha(),
+        PieceType.PAWN: pygame.image.load("Pieces/I_Han_Pawn.png").convert_alpha()
+    }
 
-	# load International Cho-side piece images
-	I_cho_piece_images = {
-		PieceType.KING : pygame.image.load("Pieces/I_Cho_King.png").convert_alpha(),
-		PieceType.ADVISOR : pygame.image.load("Pieces/I_Cho_Advisor.png").convert_alpha(),
-		PieceType.ELEPHANT: pygame.image.load("Pieces/I_Cho_Elephant.png").convert_alpha(),
-		PieceType.HORSE: pygame.image.load("Pieces/I_Cho_Horse.png").convert_alpha(),
-		PieceType.CANNON: pygame.image.load("Pieces/I_Cho_Cannon.png").convert_alpha(),
-		PieceType.CHARIOT: pygame.image.load("Pieces/I_Cho_Chariot.png").convert_alpha(),
-		PieceType.PAWN: pygame.image.load("Pieces/I_Cho_Pawn.png").convert_alpha()
-	}
+    # load International Cho-side piece images
+    I_cho_piece_images = {
+        PieceType.KING : pygame.image.load("Pieces/I_Cho_King.png").convert_alpha(),
+        PieceType.ADVISOR : pygame.image.load("Pieces/I_Cho_Advisor.png").convert_alpha(),
+        PieceType.ELEPHANT: pygame.image.load("Pieces/I_Cho_Elephant.png").convert_alpha(),
+        PieceType.HORSE: pygame.image.load("Pieces/I_Cho_Horse.png").convert_alpha(),
+        PieceType.CANNON: pygame.image.load("Pieces/I_Cho_Cannon.png").convert_alpha(),
+        PieceType.CHARIOT: pygame.image.load("Pieces/I_Cho_Chariot.png").convert_alpha(),
+        PieceType.PAWN: pygame.image.load("Pieces/I_Cho_Pawn.png").convert_alpha()
+    }
 
-	# sizes for the respective piece
-	piece_sizes = {
-		PieceType.KING: constants.large_size,
-		PieceType.ADVISOR: constants.small_size,
-		PieceType.ELEPHANT: constants.med_size,
-		PieceType.HORSE: constants.med_size,
-		PieceType.CANNON: constants.med_size,
-		PieceType.CHARIOT: constants.med_size,
-		PieceType.PAWN: constants.small_size
-	}
-	
-	# iterate through the opponents's remaining pieces
-	# and render the approiprotae piece by unpacking
-	# the opponent.pieces into the following:
-	# for PieceType in opponent's active pieces
-	for janggi_piece in opponent.pieces:
-		if player.color == "Cho":
-			if player.piece_convention == "International":
-				piece_image = I_han_piece_images[janggi_piece.piece_type]
-			else:
-				piece_image = han_piece_images[janggi_piece.piece_type]
-		else:
-			if player.piece_convention == "International":
-				piece_image = I_cho_piece_images[janggi_piece.piece_type]
-			else:
-				piece_image = cho_piece_images[janggi_piece.piece_type]
+    # sizes for the respective piece
+    piece_sizes = {
+        PieceType.KING: constants.large_size,
+        PieceType.ADVISOR: constants.small_size,
+        PieceType.ELEPHANT: constants.med_size,
+        PieceType.HORSE: constants.med_size,
+        PieceType.CANNON: constants.med_size,
+        PieceType.CHARIOT: constants.med_size,
+        PieceType.PAWN: constants.small_size
+    }
+    
+    # UPDATED: Determine which player's pieces should be shown at bottom vs top
+    # Based on board_perspective rather than player/opponent distinction
+    bottom_player = player if player.board_perspective == "Bottom" else opponent
+    top_player = opponent if player.board_perspective == "Bottom" else player
+    
+    
+    # Render top player's pieces first (so they appear behind/underneath in case of overlap)
+    for janggi_piece in top_player.pieces:
+        if top_player.color == "Han":
+            if player.piece_convention == "International":  # Still use player's piece_convention preference
+                piece_image = I_han_piece_images[janggi_piece.piece_type]
+            else:
+                piece_image = han_piece_images[janggi_piece.piece_type]
+        else:  # Cho
+            if player.piece_convention == "International":
+                piece_image = I_cho_piece_images[janggi_piece.piece_type]
+            else:
+                piece_image = cho_piece_images[janggi_piece.piece_type]
 
-		piece_image = pygame.transform.scale(piece_image, piece_sizes[janggi_piece.piece_type])
-		# center the image correctly to its spot
-		piece_image_pos = helper_funcs.reformat_piece(janggi_piece.image_location, piece_image)
-		window.blit(piece_image, piece_image_pos)
+        piece_image = pygame.transform.scale(piece_image, piece_sizes[janggi_piece.piece_type])
+        # center the image correctly to its spot
+        piece_image_pos = helper_funcs.reformat_piece(janggi_piece.image_location, piece_image)
+        window.blit(piece_image, piece_image_pos)
 
-	# iterate through the player's remaining pieces
-	# and render the approiprotae piece by unpacking
-	# the player.pieces into the following:
-	# for PieceType in player's active pieces
-	for janggi_piece in player.pieces:
-		if player.color == "Han":
-			if player.piece_convention == "International":
-				piece_image = I_han_piece_images[janggi_piece.piece_type]
-			else:
-				piece_image = han_piece_images[janggi_piece.piece_type]
-		else:
-			if player.piece_convention == "International":
-				piece_image = I_cho_piece_images[janggi_piece.piece_type]
-			else:
-				piece_image = cho_piece_images[janggi_piece.piece_type]
-		piece_image = pygame.transform.scale(piece_image,
-											 piece_sizes[janggi_piece.piece_type])
-		
-		# center the image correctly to its spot
-		piece_image_pos = helper_funcs.reformat_piece(janggi_piece.image_location, piece_image)
-		window.blit(piece_image, piece_image_pos)
-	return
+    # Then render bottom player's pieces (so they appear on top in case of overlap)
+    for janggi_piece in bottom_player.pieces:
+        if bottom_player.color == "Han":
+            if player.piece_convention == "International":
+                piece_image = I_han_piece_images[janggi_piece.piece_type]
+            else:
+                piece_image = han_piece_images[janggi_piece.piece_type]
+        else:  # Cho
+            if player.piece_convention == "International":
+                piece_image = I_cho_piece_images[janggi_piece.piece_type]
+            else:
+                piece_image = cho_piece_images[janggi_piece.piece_type]
+        
+        piece_image = pygame.transform.scale(piece_image, piece_sizes[janggi_piece.piece_type])
+        
+        # center the image correctly to its spot
+        piece_image_pos = helper_funcs.reformat_piece(janggi_piece.image_location, piece_image)
+        window.blit(piece_image, piece_image_pos)
+    
+    return
 	
 #-----------------------------------------------------------------------------------
 # Function that will render both player's collision boxes of pieces onto the board
@@ -315,35 +316,44 @@ def render_check_highlight(active_player, window):
 # OUTPUT: All possible jump-to spots will be highlighted
 #-----------------------------------------------------------------------------------
 def render_possible_spots(active_player, waiting_player, board, window, condition="None"):
-	# determine the type of piece being moved
-	for janggi_piece in active_player.pieces:
-		if janggi_piece.is_clicked:
-			match janggi_piece.piece_type.value:
-				case "King":
-					render_king_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
-	
-				case "Advisor":
-					render_advisor_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
-	
-				case "Elephant":
-					render_elephant_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
-	
-				case "Horse":
-					render_horse_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
-	
-				case "Cannon":
-					render_cannon_possible_spots(janggi_piece, active_player,waiting_player,  board, window, condition)
-	
-				case "Chariot":
-					render_chariot_possible_spots(janggi_piece, active_player, waiting_player,  board, window, condition)
-	
-				case "Pawn":
-					render_pawn_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
-	
-				case _:
-					raise ValueError("Invalid piece type")
-					
-	return
+    # determine the type of piece being moved
+    print(f"Rendering possible spots for {active_player.color}'s piece")
+    clicked_piece = None
+    
+    for janggi_piece in active_player.pieces:
+        if janggi_piece.is_clicked:
+            clicked_piece = janggi_piece
+            print(f"Found clicked piece to render spots for: {janggi_piece.piece_type.value} at {janggi_piece.location}")
+            
+            match janggi_piece.piece_type.value:
+                case "King":
+                    render_king_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
+            
+                case "Advisor":
+                    render_advisor_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
+            
+                case "Elephant":
+                    render_elephant_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
+            
+                case "Horse":
+                    render_horse_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
+            
+                case "Cannon":
+                    render_cannon_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
+            
+                case "Chariot":
+                    render_chariot_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
+            
+                case "Pawn":
+                    render_pawn_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
+            
+                case _:
+                    raise ValueError("Invalid piece type")
+                    
+    if not clicked_piece:
+        print(f"No clicked piece found for {active_player.color}, can't render possible spots")
+        
+    return
 
 #-----------------------------------------------------------------------------------
 # Function that will render the possible move spots on the board for the king piece
