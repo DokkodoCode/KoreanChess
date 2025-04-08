@@ -66,13 +66,19 @@ class State():
 	# function that will load the board boarder image into memory
 	def load_board_boarder(self, window):
 		self.menu_background = pygame.image.load("Board/Janggi_Board_Border.png").convert_alpha()
-		self.menu_background = pygame.transform.scale(self.menu_background, constants.board_border_size)
+		if constants.screen_height == 796:
+			self.menu_background = pygame.transform.scale(self.menu_background, (796, 796))
+		else:
+			self.menu_background = pygame.transform.scale(self.menu_background, (1080, 1080))
 		self.center = window.get_rect().center
 
 	#  function that will load board into memory
 	def load_board(self):
 		self.playboard = pygame.image.load("Board/Janggi_Board.png").convert_alpha()
-		self.playboard = pygame.transform.scale(self.playboard, constants.board_size)
+		if constants.screen_height == 796:
+			self.playboard = pygame.transform.scale(self.playboard, (676, 676))
+		else:
+			self.playboard = pygame.transform.scale(self.playboard, (917, 917))
 		self.playboard_center = self.menu_background.get_rect().center
 
 	# Method to draw text information out to the window
