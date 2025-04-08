@@ -2097,6 +2097,9 @@ resolutions = {
 # flag for app run loop
 running = True
 
+# flag for AI difficulty
+stored_difficulty = "Easy"
+
 # create window size based on user's machine
 info = pygame.display.Info()
 
