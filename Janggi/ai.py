@@ -68,12 +68,15 @@ class OpponentAI:
         Adjust the difficulty of the AI by modifying the engine's skill level or search depth.
         """
         if difficulty == "easy":
+            print("AI set to easy")
             self.send_command("setoption name Skill_Level value 1")  # Lowest skill level
             self.send_command("setoption name UCI_EnginesearchDepth value 5")  # Shallow search depth
         elif difficulty == "medium":
+            print("AI set to med")
             self.send_command("setoption name Skill_Level value 4")  # Medium skill level
             self.send_command("setoption name UCI_EnginesearchDepth value 10")  # Moderate search depth
         elif difficulty == "hard":
+            print("AI set to hard")
             self.send_command("setoption name Skill_Level value 20")  # Highest skill level
             self.send_command("setoption name UCI_EnginesearchDepth value 20")  # Deep search depth
         else:

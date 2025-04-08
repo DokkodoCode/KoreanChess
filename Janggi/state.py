@@ -71,13 +71,19 @@ class State():
 	# function that will load the board boarder image into memory
 	def load_board_boarder(self, window):
 		self.menu_background = pygame.image.load("Board/Janggi_Board_Border.png").convert_alpha()
-		self.menu_background = pygame.transform.scale(self.menu_background, constants.board_border_size)
+		if constants.screen_height == 796:
+			self.menu_background = pygame.transform.scale(self.menu_background, (796, 796))
+		else:
+			self.menu_background = pygame.transform.scale(self.menu_background, (1080, 1080))
 		self.center = window.get_rect().center
 
 	#  function that will load board into memory
 	def load_board(self):
 		self.playboard = pygame.image.load("Board/Janggi_Board.png").convert_alpha()
-		self.playboard = pygame.transform.scale(self.playboard, constants.board_size)
+		if constants.screen_height == 796:
+			self.playboard = pygame.transform.scale(self.playboard, (676, 676))
+		else:
+			self.playboard = pygame.transform.scale(self.playboard, (917, 917))
 		self.playboard_center = self.menu_background.get_rect().center
 
 	# Method to draw text information out to the window
@@ -610,6 +616,9 @@ class SinglePlayerPreGameSettings(PreGameSettings):
 				self.ai_level = button.text
 				self.host.ai_level = button.text
 				self.guest.ai_level = button.text
+				# Store AI difficulty in constants
+				constants.stored_difficulty = button.text
+				self.guest.set_difficulty(button.text.lower())
 				
 	def render(self, window):
 		super().render(window)
@@ -693,6 +702,10 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 
         # create game objects
         self.board = board.Board()
+
+        self.ai_level = constants.stored_difficulty
+        print("Stored difficulty is " + constants.stored_difficulty)
+        self.guest.set_difficulty(constants.stored_difficulty.lower())
 
         # pre-set ai if it goes first
         # Han player chooses first horse swaps
@@ -834,6 +847,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
             elif self.ai_level == "Hard":
                 depth = 10
             
+            print(f"Making move with depth of {depth}")
             self.guest.send_command(f"position fen {fen}")
             self.guest.send_command(f"go depth {str(depth)}")
             best_move = self.guest.get_engine_move()
