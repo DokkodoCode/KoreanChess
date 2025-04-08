@@ -1,5 +1,5 @@
 """
-----------------------state.py----------------------------
+----------------------button.py----------------------------
 o This file is to manage the button class for the button
     objects for player to interact with
 o Last Modified - November 11th 2024
