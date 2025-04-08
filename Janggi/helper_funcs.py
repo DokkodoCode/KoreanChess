@@ -9,6 +9,9 @@ import pygame
 import random
 import re
 
+# Import the button module or class
+import button  # Ensure this module exists and is accessible
+
 # local file imports, see individ file for details
 import constants
 
@@ -28,11 +31,16 @@ def reformat_piece(coordinate, piece_image):
 # INPUT: coordinate of the piece object, rect object asssociated with the piece
 # OUTPUT: Newly centered rectangle
 #-----------------------------------------------------------------------------------
-def reformat_piece_collision(coordinate, collision_rect):
-	center_x = coordinate[0] + 32 - collision_rect.width // 2
-	center_y = coordinate[1] + 32 - collision_rect.height // 2
-	collision_rect.topleft = (center_x, center_y)
-	return collision_rect
+def reformat_piece_collision(coordinate, collision_rect, current_width=None, base_width=1920):
+    if current_width is not None:
+        offset = int(32 * (current_width / base_width))
+    else:
+        offset = 32
+    center_x = coordinate[0] + offset - collision_rect.width // 2
+    center_y = coordinate[1] + offset - collision_rect.height // 2
+    collision_rect.topleft = (center_x, center_y)
+    return collision_rect
+
 
 #-----------------------------------------------------------------------------------
 # Function that will center collision rect of a spot on the board
@@ -2147,3 +2155,135 @@ def is_valid_move(condition, active_player, waiting_player, janggi_piece, board,
 		find_piece_to_break_check(active_player, waiting_player, board) == janggi_piece)):
 		return True
 	return False
+
+#-----------------------------------------------------------------------------------
+# Function that will create a dynamic button based on the current window dimensions
+# and provided percentage values.
+# INPUT: window - the current pygame display surface
+#        x_perc - x-position as a fraction of the window width (e.g., 0.37)
+#        y_perc - y-position as a fraction of the window height (e.g., 0.30)
+#        w_perc - width as a fraction of the window width (e.g., 0.26)
+#        h_perc - height as a fraction of the window height (e.g., 0.10)
+#        base_font_size - reference font size for a window width of 1920 (e.g., 50)
+#        text - string text to display on the button
+#        fg_color - foreground/text color
+#        bg_color - background color
+#        hover_color - button color when mouse hovers over it
+#        font_name - (optional) name of the font to use (default "Arial")
+# OUTPUT: Returns a new Button object with dynamically calculated dimensions and font size
+#-----------------------------------------------------------------------------------
+def create_dynamic_button(window, x_perc, y_perc, w_perc, h_perc, base_font_size, text, fg_color, bg_color, hover_color, font_name="Arial"):
+    w, h = window.get_size()
+    x = int(w * x_perc)
+    y = int(h * y_perc)
+    width = int(w * w_perc)
+    height = int(h * h_perc)
+    font_size = int(base_font_size * (w / 1920))
+    font = pygame.font.SysFont(font_name, font_size)
+    # Local import to avoid circular dependency issues
+    from button import Button
+    return Button(x, y, width, height, font, text, fg_color, bg_color, hover_color)
+
+#-----------------------------------------------------------------------------------
+# Function that will update an existing button's layout based on the current window
+# dimensions and provided percentage values.
+# INPUT: btn - the Button object to update
+#        window - the current pygame display surface
+#        x_perc - new x-position as a fraction of the window width
+#        y_perc - new y-position as a fraction of the window height
+#        w_perc - new width as a fraction of the window width
+#        h_perc - new height as a fraction of the window height
+#        base_font_size - reference font size for a window width of 1920 (e.g., 50)
+#        font_name - (optional) name of the font to use (default "Arial")
+# OUTPUT: The Button object's attributes (position, size, and font) are updated accordingly
+#-----------------------------------------------------------------------------------
+def update_button_layout(btn, window, x_perc, y_perc, w_perc, h_perc, base_font_size, font_name="Arial"):
+    w, h = window.get_size()
+    new_x = int(w * x_perc)
+    new_y = int(h * y_perc)
+    new_width = int(w * w_perc)
+    new_height = int(h * h_perc)
+    btn.x = new_x
+    btn.y = new_y
+    btn.width = new_width
+    btn.height = new_height
+    btn.rect = pygame.Rect(new_x, new_y, new_width, new_height)
+    new_font_size = int(base_font_size * (w / 1920))
+    btn.font = pygame.font.SysFont(font_name, new_font_size)
+
+#-----------------------------------------------------------------------------------
+# Function that will scale an x-coordinate from a base resolution to the current window width.
+# INPUT: value - the x-coordinate in the base resolution
+#        current_width - the current window width
+#        base_width - the base resolution width (default 1920)
+# OUTPUT: scaled x-coordinate (integer)
+#-----------------------------------------------------------------------------------
+def dynamic_scale_x(value, current_width, base_width=1920):
+    return int(value * current_width / base_width)
+
+#-----------------------------------------------------------------------------------
+# Function that will scale a y-coordinate from a base resolution to the current window height.
+# INPUT: value - the y-coordinate in the base resolution
+#        current_height - the current window height
+#        base_height - the base resolution height (default 1080)
+# OUTPUT: scaled y-coordinate (integer)
+#-----------------------------------------------------------------------------------
+def dynamic_scale_y(value, current_height, base_height=1080):
+    return int(value * current_height / base_height)
+
+#-----------------------------------------------------------------------------------
+# Function that will create a Button from a configuration dictionary (for the base
+# resolution, e.g., "1920x1080") and scale its values dynamically to the current window.
+# INPUT: window - the current pygame display surface
+#        config - a dictionary containing the base configuration for the button,
+#                 e.g., constants.resolutions["1920x1080"]["buttons"]["local_MP"]["cho_button"]
+# OUTPUT: A Button object with scaled position, size, and font.
+#-----------------------------------------------------------------------------------
+def create_button_from_config(window, config):
+    # Get the current window dimensions
+    current_width, current_height = window.get_size()
+
+    # Retrieve base values from the configuration dictionary
+    base_location = config["location"]
+    base_size = config["size"]
+    base_font = config["text"]["font"]
+    text = config["text"]["string"]
+    fg_color = config["text"]["foreground_color"]
+    bg_color = config["text"]["background_color"]
+    hover_color = config["text"]["hover_color"]
+
+    # Scale location and size using dynamic scaling helper functions
+    # (Assuming your base resolution is 1920x1080)
+    x = dynamic_scale_x(base_location[0], current_width)
+    y = dynamic_scale_y(base_location[1], current_height)
+    width = dynamic_scale_x(base_size[0], current_width)
+    height = dynamic_scale_y(base_size[1], current_height)
+
+    # Scale the font size based on the current window width.
+    new_font_size = int(base_font.get_height() * (current_width / 1920))
+    font = pygame.font.SysFont("Arial", new_font_size)
+
+    # Local import to avoid circular dependency issues
+    from button import Button
+    return Button(x, y, width, height, font, text, fg_color, bg_color, hover_color)
+
+#-----------------------------------------------------------------------------------
+# Load an image from 'image_path' and scale it dynamically based on the base_size.  
+# The scaling is computed from the current window size relative to a base resolution.
+# INPUT:
+# 	window - the current pygame display surface (to get its dimensions)
+# 	image_path - string path to the image file
+# 	base_size - a tuple (width, height) from your base configuration (e.g., from constants.resolutions["1920x1080"][...]["size"])
+# 	base_width - the base resolution width (default 1920)
+# 	base_height - the base resolution height (default 1080)
+#    
+# OUTPUT:
+# 	A pygame.Surface object (the loaded and scaled image).
+def load_scaled_image(window, image_path, base_size, base_width=1920, base_height=1080):
+
+    current_width, current_height = window.get_size()
+    new_width = dynamic_scale_x(base_size[0], current_width, base_width)
+    new_height = dynamic_scale_y(base_size[1], current_height, base_height)
+    new_size = (new_width, new_height)
+    image = pygame.image.load(image_path).convert_alpha()
+    return pygame.transform.scale(image, new_size)

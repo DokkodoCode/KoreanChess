@@ -59,15 +59,20 @@ def main():
 				constants.running = False
 			# if player resizes the window via dragging border
 			elif event.type == pygame.VIDEORESIZE:
-
 				window = pygame.display.set_mode(event.size, pygame.RESIZABLE)
 				constants.eWidth, constants.eHeight = event.size
-
 				constants.screen_width, constants.screen_height = is_fullscr(constants.eWidth, constants.eHeight)
-
-				# window = pygame.display.set_mode(event.size, pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
-
-
+				
+				if hasattr(state_manager.current_state, "update_layout"):
+					state_manager.current_state.update_layout(window)
+					
+				# If the current state has a player (and opponent), update their piece positions.
+				if hasattr(state_manager.current_state, "player"):
+					state_manager.current_state.player.update_piece_positions(window)
+					
+				if hasattr(state_manager.current_state, "opponent"):
+					state_manager.current_state.opponent.update_piece_positions(window)
+					
 			# otherwise call the state machine
 			else:
 				state_manager.handle_event(event)

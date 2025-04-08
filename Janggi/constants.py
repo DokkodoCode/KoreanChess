@@ -2097,20 +2097,17 @@ resolutions = {
 # flag for app run loop
 running = True
 
-# flag for AI difficulty
-stored_difficulty = "Easy"
-
 # create window size based on user's machine
 info = pygame.display.Info()
 
 # set window sizes based on user's machine
 
 # screen_width, screen_height = info.current_w, info.current_h
-# screen_width, screen_height = 1920, 1080
+screen_width, screen_height = 1920, 1080
 #screen_width, screen_height = info.current_w, info.current_h
 #screen_width, screen_height = 111, 111
 
-screen_width, screen_height = 1440, 900
+#screen_width, screen_height = 1440, 900
 
 #screen_width, screen_height = info.current_w, info.current_h
 #screen_width, screen_height = 1920, 1080

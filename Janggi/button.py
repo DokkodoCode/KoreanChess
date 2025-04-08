@@ -24,7 +24,17 @@ class Button:
     #       background_color: button color
     #       hover_color: button color change when mouse collides with button
 	# OUTPUT: button is created 
-    def __init__(self, x, y, width, height, font, text="", foreground_color=constants.WHITE, background_color=constants.BLACK, hover_color=constants.LIGHT_GREEN):
+    # Set default parameters to None so that they aren’t evaluated at definition time
+    def __init__(self, x, y, width, height, font, text="", foreground_color=None, background_color=None, hover_color=None):
+        # Delay default color assignment until runtime to avoid circular import issues.
+        from constants import WHITE, BLACK, LIGHT_GREEN
+        if foreground_color is None:
+            foreground_color = WHITE
+        if background_color is None:
+            background_color = BLACK
+        if hover_color is None:
+            hover_color = LIGHT_GREEN
+            
         self.x = x
         self.y = y
         self.width = width
@@ -54,7 +64,7 @@ class Button:
             # render text
             text_surface = self.font.render(self.text, True, self.foreground_color)
             # center text onto button
-            text_rect = text_surface.get_rect(center=(self.x + self.width / 2, self.y + self.height / 2))
+            text_rect = text_surface.get_rect(center=self.rect.center)
             window.blit(text_surface, text_rect)
 
     # Method to determine if a button was clicked
