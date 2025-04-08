@@ -301,10 +301,10 @@ class PreGameSettings(State):
 		self.load_button_background()
 		self.load_board_boarder(window)
 		self.load_board()
-		self.__load_player_color_menu()
-		self.__load_piece_convention_menu()
-		self.__load_play_button()
-		self.__load_player_piece_preview()
+		self.load_player_color_menu()
+		self.load_piece_convention_menu()
+		self.load_play_button()
+		self.load_player_piece_preview()
 
 	def handle_event(self, event):
 		pass
@@ -351,13 +351,13 @@ class PreGameSettings(State):
 
 	def render(self, window):
 		self.render_board(window)
-		self.__render_player_color_menu(window)
-		self.__render_piece_convention_menu(window)
-		self.__render_player_piece_preview(window)
-		self.__render_play_button(window)
+		self.render_player_color_menu(window)
+		self.render_piece_convention_menu(window)
+		self.render_player_piece_preview(window)
+		self.render_play_button(window)
 	
 	# LOADING AND RENDERING FUNCTIONS
-	def __load_player_color_menu(self):
+	def load_player_color_menu(self):
 		# play as cho/han button background
 		self.play_as_background = (
 			pygame.transform.scale(self.button_background,
@@ -383,7 +383,7 @@ class PreGameSettings(State):
 		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["hover_color"]
 		self.han_side_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
 
-	def __load_piece_convention_menu(self):
+	def load_piece_convention_menu(self):
 		self.piece_convention_background = (
 			pygame.transform.scale(self.button_background,
 				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["size"]))
@@ -408,7 +408,7 @@ class PreGameSettings(State):
 		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["hover_color"]
 		self.internat_piece_convention_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
 		
-	def __load_play_button(self):
+	def load_play_button(self):
 		self.play_button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
 		self.play_button_background = (pygame.transform.scale(self.play_button_background,
 				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play"]["size"]))
@@ -423,7 +423,7 @@ class PreGameSettings(State):
 		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["hover_color"]
 		self.play_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
 
-	def __load_player_piece_preview(self):
+	def load_player_piece_preview(self):
 		# player piece display background
 		self.player_piece_display_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
 		self.player_piece_display_background = pygame.transform.rotate(self.player_piece_display_background, 90)
@@ -441,7 +441,7 @@ class PreGameSettings(State):
 		self.opponent_piece_display_background = pygame.transform.scale(self.opponent_piece_display_background,
 				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["opponent_piece_display"]["size"])
 
-	def __render_player_color_menu(self, window):
+	def render_player_color_menu(self, window):
 		# SELECT PIECE SIDE TO PLAY AS (CHO/HAN)
 		window.blit(self.play_as_background, 
 			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["location"])
@@ -453,7 +453,7 @@ class PreGameSettings(State):
 		self.cho_side_button.draw_button(window)
 		self.han_side_button.draw_button(window)
 	
-	def __render_piece_convention_menu(self, window):
+	def render_piece_convention_menu(self, window):
 		window.blit(self.piece_convention_background, 
 			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["location"])
 		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["string"]
@@ -464,12 +464,12 @@ class PreGameSettings(State):
 		self.standard_piece_convention_button.draw_button(window)
 		self.internat_piece_convention_button.draw_button(window)
 
-	def __render_play_button(self, window):
+	def render_play_button(self, window):
 		window.blit(self.play_button_background, 
 		constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play"]["location"])
 		self.play_button.draw_button(window)
 
-	def __render_player_piece_preview(self, window):
+	def render_player_piece_preview(self, window):
 		# player header to notify which display is player's
 		window.blit(self.player_header_background, 
 			constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]
@@ -1106,9 +1106,6 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 		# COVER CASE WHERE NO PLAYER HAS STARTED THEIR TURN YET
 		else:
 			render_funcs.render_pieces(self.host, self.guest, window)
-
-
-
 	    
 		# RENDER WHERE CLICKED PIECE MAY GO
 		if self.active_player is not None and self.active_player.is_clicked:
@@ -1128,9 +1125,13 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 from socket import gethostbyname, gethostname
 HOST, PORT = gethostbyname(gethostname()), 5000
 
-class Multiplayer(State):    
+class Multiplayer(PreGameSettings):    
     def __init__(self, window):
-        super().__init__()  
+        self.guest = player.Player(is_host=False, board_perspective="Top")
+        self.host = player.Player(is_host=True, board_perspective="Bottom")
+        super().__init__(window) 
+        self.load_host_side_swap_menu()
+        self.load_guest_side_swap_menu()
         from piece import Position
         self.Position = Position
         
@@ -1156,22 +1157,10 @@ class Multiplayer(State):
         self.validation_interval = 3.0  # seconds between validations
         self.post_swap_grace = False  # Prevents immediate game end after swap phase
         self.waiting_for_opponent_swap = False
-        
-        # Game conditions
-        self.opening_turn = True
-        self.bikjang = False
-        self.check = False
-        self.condition = "None"
-        self.game_over = False
-        self.winner = None
-        
+                
         # Initialize connection
         self.establish_connection()
-        
-        # Initialize players
-        self.host = player.Player(is_host=True, board_perspective="Bottom")
-        self.guest = player.Player(is_host=False, board_perspective="Top")
-        
+                
         # Setup player perspectives based on role
         self.initialize_perspectives()
         
@@ -1182,9 +1171,9 @@ class Multiplayer(State):
         self.backup_pieces()
         
         # Initialize UI elements for horse swap phase
-        self.load_swap_menu()
-        self.load_game_state_elements()
-        self.__load_settings_ui()  
+        # self.load_swap_menu()
+        # self.load_game_state_elements()
+        # self.load_settings_ui()  
         
         # Start the game state machine
         self.transition_to_settings()
@@ -2570,7 +2559,7 @@ class Multiplayer(State):
     # -------------------------------------------------------------------------
     # UI Initialization and Rendering
     # -------------------------------------------------------------------------
-    def __load_settings_ui(self):
+    def load_settings_ui(self):
         """Load UI elements for settings phase"""
         # Load settings UI elements only if host
         if self.is_host:
@@ -2691,7 +2680,10 @@ class Multiplayer(State):
             
             # Render phase-specific elements
             if self.game_phase == multiplayer.GamePhase.SETTINGS:
-                self.render_settings(window)
+                self.render_player_color_menu(window)
+                self.render_piece_convention_menu(window)
+                self.render_player_piece_preview(window)
+                self.render_play_button(window)
             elif self.game_phase == multiplayer.GamePhase.HOST_HORSE_SWAP:
                 self.render_host_swap(window)
             elif self.game_phase == multiplayer.GamePhase.CLIENT_HORSE_SWAP:
@@ -2933,3 +2925,73 @@ class Multiplayer(State):
         self.piece_convention_background = pygame.transform.scale(self.button_background,
                 constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["size"])
     
+    def testing(self, window):
+        if self.opening_turn and not self.han_player.is_ready:
+            # HOST (BOTTOM-VIEW)
+            if self.han_player.is_host:
+                button_key = "host"
+                window.blit(self.host_swap_left_horse_background, 
+                    constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_swap_left_horse"]["location"])
+                self.host_swap_left_horse_button.draw_button(window)
+
+                window.blit(self.host_swap_right_horse_background,
+                    constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_swap_right_horse"]["location"])
+                self.host_swap_right_horse_button.draw_button(window)
+            # GUEST (TOP-VIEW)
+            else:
+                button_key = "guest"
+                window.blit(self.guest_swap_left_horse_background, 
+                    constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_swap_left_horse"]["location"])
+                self.guest_swap_left_horse_button.draw_button(window)
+
+                window.blit(self.guest_swap_right_horse_background,
+                    constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_swap_right_horse"]["location"])
+                self.guest_swap_right_horse_button.draw_button(window)
+        # CHO
+        elif self.opening_turn and not self.cho_player.is_ready:
+            # HOST (BOTTOM-VIEW)
+            if self.cho_player.is_host:
+                button_key = "host"
+                window.blit(self.host_swap_left_horse_background, 
+                    constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_swap_left_horse"]["location"])
+                self.host_swap_left_horse_button.draw_button(window)
+
+                window.blit(self.host_swap_right_horse_background,
+                    constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_swap_right_horse"]["location"])
+                self.host_swap_right_horse_button.draw_button(window)
+            # GUEST (TOP-VIEW)
+            else:
+                button_key = "guest"
+                window.blit(self.guest_swap_left_horse_background, 
+                    constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_swap_left_horse"]["location"])
+                self.guest_swap_left_horse_button.draw_button(window)
+
+                window.blit(self.guest_swap_right_horse_background,
+                    constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_swap_right_horse"]["location"])
+                self.guest_swap_right_horse_button.draw_button(window)
+
+        # DISPLAY CONFIRM FOR PIECE SWAP
+        # Han
+        if self.opening_turn and not self.han_player.is_ready:
+            if self.han_player.is_host:
+                button_key = "host"
+                window.blit(self.host_confirm_swap_button_background,
+                        constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_confirm_swap"]["location"])
+                self.host_confirm_swap_button.draw_button(window)
+            else:
+                button_key = "guest"
+                window.blit(self.guest_confirm_swap_button_background,
+                constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_confirm_swap"]["location"])
+                self.guest_confirm_swap_button.draw_button(window)
+        # Cho
+        elif self.opening_turn and not self.cho_player.is_ready:
+            if self.cho_player.is_host:
+                button_key = "host"
+                window.blit(self.host_confirm_swap_button_background,
+                        constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_confirm_swap"]["location"])
+                self.host_confirm_swap_button.draw_button(window)
+            else:
+                button_key = "guest"
+                window.blit(self.guest_confirm_swap_button_background,
+                constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_confirm_swap"]["location"])
+                self.guest_confirm_swap_button.draw_button(window)
