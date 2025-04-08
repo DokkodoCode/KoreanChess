@@ -30,14 +30,15 @@ class Player():
 		self.is_ready = False
 		self.is_clicked = False
 		self.is_turn = False
+		self.is_checked = False  
 		self.pieces = self.fill_pieces()
 		self.settings = self.initialize_settings()
-
+		
 	# Method to populate the player's pieces for Janggi
 	# INPUT: None
 	# OUTPUT: A list of the piece objects
 	def fill_pieces(self):
-		pieces = [] # store the piece objects
+		pieces = []  # store the piece objects
 		
 		# Use board_perspective instead of is_host
 		# This ensures pieces are placed correctly on the board
@@ -66,6 +67,7 @@ class Player():
 				collision_rect = reformat_piece_collision(location, collision_rect)
 				# create the piece based on those parameters
 				piece = Piece(piece_type, location, image_location, collision_rect, point_value)
+				
 				# add to the list to return
 				pieces.append(piece)
 		

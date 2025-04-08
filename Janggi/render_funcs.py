@@ -204,7 +204,6 @@ def render_pieces(player, opponent, window):
     bottom_player = player if player.board_perspective == "Bottom" else opponent
     top_player = opponent if player.board_perspective == "Bottom" else player
     
-    print(f"Rendering pieces - Bottom player: {bottom_player.color}, Top player: {top_player.color}")
     
     # Render top player's pieces first (so they appear behind/underneath in case of overlap)
     for janggi_piece in top_player.pieces:
@@ -317,35 +316,44 @@ def render_check_highlight(active_player, window):
 # OUTPUT: All possible jump-to spots will be highlighted
 #-----------------------------------------------------------------------------------
 def render_possible_spots(active_player, waiting_player, board, window, condition="None"):
-	# determine the type of piece being moved
-	for janggi_piece in active_player.pieces:
-		if janggi_piece.is_clicked:
-			match janggi_piece.piece_type.value:
-				case "King":
-					render_king_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
-	
-				case "Advisor":
-					render_advisor_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
-	
-				case "Elephant":
-					render_elephant_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
-	
-				case "Horse":
-					render_horse_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
-	
-				case "Cannon":
-					render_cannon_possible_spots(janggi_piece, active_player,waiting_player,  board, window, condition)
-	
-				case "Chariot":
-					render_chariot_possible_spots(janggi_piece, active_player, waiting_player,  board, window, condition)
-	
-				case "Pawn":
-					render_pawn_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
-	
-				case _:
-					raise ValueError("Invalid piece type")
-					
-	return
+    # determine the type of piece being moved
+    print(f"Rendering possible spots for {active_player.color}'s piece")
+    clicked_piece = None
+    
+    for janggi_piece in active_player.pieces:
+        if janggi_piece.is_clicked:
+            clicked_piece = janggi_piece
+            print(f"Found clicked piece to render spots for: {janggi_piece.piece_type.value} at {janggi_piece.location}")
+            
+            match janggi_piece.piece_type.value:
+                case "King":
+                    render_king_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
+            
+                case "Advisor":
+                    render_advisor_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
+            
+                case "Elephant":
+                    render_elephant_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
+            
+                case "Horse":
+                    render_horse_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
+            
+                case "Cannon":
+                    render_cannon_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
+            
+                case "Chariot":
+                    render_chariot_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
+            
+                case "Pawn":
+                    render_pawn_possible_spots(janggi_piece, active_player, waiting_player, board, window, condition)
+            
+                case _:
+                    raise ValueError("Invalid piece type")
+                    
+    if not clicked_piece:
+        print(f"No clicked piece found for {active_player.color}, can't render possible spots")
+        
+    return
 
 #-----------------------------------------------------------------------------------
 # Function that will render the possible move spots on the board for the king piece

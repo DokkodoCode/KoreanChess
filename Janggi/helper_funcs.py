@@ -12,6 +12,7 @@ import re
 # local file imports, see individ file for details
 import constants
 
+
 #-----------------------------------------------------------------------------------
 # Function that will center the piece image in its spot on the board
 # INPUT: coordinate of the piece object, image path asssociated with the object
@@ -79,40 +80,75 @@ def choose_ai_lineup(ai_player):
 # OUTPUT: piece locations swapped
 #-----------------------------------------------------------------------------------
 def swap_pieces(player, piece1, piece2):
-	# swap the two piece locations
-	temp = piece1.location
-	piece1.location = piece2.location
-	piece2.location = temp
+    """Swap two pieces' locations on the board"""
+    # swap the two piece locations
+    temp = piece1.location
+    piece1.location = piece2.location
+    piece2.location = temp
 
-	# and swap the two piece collision rectangles
-	temp = piece1.collision_rect.topleft
-	piece1.collision_rect.topleft = piece2.collision_rect.topleft
-	piece2.collision_rect.topleft = temp
+    # swap the two piece image locations
+    temp = piece1.image_location
+    piece1.image_location = piece2.image_location
+    piece2.image_location = temp
 
-	# then swap the two piece image locations
-	temp = piece1.image_location
-	piece1.image_location = piece2.image_location
-	piece2.image_location = temp
+    # Properly realign collision rectangles after swap
+    piece1.collision_rect = reformat_piece_collision(piece1.location, piece1.collision_rect)
+    piece2.collision_rect = reformat_piece_collision(piece2.location, piece2.collision_rect)
 
-	# swap the pieces in the player's list
-	player_pieces = player.pieces
-	index1 = player_pieces.index(piece1)
-	index2 = player_pieces.index(piece2)
-	player_pieces[index1], player_pieces[index2] = player_pieces[index2], player_pieces[index1]
+    # Update grid positions if they exist
+    if hasattr(piece1, 'position') and hasattr(piece2, 'position'):
+        # Find closest grid position based on pixel location
+        # This avoids having to import Position
+        for piece in [piece1, piece2]:
+            closest_file = None
+            closest_rank = None
+            min_file_dist = float('inf')
+            min_rank_dist = float('inf')
+            
+            # Find closest file (column)
+            for file, x in enumerate(constants.x_coordinates):
+                dist = abs(piece.location[0] - x)
+                if dist < min_file_dist:
+                    min_file_dist = dist
+                    closest_file = file
+                    
+            # Find closest rank (row)
+            for rank, y in enumerate(constants.y_coordinates):
+                dist = abs(piece.location[1] - y)
+                if dist < min_rank_dist:
+                    min_rank_dist = dist
+                    closest_rank = rank
+            
+            # Update position attributes
+            piece.position.file = closest_file
+            piece.position.rank = closest_rank
 
+    # swap the pieces in the player's list
+    player_pieces = player.pieces
+    index1 = player_pieces.index(piece1)
+    index2 = player_pieces.index(piece2)
+    player_pieces[index1], player_pieces[index2] = player_pieces[index2], player_pieces[index1]
 #-----------------------------------------------------------------------------------
 # Function that will check if the player has clicked one of their pieces
 # INPUT: player whose turn it is, mouse position on window
 # OUTPUT: flags set if a valid piece clicked
 #-----------------------------------------------------------------------------------
 def player_piece_clicked(active_player, mouse_pos):
-	# check all player's active pieces to see if any were clicked
-	for piece in active_player.pieces:
-		if piece.collision_rect.collidepoint(mouse_pos):
-			piece.is_clicked = True # flag piece being moved
-			active_player.is_clicked = True # flag player as attempting to move a piece
-			return True
-	return False
+    """Check if the player has clicked one of their pieces"""
+    # check all player's active pieces to see if any were clicked
+    print(f"Checking if player ({active_player.color}) clicked piece at {mouse_pos}")
+    print(f"Player has {len(active_player.pieces)} pieces")
+    
+    for piece in active_player.pieces:
+        print(f"Checking piece: {piece.piece_type.value} at {piece.location}, rect: {piece.collision_rect}")
+        if piece.collision_rect.collidepoint(mouse_pos):
+            piece.is_clicked = True # flag piece being moved
+            active_player.is_clicked = True # flag player as attempting to move a piece
+            print(f"Clicked piece: {piece.piece_type.value} at {piece.location}")
+            return True
+    
+    print(f"No piece clicked")
+    return False
 
 #-----------------------------------------------------------------------------------
 # Function that will unclick the player's currently clicked piece when called 
@@ -1766,81 +1802,86 @@ def move_can_break_bikjang(active_player, waiting_player, janggi_piece, move):
 # OUTPUT: Boolean on whether the move can break the Check condition
 #-----------------------------------------------------------------------------------
 def move_can_break_check(active_player, waiting_player, board, janggi_piece, new_spot):
-	# check if a possible move can be made to break the check PAWN
-	possible_moves = []
-	match janggi_piece.piece_type.value:
-		case "King":
-			possible_moves = king_possible_moves(janggi_piece, board, active_player)
-		case "Advisor":
-			possible_moves = advisor_possible_moves(janggi_piece, board, active_player)
-		case "Elephant":
-			possible_moves = elephant_possible_moves(janggi_piece, board, active_player, waiting_player)
-		case "Horse":
-			possible_moves = horse_possible_moves(janggi_piece, board, active_player, waiting_player)
-		case "Cannon":
-			possible_moves = cannon_possible_moves(janggi_piece, board, active_player, waiting_player)
-		case "Chariot":
-			possible_moves = chariot_possible_moves(janggi_piece, board, active_player, waiting_player)
-		case "Pawn":
-			possible_moves = pawn_possible_moves(janggi_piece, board, active_player)
+    # check if a possible move can be made to break the check PAWN
+    possible_moves = []
+    match janggi_piece.piece_type.value:
+        case "King":
+            possible_moves = king_possible_moves(janggi_piece, board, active_player)
+        case "Advisor":
+            possible_moves = advisor_possible_moves(janggi_piece, board, active_player)
+        case "Elephant":
+            possible_moves = elephant_possible_moves(janggi_piece, board, active_player, waiting_player)
+        case "Horse":
+            possible_moves = horse_possible_moves(janggi_piece, board, active_player, waiting_player)
+        case "Cannon":
+            possible_moves = cannon_possible_moves(janggi_piece, board, active_player, waiting_player)
+        case "Chariot":
+            possible_moves = chariot_possible_moves(janggi_piece, board, active_player, waiting_player)
+        case "Pawn":
+            possible_moves = pawn_possible_moves(janggi_piece, board, active_player)
 
-	# get all the moves that can be made from waiting player
-	threatening_spaces = get_all_possible_moves(waiting_player, active_player, board)
+    # get all the moves that can be made from waiting player
+    threatening_spaces = get_all_possible_moves(waiting_player, active_player, board)
 
-	# find spot piece can move to that will end the check
-	possible_moves = [spot for spot in possible_moves if spot not in threatening_spaces]
+    # find spot piece can move to that will end the check
+    possible_moves = [spot for spot in possible_moves if spot not in threatening_spaces]
 
-	# get piece threathening king
-	threatening_piece = find_piece_causing_check(active_player, waiting_player, board)
+    # get piece threathening king
+    threatening_piece = find_piece_causing_check(active_player, waiting_player, board)
+    
+    # Check if threatening_piece is None before using it
+    if threatening_piece is None:
+        # No threatening piece found, return False to be safe
+        return False
 
-	# king will have special functionality when atempting to move on a check
-	if janggi_piece.piece_type.value == "King":
+    # king will have special functionality when atempting to move on a check
+    if janggi_piece.piece_type.value == "King":
 
-		# cover edge case special conditions for cannon
-		# a cannon needs a piece in order to jump over and capture the king
-			# The king may be considered a screen in this scenario and therefore any spot behind
-			# the king would be detected as invalid, so we should exclude that case
-			# this will be anytime the king and an enemy cannon face each other
-		screened_cannons = get_screened_cannon(waiting_player)
-		if len(screened_cannons) > 0:
-			for cannon in screened_cannons:
-				facing_cannon_spots = cannon_possible_moves(cannon, board, waiting_player, active_player)
-				threatening_spaces = [spot for spot in threatening_spaces if spot not in facing_cannon_spots]
+        # cover edge case special conditions for cannon
+        # a cannon needs a piece in order to jump over and capture the king
+            # The king may be considered a screen in this scenario and therefore any spot behind
+            # the king would be detected as invalid, so we should exclude that case
+            # this will be anytime the king and an enemy cannon face each other
+        screened_cannons = get_screened_cannon(waiting_player)
+        if len(screened_cannons) > 0:
+            for cannon in screened_cannons:
+                facing_cannon_spots = cannon_possible_moves(cannon, board, waiting_player, active_player)
+                threatening_spaces = [spot for spot in threatening_spaces if spot not in facing_cannon_spots]
 
 
-		# cover edge case special conditions for chariot threatening the king
-		if threatening_piece.piece_type.value == "Chariot":
-			# if king can capture piece
-			if new_spot == threatening_piece.location and new_spot in possible_moves:
-				return True
-			# king cannot move along the same column/row as the threatening chariot, but can capture it
-			elif (new_spot[0] == threatening_piece.location[0] or new_spot[1] == threatening_piece.location[1]):
-				return False
-			
-		# search for an open space to move the king to
-		if new_spot in possible_moves:
-			return True
-		
-	# non-king piece is clicked
-	else:
-		# cover edge case special conditions for cannon
-		if threatening_piece.piece_type.value == "Cannon":
-			# a cannon needs a piece in order to jump over and capture the king, we should
-			# check if the current janggi_piece is that screen, where the player can simply move it out to remove the check
-			# we should check if the piece can move outside the same row/column that the cannon is in
-			if new_spot[0] != threatening_piece.location[0] and new_spot[1] != threatening_piece.location[1]:
-				# proceed with normal check
-				if new_spot in possible_moves:
-					return True
-				else:
-					return False
-				
-		# is the space available
-		if new_spot not in possible_moves:
-			return True
-		
-	# default to move cannot break check if conditions aren't met
-	return False
+        # cover edge case special conditions for chariot threatening the king
+        if threatening_piece.piece_type.value == "Chariot":
+            # if king can capture piece
+            if new_spot == threatening_piece.location and new_spot in possible_moves:
+                return True
+            # king cannot move along the same column/row as the threatening chariot, but can capture it
+            elif (new_spot[0] == threatening_piece.location[0] or new_spot[1] == threatening_piece.location[1]):
+                return False
+            
+        # search for an open space to move the king to
+        if new_spot in possible_moves:
+            return True
+        
+    # non-king piece is clicked
+    else:
+        # cover edge case special conditions for cannon
+        if threatening_piece.piece_type.value == "Cannon":
+            # a cannon needs a piece in order to jump over and capture the king, we should
+            # check if the current janggi_piece is that screen, where the player can simply move it out to remove the check
+            # we should check if the piece can move outside the same row/column that the cannon is in
+            if new_spot[0] != threatening_piece.location[0] and new_spot[1] != threatening_piece.location[1]:
+                # proceed with normal check
+                if new_spot in possible_moves:
+                    return True
+                else:
+                    return False
+                
+        # is the space available
+        if new_spot in possible_moves:
+            return True
+        
+    # default to move cannot break check if conditions aren't met
+    return False
 
 #-----------------------------------------------------------------------------------
 # Function that will test whether a Bikjang condition can be broken

@@ -2,15 +2,17 @@
 ----------------------state_machine.py----------------------------
 o This file is the actual state machine that will handle the 
 	transitioning between gamestates (Menu,Game, etc...)
-o Last Modified - March 21st 2025
+o Last Modified - April 5, 2025
 ----------------------------------------------------------
 """
 # libraries
 import pygame
 import time
+import traceback
 
 # specific local file importing of the States
 import state
+import multiplayer
 
 # The State Machine that will transiton the program between states
 class StateManager():
@@ -30,7 +32,6 @@ class StateManager():
 			"Single Player Game" : state.SinglePlayerGame,
 			"Local Single Player Pre-Game Settings" : state.LocalSinglePlayerPreGameSettings,
 			"Local Single Player Game" : state.LocalSinglePlayerGame,
-			"Multi Player Pre-Game Settings" : state.MultiplayerPreGameSettings,
 			"Multi Player Game" : state.Multiplayer
 		}
 		
@@ -86,129 +87,32 @@ class StateManager():
 				del self.states_unitialized["Main Menu"]
 			self.states_unitialized["Main Menu"] = state.MainMenu(window)
 
-		elif new_state == "Multi Player Pre-Game Settings":
-			if "Multi Player Pre-Game Settings" in self.states_unitialized:
-				del self.states_unitialized["Multi Player Pre-Game Settings"]
-			self.states_unitialized["Multi Player Pre-Game Settings"] = state.MultiplayerPreGameSettings(window)
-
 		elif new_state == "Multi Player Game":
-			# Preserve the connection and settings from the pre-game settings state
-			prev_settings = None
-			connection = None
-			is_host = None
-			settings_confirmed = False
-			
-			if "Multi Player Pre-Game Settings" in self.states_unitialized:
-				prev_settings = self.states_unitialized["Multi Player Pre-Game Settings"]
-				print(f"Found previous multiplayer settings: {prev_settings is not None}")
+			# Initialize the new refactored Multiplayer class
+			try:
+				# Create a new multiplayer game instance with fresh connection
+				if "Multi Player Game" in self.states_unitialized:
+					# Try to properly close any existing connection
+					try:
+						if hasattr(self.states_unitialized["Multi Player Game"], 'connection') and \
+						   self.states_unitialized["Multi Player Game"].connection is not None:
+							self.states_unitialized["Multi Player Game"].connection.close()
+					except:
+						traceback.print_exc()
+					
+					del self.states_unitialized["Multi Player Game"]
 				
-				# Save connection and relevant settings before we delete the settings state
-				if prev_settings and hasattr(prev_settings, 'connection'):
-					connection = prev_settings.connection
-					is_host = prev_settings.is_host
-					settings_confirmed = getattr(prev_settings, 'settings_confirmed', False)
-					host_color = prev_settings.host.color
-					guest_color = prev_settings.guest.color
-					piece_convention = prev_settings.host.piece_convention
-			
-			# Create a new multiplayer game instance without triggering a new connection
-			multiplayer_game = state.Multiplayer.__new__(state.Multiplayer)
-			
-			# Initialize the base State class
-			state.State.__init__(multiplayer_game)
-			
-			# Set critical attributes to prevent new connection
-			multiplayer_game.connection = connection
-			multiplayer_game.is_host = is_host
-			multiplayer_game.settings_confirmed = settings_confirmed
-			
-			# Manual initialization without calling establish_connection()
-			multiplayer_game.next_state = None
-			multiplayer_game.font = pygame.font.SysFont("Arial", size=35)
-			
-			# Initialize players
-			multiplayer_game.host = state.player.Player(is_host=True, board_perspective="Bottom")
-			multiplayer_game.guest = state.player.Player(is_host=False, board_perspective="Top")
-			
-			# Transfer player settings
-			multiplayer_game.host.color = host_color
-			multiplayer_game.guest.color = guest_color
-			multiplayer_game.host.piece_convention = piece_convention
-			multiplayer_game.guest.piece_convention = piece_convention
-			
-			# Initialize game board and state
-			multiplayer_game.load_board_boarder(window)
-			multiplayer_game.load_board()
-			multiplayer_game.board = state.board.Board()
-			multiplayer_game.condition = "None"
-			multiplayer_game.bikjang = False
-			multiplayer_game.check = False
-			multiplayer_game.game_over = False
-			multiplayer_game.immediate_render = False
-			multiplayer_game.last_move_time = 0
-			multiplayer_game.sync_cooldown = 100
-			
-			# Make sure each player has the correct board perspective
-			if multiplayer_game.is_host:
-				# Host perspective setup
-				multiplayer_game.host.board_perspective = "Bottom"
-				multiplayer_game.guest.board_perspective = "Top"
-				multiplayer_game.local_player = multiplayer_game.host
-				multiplayer_game.remote_player = multiplayer_game.guest
-			else:
-				# Client perspective setup
-				multiplayer_game.host.board_perspective = "Top"
-				multiplayer_game.guest.board_perspective = "Bottom"
-				multiplayer_game.local_player = multiplayer_game.guest
-				multiplayer_game.remote_player = multiplayer_game.host
-			
-			# Initialize player pieces with correct perspectives
-			multiplayer_game.initialize_pieces = state.Multiplayer.initialize_pieces.__get__(multiplayer_game)
-			multiplayer_game.initialize_pieces()
-			
-			# Initialize Cho/Han player references
-			multiplayer_game.han_player = multiplayer_game.host if multiplayer_game.host.color == "Han" else multiplayer_game.guest
-			multiplayer_game.cho_player = multiplayer_game.guest if multiplayer_game.guest.color == "Cho" else multiplayer_game.host
-			
-			# Initialize game state based on role (host/client)
-			if multiplayer_game.is_host:
-				# Host starts with horse swap phase
-				multiplayer_game.opening_turn = True
-				multiplayer_game.waiting_for_opponent_swap = False
-				multiplayer_game.active_player = multiplayer_game.host
-				multiplayer_game.waiting_player = multiplayer_game.guest
-			else:
-				# Client waits for host to complete horse swap
-				multiplayer_game.opening_turn = True
-				multiplayer_game.waiting_for_opponent_swap = True
-				multiplayer_game.active_player = multiplayer_game.guest
-				multiplayer_game.waiting_player = multiplayer_game.host
-			
-			# Initialize swap UI
-			multiplayer_game.init_swap_menu = state.Multiplayer.init_swap_menu.__get__(multiplayer_game)
-			multiplayer_game.init_swap_menu()
-			
-			# Initialize event handler methods
-			multiplayer_game.is_our_turn = state.Multiplayer.is_our_turn.__get__(multiplayer_game)
-			multiplayer_game.check_for_messages = state.Multiplayer.check_for_messages.__get__(multiplayer_game)
-			multiplayer_game.process_swap_message = state.Multiplayer.process_swap_message.__get__(multiplayer_game)
-			multiplayer_game.process_move_message = state.Multiplayer.process_move_message.__get__(multiplayer_game)
-			multiplayer_game.process_sync_message = state.Multiplayer.process_sync_message.__get__(multiplayer_game)
-			multiplayer_game.process_turn_message = state.Multiplayer.process_turn_message.__get__(multiplayer_game)
-			multiplayer_game.handle_horse_swap = state.Multiplayer.handle_horse_swap.__get__(multiplayer_game)
-			multiplayer_game.handle_game_move = state.Multiplayer.handle_game_move.__get__(multiplayer_game)
-			multiplayer_game.handle_pass_turn = state.Multiplayer.handle_pass_turn.__get__(multiplayer_game)
-			multiplayer_game.handle_exit = state.Multiplayer.handle_exit.__get__(multiplayer_game)
-			multiplayer_game.swap_turn = state.Multiplayer.swap_turn.__get__(multiplayer_game)
-			
-			print(f"Initialized multiplayer game with connection: {multiplayer_game.connection is not None}")
-			print(f"Is host: {multiplayer_game.is_host}")
-			print(f"Local player: {multiplayer_game.local_player.color}, Remote player: {multiplayer_game.remote_player.color}")
-			
-			# Store in initialized states
-			if "Multi Player Game" in self.states_unitialized:
-				del self.states_unitialized["Multi Player Game"]
-			self.states_unitialized["Multi Player Game"] = multiplayer_game
+				# Initialize the new Multiplayer class
+				self.states_unitialized["Multi Player Game"] = state.Multiplayer(window)
+				
+				print(f"Initialized new multiplayer game")
+
+			except Exception as e:
+				print(f"Error initializing multiplayer game: {e}")
+				traceback.print_exc()
+				# Fallback to main menu in case of error
+				new_state = "Main Menu"
+				self.states_unitialized["Main Menu"] = state.MainMenu(window)
 
 		# change to the newly initialized state
 		self.current_state = self.states_unitialized[new_state]
@@ -220,4 +124,3 @@ class StateManager():
 	def render(self, window):
 		if self.current_state:
 			self.current_state.render(window)
-			

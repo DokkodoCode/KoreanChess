@@ -7,9 +7,69 @@ o Last Modified - October 31st 2024
 
 # libraries
 from enum import Enum
+import uuid
 
 # local file imports, see individ file for details
 import constants
+
+
+class Position:
+    def __init__(self, file, rank):
+        """
+        Create a grid position where file is horizontal (0-8) and rank is vertical (0-9)
+        """
+        self.file = file  # 0-8 horizontal (columns)
+        self.rank = rank  # 0-9 vertical (rows)
+        
+    def to_pixel(self):
+        """Convert grid position to pixel coordinates"""
+        return (constants.x_coordinates[self.file], 
+                constants.y_coordinates[self.rank])
+        
+    @classmethod
+    def from_pixel(cls, pixel_pos):
+        """Convert pixel coordinates to the closest grid position"""
+        closest_file = None
+        closest_rank = None
+        min_file_dist = float('inf')
+        min_rank_dist = float('inf')
+        
+        # Find closest file (column)
+        for file, x in enumerate(constants.x_coordinates):
+            dist = abs(pixel_pos[0] - x)
+            if dist < min_file_dist:
+                min_file_dist = dist
+                closest_file = file
+                
+        # Find closest rank (row)
+        for rank, y in enumerate(constants.y_coordinates):
+            dist = abs(pixel_pos[1] - y)
+            if dist < min_rank_dist:
+                min_rank_dist = dist
+                closest_rank = rank
+                
+        return cls(closest_file, closest_rank)
+    
+    def __eq__(self, other):
+        if not isinstance(other, Position):
+            return False
+        return self.file == other.file and self.rank == other.rank
+    
+    def __repr__(self):
+        return f"Position(file={self.file}, rank={self.rank})"
+        
+    def flip_vertical(self):
+        """Return a new position flipped vertically (for opponent's view)"""
+        return Position(self.file, 9 - self.rank)
+        
+    def flip_horizontal(self):
+        """Return a new position flipped horizontally (for opponent's view)"""
+        return Position(8 - self.file, self.rank)
+        
+    def flip_both(self):
+        """Return a new position flipped both horizontally and vertically"""
+        return Position(8 - self.file, 9 - self.rank)
+
 
 # Enumeration type for the PieceType
 class PieceType(Enum):
@@ -121,15 +181,19 @@ class PreGamePieceDisplay(Enum):
 
 # Class object for the Piece
 class Piece():
-	# Class initializer
-	# INPUT: piece type, where it resides on the board, where its collision rectangle
-	#				 is, how many points the piece is worth
-	# OUTPUT: Initialized Piece object 
-	def __init__(self, piece_type, location, image_location, collision_rect, point_value):
-		self.piece_type = piece_type
-		self.location = location
-		self.image_location = image_location
-		self.collision_rect = collision_rect
-		self.point_value = point_value
-		self.is_clicked = False
-		self.image = "Pieces/Blank_Piece.png"
+    # Class initializer
+    # INPUT: piece type, where it resides on the board, where its collision rectangle
+    #        is, how many points the piece is worth
+    # OUTPUT: Initialized Piece object 
+    def __init__(self, piece_type, location, image_location, collision_rect, point_value):
+        self.piece_type = piece_type
+        self.location = location  # Keep for backward compatibility
+        self.image_location = image_location  # Keep for backward compatibility
+        self.collision_rect = collision_rect
+        self.point_value = point_value
+        self.is_clicked = False
+        self.image = "Pieces/Blank_Piece.png"
+        self.id = str(uuid.uuid4())  # Add unique ID for reliable tracking
+        
+        # Add grid position
+        self.position = Position.from_pixel(location)
