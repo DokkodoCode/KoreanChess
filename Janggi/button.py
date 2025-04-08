@@ -23,8 +23,9 @@ class Button:
     #       foreground_color: text color on button
     #       background_color: button color
     #       hover_color: button color change when mouse collides with button
+    #       border_radius: radius of the button corners (default: 10)
 	# OUTPUT: button is created 
-    def __init__(self, x, y, width, height, font, text="", foreground_color=constants.WHITE, background_color=constants.BLACK, hover_color=constants.LIGHT_GREEN):
+    def __init__(self, x, y, width, height, font, text="", foreground_color=constants.WHITE, background_color=constants.BLACK, hover_color=constants.LIGHT_GREEN, border_radius=10):
         self.x = x
         self.y = y
         self.width = width
@@ -34,6 +35,7 @@ class Button:
         self.foreground_color = foreground_color
         self.background_color = background_color
         self.hover_color = hover_color
+        self.border_radius = border_radius
         self.rect = pygame.Rect(x, y, width, height) # collision rect
         self.clicked = False # event trigger
 
@@ -47,7 +49,9 @@ class Button:
             color = self.hover_color if self.hover_color else self.background_color
         else:
             color = self.background_color
-        pygame.draw.rect(window, color, self.rect)
+            
+        # Draw rounded rectangle
+        pygame.draw.rect(window, color, self.rect, border_radius=self.border_radius)
 
         # dont display text in the button if button has no text
         if self.text !="":
@@ -81,7 +85,8 @@ def create_ai_level_buttons():
 													text=f"{ai_level[i]}", 
 													foreground_color = constants.BLACK,
 													background_color = constants.WHITE,
-													hover_color = constants.LIGHT_GREEN)
+													hover_color = constants.LIGHT_GREEN,
+                                                    border_radius=10)
         ai_level_buttons.append(new_button)
         
     return ai_level_buttons
