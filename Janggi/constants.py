@@ -65,7 +65,7 @@ resolutions = {
             "single_player_button":
             {
                 # "location": (715, 275),
-                "location": (1, scale_y(280, info)),
+                "location": (1, 245),
                 "size": (400, 80),
                 "text": 
                 {
@@ -80,7 +80,7 @@ resolutions = {
             "local_multiplayer_button":
             {
                 # "location": (715, 425),
-                "location": (1, scale_y(390, info)),
+                "location": (1, 345),
                 "size": (400, 80),
                 "text": 
                 {
@@ -95,7 +95,7 @@ resolutions = {
             "multiplayer_button":
             {
                 # "location": (715, 570),
-                "location": (1, scale_y(500, info)),
+                "location": (1, 445),
                 "size": (400, 80),
                 "text": 
                 {
@@ -110,7 +110,7 @@ resolutions = {
             "close_button":
             {
                 # "location": (715, 720),
-                "location": (1, scale_y(610, info)),
+                "location": (1, 545),
                 "size": (400, 80),
                 "text": 
                 {
