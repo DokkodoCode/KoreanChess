@@ -2,7 +2,7 @@
 ----------------------state.py----------------------------
 o This file is to manage the current game mode (state) the
 	program is in
-o Last Modified - November 19th 2024
+o Last Modified - April 9th 2025
 ----------------------------------------------------------
 """
 
@@ -24,7 +24,7 @@ import traceback
 from piece import Position
 
 #--------------------------------------------------------------------------------
-# Parent State to act as a base class to be inherited by 
+# Parent State to act as a base class to be inherited by
 #--------------------------------------------------------------------------------
 class State():
 	# initializer
@@ -57,12 +57,12 @@ class State():
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 			return True
 		return False
-	
+
 	def is_middle_click(self, event):
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 2:
 			return True
 		return False
-	
+
 	def is_right_click(self, event):
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
 			return True
@@ -106,13 +106,13 @@ class State():
 		# DRAW THE BACKGROUND FOR DISPLAYING GAME OVER TEXT
 		window.blit(self.game_over_background,
 			constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["location"])
-			
+
 		# DISPLAY GAME OVER TEXT
 		text = "Game Over!"
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["location"]
 		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["font_size"]
 		self.draw_text(window, text, x, y, font_size)
-		
+
 		# DISPLAY THE WINNER
 		text = f"{self.winner.color} wins!"
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["location"]
@@ -129,7 +129,7 @@ class State():
 		# DRAW THE BACKGROUND FOR DISPLAYING GAME OVER TEXT
 		window.blit(self.game_over_background,
 		constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["location"])
-		
+
 		# DISPLAY GAME OVER TEXT
 		text = "Game Over!"
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["location"]
@@ -158,7 +158,7 @@ class State():
 
 			# reset is_clicked flags for player and piece
 			helper_funcs.player_piece_unclick(host)
-			
+
 			# if bikjang occurs, set appropriate flags
 			if helper_funcs.detect_bikjang(host, guest):
 				self.bikjang = True
@@ -171,7 +171,7 @@ class State():
 				self.check = True
 				self.condition = "Check"
 				self.guest.is_checked = True
-												
+
 			self.swap_turn()
 			self.immediate_render = True
 
@@ -181,7 +181,7 @@ class State():
 			helper_funcs.player_piece_unclick(host)
 			# update click to new piece if valid clicked
 			helper_funcs.player_piece_clicked(host, mouse_pos)
-	
+
 	def load_button_background(self):
 		# load button backgrounds
 		self.button_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
@@ -271,9 +271,9 @@ class MainMenu(State):
 		# background
 		window.blit(self.menu_background, self.menu_background.get_rect(center = window.get_rect().center))
 		window.blit(self.playboard, self.playboard.get_rect(center = window.get_rect().center))
-		window.blit(self.button_background, 
+		window.blit(self.button_background,
 					self.button_background.get_rect(center = window.get_rect().center))
-		
+
 		# draw buttons to window
 		self.singleplayer_button.draw_button(window)
 		self.local_multiplayer_button.draw_button(window)
@@ -337,7 +337,7 @@ class PreGameSettings(State):
 
 		elif self.host_swap_left_horse_button.is_clicked():
 			helper_funcs.swap_pieces(self.host, self.host.pieces[5], self.host.pieces[3])
-		
+
 		elif self.host_confirm_swap_button.is_clicked():
 			self.opening_turn = False
 			if self.guest.color == "Cho":
@@ -355,14 +355,14 @@ class PreGameSettings(State):
 		self.__render_piece_convention_menu(window)
 		self.__render_player_piece_preview(window)
 		self.__render_play_button(window)
-	
+
 	# LOADING AND RENDERING FUNCTIONS
 	def __load_player_color_menu(self):
 		# play as cho/han button background
 		self.play_as_background = (
 			pygame.transform.scale(self.button_background,
 				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["size"]))
-		
+
 		# cho button
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["location"]
 		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["size"]
@@ -372,7 +372,7 @@ class PreGameSettings(State):
 		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["background_color"]
 		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["hover_color"]
 		self.cho_side_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-		
+
 		# han button
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["location"]
 		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["size"]
@@ -387,7 +387,7 @@ class PreGameSettings(State):
 		self.piece_convention_background = (
 			pygame.transform.scale(self.button_background,
 				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["size"]))
-		
+
 		# standard piece convention button
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["location"]
 		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["size"]
@@ -397,7 +397,7 @@ class PreGameSettings(State):
 		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["background_color"]
 		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["hover_color"]
 		self.standard_piece_convention_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-		
+
 		# international piece convention button
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["location"]
 		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["size"]
@@ -407,12 +407,12 @@ class PreGameSettings(State):
 		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["background_color"]
 		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["hover_color"]
 		self.internat_piece_convention_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-		
+
 	def __load_play_button(self):
 		self.play_button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
 		self.play_button_background = (pygame.transform.scale(self.play_button_background,
 				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play"]["size"]))
-		
+
 		# play button
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["location"]
 		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["size"]
@@ -429,12 +429,12 @@ class PreGameSettings(State):
 		self.player_piece_display_background = pygame.transform.rotate(self.player_piece_display_background, 90)
 		self.player_piece_display_background = pygame.transform.scale(self.player_piece_display_background,
 				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["size"])
-		
+
 		# player header background
 		self.player_header_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
 		self.player_header_background = pygame.transform.scale(self.player_header_background,
 				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["player_header"]["size"])
-		
+
 		# opponent piece display background
 		self.opponent_piece_display_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
 		self.opponent_piece_display_background = pygame.transform.rotate(self.opponent_piece_display_background, 270)
@@ -443,7 +443,7 @@ class PreGameSettings(State):
 
 	def __render_player_color_menu(self, window):
 		# SELECT PIECE SIDE TO PLAY AS (CHO/HAN)
-		window.blit(self.play_as_background, 
+		window.blit(self.play_as_background,
 			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["location"])
 		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["string"]
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["location"]
@@ -452,9 +452,9 @@ class PreGameSettings(State):
 		self.draw_text(window, text, x, y, font_size)
 		self.cho_side_button.draw_button(window)
 		self.han_side_button.draw_button(window)
-	
+
 	def __render_piece_convention_menu(self, window):
-		window.blit(self.piece_convention_background, 
+		window.blit(self.piece_convention_background,
 			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["location"])
 		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["string"]
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["location"]
@@ -465,16 +465,16 @@ class PreGameSettings(State):
 		self.internat_piece_convention_button.draw_button(window)
 
 	def __render_play_button(self, window):
-		window.blit(self.play_button_background, 
+		window.blit(self.play_button_background,
 		constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play"]["location"])
 		self.play_button.draw_button(window)
 
 	def __render_player_piece_preview(self, window):
 		# player header to notify which display is player's
-		window.blit(self.player_header_background, 
+		window.blit(self.player_header_background,
 			constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]
 			["background_elements"]["single_player"]["button_background"]["player_piece_display"]["player_header"]["location"])
-		
+
 		# player header text display
 		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["player_piece_display"]["text"]["string"]
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["player_piece_display"]["text"]["location"]
@@ -482,17 +482,17 @@ class PreGameSettings(State):
 		self.draw_text(window, text, x, y, font_size)
 
 		# player piece display
-		window.blit(self.player_piece_display_background, 
+		window.blit(self.player_piece_display_background,
 			constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["player_piece_display"]["location"])
 
-			
+
 		# opponent piece display
-		window.blit(self.opponent_piece_display_background, 
+		window.blit(self.opponent_piece_display_background,
 			constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["opponent_piece_display"]["location"])
 
 		# render pieces
 		render_funcs.PreGame_render_piece_display(window, self.host, self.guest)
-	
+
 	def load_host_side_swap_menu(self):
 		# host-side swap left-horse button
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["location"]
@@ -525,7 +525,7 @@ class PreGameSettings(State):
 		self.host_swap_right_horse_background = pygame.transform.rotate(self.host_swap_right_horse_background, 180)
 		self.host_swap_right_horse_background = pygame.transform.scale(self.host_swap_right_horse_background,
 				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["host_swap_right_horse"]["size"])
-		
+
 		# host-side confirm swap button
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["location"]
 		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["size"]
@@ -571,7 +571,7 @@ class PreGameSettings(State):
 		self.guest_swap_right_horse_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
 		self.guest_swap_right_horse_background = pygame.transform.scale(self.guest_swap_right_horse_background,
 				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["guest_swap_right_horse"]["size"])
-		
+
 		# guest-side confirm swap button
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_confirm_swap_button"]["location"]
 		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["guest_confirm_swap_button"]["size"]
@@ -619,7 +619,7 @@ class SinglePlayerPreGameSettings(PreGameSettings):
 				# Store AI difficulty in constants
 				constants.stored_difficulty = button.text
 				self.guest.set_difficulty(button.text.lower())
-				
+
 	def render(self, window):
 		super().render(window)
 		self.render_ai_buttons(window)
@@ -661,12 +661,12 @@ class SinglePlayerPreGameSettings(PreGameSettings):
 		self.ai_level_buttons.append(self.hard_ai_button)
 
 	def render_ai_buttons(self, window):
-		window.blit(self.piece_convention_background, 
+		window.blit(self.piece_convention_background,
 			   constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["ai_level"]["location"])
 		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["ai_level"]["text"]["string"]
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["ai_level"]["text"]["location"]
 		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["ai_level"]["text"]["font_size"]
-		
+
 		self.draw_text(window, text, x, y, font_size)
 		text = self.host.ai_level
 		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["ai_level"]["text"]["chosen_diff_location"]
@@ -689,12 +689,12 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
         super().__init__(window)
 
         self.load_host_side_swap_menu()
-        
+
         # condition warning/turn tab
         self.game_state_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
         self.game_state_background = pygame.transform.scale(self.game_state_background,
                 constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_state"]["size"])
-        
+
         # game over pop-up display
         self.game_over_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
         self.game_over_background = pygame.transform.scale(self.game_over_background,
@@ -732,7 +732,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 
         # listen for an event trigger via click from right-mouse-button
         elif self.is_left_click(event) and not self.game_over:
-                
+
                 # OPENING TURN ONLY
                 if self.opening_turn:
                     self.handle_host_swap()
@@ -751,9 +751,9 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
                         pass
 
         # if RMB clicked and ...
-        elif (self.is_right_click(event) 
-                and self.host.is_turn 
-                and not self.bikjang 
+        elif (self.is_right_click(event)
+                and self.host.is_turn
+                and not self.bikjang
                 and not self.check
                 and not self.game_over):
 
@@ -779,7 +779,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 
         # DISPLAY THE OPTION TO SWAP HORSES AT THE START OF THE GAME
         if self.opening_turn:
-            window.blit(self.host_swap_left_horse_background, 
+            window.blit(self.host_swap_left_horse_background,
                 constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["swap_left_horse"]["location"])
             self.host_swap_left_horse_button.draw_button(window)
 
@@ -839,19 +839,19 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
         elif not self.immediate_render and self.guest.is_turn and not self.opening_turn and not self.game_over:
             new_board = self.guest.convert_board(self.board, self.host)
             fen = self.guest.generate_fen(new_board)
-                
+
             if self.ai_level == "Easy":
                 depth = 1
             elif self.ai_level == "Medium":
                 depth = 5
             elif self.ai_level == "Hard":
                 depth = 10
-            
+
             print(f"Making move with depth of {depth}")
             self.guest.send_command(f"position fen {fen}")
             self.guest.send_command(f"go depth {str(depth)}")
             best_move = self.guest.get_engine_move()
-            
+
             if helper_funcs.ai_move(self.host, self.guest, self.board, best_move, new_board, fen):
                 if helper_funcs.detect_bikjang(self.guest, self.host):
                     self.bikjang = True
@@ -862,7 +862,7 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
                 elif helper_funcs.detect_check(self.host, self.guest, self.board):
                     self.check = True
                     self.condition = "Check"
-            
+
             self.swap_turn()
             self.guest.is_checked = False
 
@@ -883,11 +883,11 @@ class LocalSinglePlayerPreGameSettings(PreGameSettings):
 	# OUTPUT: settings are set accordingly
 	def handle_event(self, event):
 		self.handle_left_cick(event)
-		if (self.play_button.is_clicked() 
+		if (self.play_button.is_clicked()
 			and self.host is not None):
 				helper_funcs.update_player_settings(self.host)
 				self.next_state = "Local Single Player Game"
-				
+
 	# Handle any rendering that needs to be done
 	# INPUT: pygame surface object (window to display to)
 	# OUTPUT: All pre-game settings attributes/actions are rendered
@@ -909,12 +909,12 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 		self.load_board()
 		self.load_host_side_swap_menu()
 		self.load_guest_side_swap_menu()
-		
+
 		# condition warning/turn tab
 		self.game_state_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
 		self.game_state_background = pygame.transform.scale(self.game_state_background,
 				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_state"]["size"])
-		
+
 		# game over pop-up display
 		self.game_over_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
 		self.game_over_background = pygame.transform.scale(self.game_over_background,
@@ -948,14 +948,14 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 					# self.handle_host_swap()
 					if self.host_swap_right_horse_button.is_clicked():
 						helper_funcs.swap_pieces(self.han_player, self.han_player.pieces[6], self.han_player.pieces[4])
-					
+
 					elif self.host_swap_left_horse_button.is_clicked():
 						helper_funcs.swap_pieces(self.han_player, self.han_player.pieces[5], self.han_player.pieces[3])
-					
+
 					elif self.host_confirm_swap_button.is_clicked():
 						self.waiting_player = self.han_player
 						self.waiting_player.is_ready = True
-				
+
 				# HAN IS GUEST
 				else:
 					if self.guest_swap_right_horse_button.is_clicked():
@@ -965,13 +965,13 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 					elif self.guest_confirm_swap_button.is_clicked():
 						self.waiting_player = self.han_player
 						self.waiting_player.is_ready = True
-			
+
 			# Cho player chooses second
 			elif self.opening_turn and not self.cho_player.is_ready:
 				# CHO IS HOST
 				if self.cho_player.is_host:
 					self.handle_host_swap()
-				
+
 				# CHO IS GUEST
 				else:
 					if self.guest_swap_right_horse_button.is_clicked():
@@ -997,9 +997,9 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 				pass
 
 		# right-clicking your king will pass the turn
-		elif (event.type == pygame.MOUSEBUTTONDOWN and event.button == 3 
-			and self.condition == "None" 
-			and not self.opening_turn 
+		elif (event.type == pygame.MOUSEBUTTONDOWN and event.button == 3
+			and self.condition == "None"
+			and not self.opening_turn
 			and not self.game_over):
 			if self.active_player is not None:
 				helper_funcs.player_piece_unclick(self.active_player)
@@ -1013,7 +1013,7 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 		# escape from game to main menu
 		elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 			self.next_state = "Main Menu"
-			
+
 	# Handle any rendering that needs to be done
 	# INPUT: pygame surface object (window to display to)
 	# OUTPUT: All game attributes/actions are rendered
@@ -1027,7 +1027,7 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 			# HOST (BOTTOM-VIEW)
 			if self.han_player.is_host:
 				button_key = "host"
-				window.blit(self.host_swap_left_horse_background, 
+				window.blit(self.host_swap_left_horse_background,
 					constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_swap_left_horse"]["location"])
 				self.host_swap_left_horse_button.draw_button(window)
 
@@ -1037,7 +1037,7 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 			# GUEST (TOP-VIEW)
 			else:
 				button_key = "guest"
-				window.blit(self.guest_swap_left_horse_background, 
+				window.blit(self.guest_swap_left_horse_background,
 					constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_swap_left_horse"]["location"])
 				self.guest_swap_left_horse_button.draw_button(window)
 
@@ -1049,7 +1049,7 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 			# HOST (BOTTOM-VIEW)
 			if self.cho_player.is_host:
 				button_key = "host"
-				window.blit(self.host_swap_left_horse_background, 
+				window.blit(self.host_swap_left_horse_background,
 					constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_swap_left_horse"]["location"])
 				self.host_swap_left_horse_button.draw_button(window)
 
@@ -1059,7 +1059,7 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 			# GUEST (TOP-VIEW)
 			else:
 				button_key = "guest"
-				window.blit(self.guest_swap_left_horse_background, 
+				window.blit(self.guest_swap_left_horse_background,
 					constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"][f"{button_key}_swap_left_horse"]["location"])
 				self.guest_swap_left_horse_button.draw_button(window)
 
@@ -1109,7 +1109,7 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 
 
 
-	    
+
 		# RENDER WHERE CLICKED PIECE MAY GO
 		if self.active_player is not None and self.active_player.is_clicked:
 			render_funcs.render_possible_spots(self.active_player, self.waiting_player, self.board, window, self.condition)
@@ -1128,26 +1128,26 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 from socket import gethostbyname, gethostname
 HOST, PORT = gethostbyname(gethostname()), 5000
 
-class Multiplayer(State):    
+class Multiplayer(State):
     def __init__(self, window):
-        super().__init__()  
+        super().__init__()
         from piece import Position
         self.Position = Position
-        
+
         # Initialize basic state
         self.next_state = None
         self.window = window
         self.connection = None
         self.is_host = None
         self.game_phase = multiplayer.GamePhase.CONNECTING
-        
+
         # Initialize UI elements
         self.font = pygame.font.SysFont("Arial", size=35)
         self.load_board_boarder(window)
         self.load_board()
-        self.load_button_background() 
+        self.load_button_background()
         self.board = board.Board()
-        
+
         # Gameplay state
         self.immediate_render = False
         self.last_sync_time = 0
@@ -1156,7 +1156,7 @@ class Multiplayer(State):
         self.validation_interval = 3.0  # seconds between validations
         self.post_swap_grace = False  # Prevents immediate game end after swap phase
         self.waiting_for_opponent_swap = False
-        
+
         # Game conditions
         self.opening_turn = True
         self.bikjang = False
@@ -1164,28 +1164,28 @@ class Multiplayer(State):
         self.condition = "None"
         self.game_over = False
         self.winner = None
-        
+
         # Initialize connection
         self.establish_connection()
-        
+
         # Initialize players
         self.host = player.Player(is_host=True, board_perspective="Bottom")
         self.guest = player.Player(is_host=False, board_perspective="Top")
-        
+
         # Setup player perspectives based on role
         self.initialize_perspectives()
-        
+
         from piece import Position
         self.Position = Position
-        
+
         # Create piece backups for validation
         self.backup_pieces()
-        
+
         # Initialize UI elements for horse swap phase
         self.load_swap_menu()
         self.load_game_state_elements()
-        self.__load_settings_ui()  
-        
+        self.__load_settings_ui()
+
         # Start the game state machine
         self.transition_to_settings()
 
@@ -1194,53 +1194,53 @@ class Multiplayer(State):
         if hasattr(self, 'connection') and self.connection is not None:
             print("Using existing connection")
             return
-            
+
         print("Establishing new connection...")
         choice = input("Do you want to be a host (h) or client (c)? ").lower()
-        
+
         if choice == 'h':
             # Creating a server (host)
             print("Starting as host. Waiting for client to connect...")
             print(HOST)
-            
+
             self.connection = multiplayer.Server(HOST, PORT)
             if not self.connection.create_socket():
                 print("Failed to create server socket")
                 return
-                
+
             if not self.connection.bind_socket():
                 print("Failed to bind server socket")
                 return
-                
+
             if not self.connection.listen():
                 print("Failed to listen on server socket")
                 return
-            
+
             # Accept client connection with timeout
             print("Waiting for client connection...")
             if not self.connection.accept_client(timeout=30):
                 print("No client connected within timeout period")
                 return
-                
+
             print("Client connected!")
             self.is_host = True
-            
+
             # Set socket to non-blocking for game loop
             self.connection.set_client_non_blocking(True)
-            
+
             # Send initial connection confirmation
             self.send_message(multiplayer.MessageType.CONNECT, {"status": "connected"})
-            
+
         elif choice == 'c':
             # Creating a client
             print("Starting as client. Connecting to host...")
             host = input("enter IP of host: ")
-            
+
             self.connection = multiplayer.Client(host, PORT)
             if self.connection.connect(timeout=5):
                 print("Connected to host!")
                 self.is_host = False
-                
+
                 # Set socket to non-blocking
                 self.connection.set_non_blocking(True)
             else:
@@ -1263,15 +1263,15 @@ class Multiplayer(State):
             self.local_player = self.guest          # Client's local player is guest
             self.remote_player = self.host          # Client's remote player is host
             print("Client perspective: own pieces (Bottom), opponent pieces (Top)")
-            
+
         # Initialize pieces with correct perspectives
         self.host.pieces = self.host.fill_pieces()
         self.guest.pieces = self.guest.fill_pieces()
-        
+
         # Initialize Cho/Han player references
         self.han_player = self.host if self.host.color == "Han" else self.guest
         self.cho_player = self.guest if self.guest.color == "Cho" else self.host
-        
+
         # Set active player based on current game phase
         if self.is_host:
             self.active_player = self.host          # Host moves first in swap phase
@@ -1283,22 +1283,22 @@ class Multiplayer(State):
     def backup_pieces(self):
         """Create backups of all pieces for validation and restoration"""
         from piece import Piece
-        
+
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
         print(f"{role_prefix}Creating new piece backups")
-        
+
         # Create backup copies of pieces for validation
         self.host_pieces_backup = []
         self.guest_pieces_backup = []
-        
+
         # Create deep copies of each piece
         for p in self.host.pieces:
             from piece import Piece
             new_piece = Piece(
-                p.piece_type, 
-                p.location, 
+                p.piece_type,
+                p.location,
                 p.image_location,
-                pygame.Rect(p.collision_rect), 
+                pygame.Rect(p.collision_rect),
                 p.point_value
             )
             # Ensure ID and position are copied correctly
@@ -1308,13 +1308,13 @@ class Multiplayer(State):
             new_piece.position = self.Position(p.position.file, p.position.rank)
             new_piece.is_clicked = p.is_clicked
             self.host_pieces_backup.append(new_piece)
-            
+
         for p in self.guest.pieces:
             new_piece = Piece(
-                p.piece_type, 
-                p.location, 
+                p.piece_type,
+                p.location,
                 p.image_location,
-                pygame.Rect(p.collision_rect), 
+                pygame.Rect(p.collision_rect),
                 p.point_value
             )
             # Ensure ID and position are copied correctly
@@ -1324,37 +1324,37 @@ class Multiplayer(State):
             new_piece.position = self.Position(p.position.file, p.position.rank)
             new_piece.is_clicked = p.is_clicked
             self.guest_pieces_backup.append(new_piece)
-            
+
         print(f"{role_prefix}Created backups - Host: {len(self.host_pieces_backup)} pieces, "
             f"Guest: {len(self.guest_pieces_backup)} pieces")
 
     def restore_pieces_from_backup(self):
         """Restore pieces from backup if validation fails"""
         from piece import Piece
-        
+
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
         print(f"{role_prefix}Restoring pieces from backup")
-        
+
         # Make sure we have backups to restore from
         if not hasattr(self, 'host_pieces_backup') or not hasattr(self, 'guest_pieces_backup'):
             print(f"{role_prefix}ERROR: No backups available to restore from")
             return
-        
+
         # Count before restoration for reporting
         host_before = len(self.host.pieces)
         guest_before = len(self.guest.pieces)
-        
+
         # Clear existing pieces
         self.host.pieces = []
         self.guest.pieces = []
-        
+
         # Restore from backups
         for p in self.host_pieces_backup:
             new_piece = Piece(
-                p.piece_type, 
-                p.location, 
-                p.image_location, 
-                pygame.Rect(p.collision_rect), 
+                p.piece_type,
+                p.location,
+                p.image_location,
+                pygame.Rect(p.collision_rect),
                 p.point_value
             )
             # Restore ID and position
@@ -1366,13 +1366,13 @@ class Multiplayer(State):
                 new_piece.position = self.Position.from_pixel(p.location)
             new_piece.is_clicked = p.is_clicked
             self.host.pieces.append(new_piece)
-            
+
         for p in self.guest_pieces_backup:
             new_piece = Piece(
-                p.piece_type, 
-                p.location, 
-                p.image_location, 
-                pygame.Rect(p.collision_rect), 
+                p.piece_type,
+                p.location,
+                p.image_location,
+                pygame.Rect(p.collision_rect),
                 p.point_value
             )
             # Restore ID and position
@@ -1384,16 +1384,16 @@ class Multiplayer(State):
                 new_piece.position = self.Position.from_pixel(p.location)
             new_piece.is_clicked = p.is_clicked
             self.guest.pieces.append(new_piece)
-            
+
         # Make sure all pieces have correct collision rectangles
         self.realign_piece_collisions(self.host)
         self.realign_piece_collisions(self.guest)
-        
+
         # Reset game conditions
         self.bikjang = False
         self.check = False
         self.condition = "None"
-        
+
         # Log restoration results
         host_after = len(self.host.pieces)
         guest_after = len(self.guest.pieces)
@@ -1402,54 +1402,54 @@ class Multiplayer(State):
     def validate_board_state(self):
         """Validate the current board state to detect errors"""
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
-        
+
         # Basic validation that applies in all phases
         print(f"{role_prefix}Validating board state")
-        
+
         # 1. Check for kings - each side must have exactly one
         host_kings = [p for p in self.host.pieces if p.piece_type.value == "King"]
         guest_kings = [p for p in self.guest.pieces if p.piece_type.value == "King"]
-        
+
         if len(host_kings) != 1 or len(guest_kings) != 1:
             print(f"{role_prefix}ERROR: King count incorrect - Host: {len(host_kings)}, Guest: {len(guest_kings)}")
             self.restore_pieces_from_backup()
             return False
-        
+
         # 2. Check for overlapping pieces (shouldn't happen in any phase)
         all_positions = []
         for piece in self.host.pieces + self.guest.pieces:
             # Use both grid position and pixel location for robustness
             position_key = (piece.position.file, piece.position.rank)
             location_key = piece.location
-            
+
             if position_key in all_positions or location_key in all_positions:
                 print(f"{role_prefix}WARNING: Overlapping piece at position {position_key} or location {location_key}")
                 self.restore_pieces_from_backup()
                 return False
-                
+
             all_positions.append(position_key)
             all_positions.append(location_key)
-        
+
         # 3. Check for pieces outside board boundaries (shouldn't happen in any phase)
         for piece in self.host.pieces + self.guest.pieces:
             if not hasattr(piece, 'position') or not isinstance(piece.position, self.Position):
                 print(f"{role_prefix}WARNING: Piece missing valid position: {piece}")
                 self.restore_pieces_from_backup()
                 return False
-                
+
             file, rank = piece.position.file, piece.position.rank
             if file < 0 or file > 8 or rank < 0 or rank > 9:
                 print(f"{role_prefix}WARNING: Piece at invalid grid position {file},{rank}")
                 self.restore_pieces_from_backup()
                 return False
-                
+
             x, y = piece.location
-            if (x not in constants.x_coordinates or 
+            if (x not in constants.x_coordinates or
                 y not in constants.y_coordinates):
                 print(f"{role_prefix}WARNING: Piece at invalid pixel location {piece.location}")
                 self.restore_pieces_from_backup()
                 return False
-        
+
         # In setup phases, we also check piece counts
         if self.game_phase != multiplayer.GamePhase.GAMEPLAY:
             if len(self.host.pieces) != 16 or len(self.guest.pieces) != 16:
@@ -1466,50 +1466,50 @@ class Multiplayer(State):
                 print(f"{role_prefix}WARNING: Piece count extremely imbalanced - Host: {host_count}, Guest: {guest_count}")
                 self.restore_pieces_from_backup()
                 return False
-        
+
         # All checks passed
         return True
 
     # -------------------------------------------------------------------------
     # Message Handling
     # -------------------------------------------------------------------------
-    
+
     def send_message(self, msg_type, data=None):
         """Send a standardized message to the opponent"""
         if not self.connection:
             return False
-            
+
         message = {
             "type": msg_type.value,
             "timestamp": time.time()
         }
-        
+
         if data:
             message["data"] = data
-        
+
         return self.connection.send(message)
 
     def check_for_messages(self):
         """Check for incoming messages and process them"""
         if not self.connection:
             return
-            
+
         try:
             message = self.connection.receive()
             if not message:
                 return
-                
+
             try:
                 # Parse message with debugging
                 role_prefix = "HOST: " if self.is_host else "CLIENT: "
                 print(f"{role_prefix}Raw message received: {message}")
-                
+
                 msg_data = json.loads(message)
                 msg_type = msg_data.get("type")
                 data = msg_data.get("data", {})
-                
+
                 print(f"{role_prefix}Processed message - Type: {msg_type}, Data: {data}")
-                
+
                 # Process based on message type
                 if msg_type == multiplayer.MessageType.CONNECT.value:
                     self.process_connect_message(data)
@@ -1537,7 +1537,7 @@ class Multiplayer(State):
             except Exception as e:
                 print(f"{role_prefix}Error processing message: {e}")
                 traceback.print_exc()
-                
+
         except Exception as e:
             role_prefix = "HOST: " if self.is_host else "CLIENT: "
             print(f"{role_prefix}Error checking for messages: {e}")
@@ -1553,31 +1553,31 @@ class Multiplayer(State):
     def process_settings_message(self, data):
         """Process game settings message"""
         print(f"Received settings: {data}")
-        
+
         if not self.is_host:
             # Client receiving settings from host
             if "host_color" in data and "piece_convention" in data:
                 host_color = data["host_color"]
                 piece_convention = data["piece_convention"]
-                
+
                 # Apply settings
                 self.host.color = host_color
                 self.host.piece_convention = piece_convention
-                
+
                 # Set guest (client) color to opposite of host
                 self.guest.color = "Han" if host_color == "Cho" else "Cho"
                 self.guest.piece_convention = piece_convention
-                
+
                 # Send acknowledgment
                 self.send_message(multiplayer.MessageType.SETTINGS, {
                     "status": "received",
                     "guest_color": self.guest.color
                 })
-                
+
                 # Update player references
                 self.han_player = self.host if self.host.color == "Han" else self.guest
                 self.cho_player = self.guest if self.guest.color == "Cho" else self.host
-                
+
                 # Transition to horse swap phase
                 self.transition_to_host_swap()
         else:
@@ -1585,7 +1585,7 @@ class Multiplayer(State):
             if data.get("status") == "received":
                 print("Client acknowledged settings")
                 # Don't transition if already in swap phases
-                if (self.game_phase != multiplayer.GamePhase.HOST_HORSE_SWAP and 
+                if (self.game_phase != multiplayer.GamePhase.HOST_HORSE_SWAP and
                     self.game_phase != multiplayer.GamePhase.CLIENT_HORSE_SWAP):
                     self.transition_to_host_swap()
                 else:
@@ -1594,18 +1594,18 @@ class Multiplayer(State):
     def process_swap_message(self, data):
         """Process horse swap message"""
         print(f"Received swap: {data}")
-        
+
         side = data.get("side")
-        
+
         # Find the pieces to swap
         if side == "left":
             self.swap_left_pieces_for_remote()
         elif side == "right":
             self.swap_right_pieces_for_remote()
-        
+
         # Realign collision rectangles after swap
         self.realign_piece_collisions(self.remote_player)
-        
+
         # Update piece backups
         self.backup_pieces()
 
@@ -1613,89 +1613,89 @@ class Multiplayer(State):
         """Process swap completion message"""
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
         print(f"{role_prefix}Processing SWAP_DONE message with data: {data}")
-        
+
         client_phase = data.get("phase", "unknown")
         client_done = data.get("client_done", False)
         host_done = data.get("host_done", False)
         sender_color = data.get("player_color", "unknown")
-        
+
         print(f"{role_prefix}Current phase: {self.game_phase.value}, Sender phase: {client_phase}")
         print(f"{role_prefix}Sender color: {sender_color}, Client done: {client_done}, Host done: {host_done}")
-        
+
         # Add delay to ensure local swaps are fully processed
         time.sleep(0.1)  # Small delay to ensure stable state
-        
+
         # CASE 1: CLIENT done with own swap
         if not self.is_host and self.game_phase == multiplayer.GamePhase.CLIENT_HORSE_SWAP:
             print(f"{role_prefix}Client processing its own swap done message")
             # First realign all collision rectangles
             self.realign_piece_collisions(self.host)
             self.realign_piece_collisions(self.guest)
-            
+
             # Create new backups AFTER swaps are completed
             self.backup_pieces()
-            
+
             # Force immediate sync BEFORE transitioning
             self.force_sync()
-            
+
             # Only then transition to gameplay
             self.transition_to_gameplay()
             return
-        
+
         # CASE 2: HOST receiving client's swap done
         elif self.is_host and client_done and client_phase == "client_horse_swap":
             print(f"{role_prefix}Host processing client's swap done message")
             # Realign collision rectangles first
             self.realign_piece_collisions(self.host)
             self.realign_piece_collisions(self.guest)
-            
+
             # Create new backups AFTER all swaps are completed
             self.backup_pieces()
-            
+
             # First force a sync to ensure client has latest state
             self.force_sync()
-            
+
             # Small delay to ensure client processes sync before transitioning
             time.sleep(0.2)
-            
+
             # Now transition to gameplay
             self.transition_to_gameplay()
             return
-        
+
         # CASE 3: HOST done with own swap
         elif self.is_host and self.game_phase == multiplayer.GamePhase.HOST_HORSE_SWAP:
             print(f"{role_prefix}Host completed own swap, transitioning to client swap phase")
             # Realign collision rectangles
             self.realign_piece_collisions(self.host)
             self.realign_piece_collisions(self.guest)
-            
+
             # Force sync before transitioning to ensure client has up-to-date pieces
             self.force_sync()
-            
+
             # Create an intermediate backup after host swap
             self.backup_pieces()
-            
+
             # Transition to client swap
             self.transition_to_client_swap()
             return
-        
+
         # CASE 4: CLIENT receiving host's swap done
         elif not self.is_host and self.game_phase == multiplayer.GamePhase.HOST_HORSE_SWAP:
             print(f"{role_prefix}Client received host swap done, transitioning to client swap")
             # Realign collision rectangles
             self.realign_piece_collisions(self.host)
             self.realign_piece_collisions(self.guest)
-            
+
             # Force a sync to get latest host pieces
             self.force_sync()
-            
+
             # Create an intermediate backup
             self.backup_pieces()
-            
+
             # Now transition to client swap phase
             self.transition_to_client_swap()
             return
-        
+
         # Unexpected cases - log and try to recover
         else:
             print(f"{role_prefix}Unexpected state in process_swap_done - is_host: {self.is_host}, phase: {self.game_phase.value}")
@@ -1709,77 +1709,77 @@ class Multiplayer(State):
     def process_move_message(self, data):
         """Process move message from opponent"""
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
-        
+
         # Extract move information
         piece_type = data.get("piece_type")
         piece_id = data.get("piece_id")
         from_pos_data = data.get("from_pos", {})
         to_pos_data = data.get("to_pos", {})
-        
+
         # Create Position objects
         from_file = from_pos_data.get('file', 0)
         from_rank = from_pos_data.get('rank', 0)
         to_file = to_pos_data.get('file', 0)
         to_rank = to_pos_data.get('rank', 0)
-        
+
         # Transform if client perspective
         if not self.is_host:
             from_file, from_rank = 8 - from_file, 9 - from_rank
             to_file, to_rank = 8 - to_file, 9 - to_rank
-        
+
         # Find the piece to move
         found_piece = None
-        
+
         # Try to find by ID first
         if piece_id:
             for p in self.remote_player.pieces:
                 if hasattr(p, 'id') and p.id == piece_id:
                     found_piece = p
                     break
-        
+
         # If not found by ID, try by position and type
         if not found_piece:
             for p in self.remote_player.pieces:
-                if (p.piece_type.value == piece_type and 
-                    p.position.file == from_file and 
+                if (p.piece_type.value == piece_type and
+                    p.position.file == from_file and
                     p.position.rank == from_rank):
                     found_piece = p
                     break
-        
+
         # If still not found, try just by type (closest)
         if not found_piece:
             candidates = [p for p in self.remote_player.pieces if p.piece_type.value == piece_type]
             if candidates:
                 closest_piece = None
                 min_distance = float('inf')
-                
+
                 for p in candidates:
                     dist = abs(p.position.file - from_file) + abs(p.position.rank - from_rank)
                     if dist < min_distance:
                         min_distance = dist
                         closest_piece = p
-                
+
                 found_piece = closest_piece
-        
+
         if found_piece:
             # Update grid position
             found_piece.position = self.Position(to_file, to_rank)
-            
+
             # Update pixel locations
             pixel_loc = found_piece.position.to_pixel()
             found_piece.location = pixel_loc
             found_piece.image_location = pixel_loc
-            
+
             # Update collision rectangle
             found_piece.collision_rect = helper_funcs.reformat_piece_collision(pixel_loc, found_piece.collision_rect)
-            
+
             # Check for captures
             for p in list(self.local_player.pieces):
                 if (p.position.file == to_file and p.position.rank == to_rank):
                     self.local_player.pieces.remove(p)
                     print(f"{role_prefix}My piece captured: {p.piece_type.value}")
                     break
-            
+
             # Check game conditions
             if helper_funcs.detect_bikjang(self.remote_player, self.local_player):
                 self.bikjang = True
@@ -1790,47 +1790,47 @@ class Multiplayer(State):
                 self.check = True
                 self.condition = "Check"
                 self.local_player.is_checked = True
-            
+
             self.immediate_render = True
         else:
             print(f"{role_prefix}ERROR: Could not find piece {piece_type} to move")
-            # Request a full sync 
+            # Request a full sync
             self.request_sync()
 
     def process_sync_message(self, data):
         """Process board sync message"""
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
-        
+
         if not data:
             print(f"{role_prefix}Warning: Empty sync data")
             return
-        
+
         # Extract host and guest piece data
         host_data = data.get("host", {})
         guest_data = data.get("guest", {})
-        
+
         # Save piece counts before sync for verification
         host_count_before = len(self.host.pieces)
         guest_count_before = len(self.guest.pieces)
-        
+
         # Determine perspective for deserialization
-        perspective = (multiplayer.Perspective.HOST if self.is_host 
+        perspective = (multiplayer.Perspective.HOST if self.is_host
                     else multiplayer.Perspective.CLIENT)
-        
+
         # Update pieces using standard deserialization
         if host_data:
             multiplayer.deserialize_piece_positions(host_data, self.host.pieces, perspective)
-        
+
         if guest_data:
             multiplayer.deserialize_piece_positions(guest_data, self.guest.pieces, perspective)
-        
+
         # Verify we didn't lose any pieces unexpectedly
         host_count_after = len(self.host.pieces)
         guest_count_after = len(self.guest.pieces)
-        
+
         # If host lost more pieces than seems reasonable, this is likely a sync error
-        if (self.is_host and 
-            host_count_before > host_count_after and 
+        if (self.is_host and
+            host_count_before > host_count_after and
             host_count_before - host_count_after > 1):
             print(f"{role_prefix}WARNING: Host lost {host_count_before - host_count_after} pieces in sync")
             # Only restore from backup if we have one
@@ -1840,39 +1840,39 @@ class Multiplayer(State):
                 for p in self.host_pieces_backup:
                     from piece import Piece
                     new_piece = Piece(
-                        p.piece_type, 
-                        p.location, 
+                        p.piece_type,
+                        p.location,
                         p.image_location,
-                        pygame.Rect(p.collision_rect), 
+                        pygame.Rect(p.collision_rect),
                         p.point_value
                     )
                     if hasattr(p, 'position'):
                         new_piece.position = self.Position(p.position.file, p.position.rank)
                     self.host.pieces.append(new_piece)
-        
+
         # Realign collision rectangles after sync
         self.realign_piece_collisions(self.host)
         self.realign_piece_collisions(self.guest)
-        
+
         self.immediate_render = True
-        
+
     def process_turn_message(self, data):
         """Process turn update message"""
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
         active_color = data.get("active_player")
         condition = data.get("condition", "None")
         timestamp = data.get("timestamp", 0)
-        
+
         # Only process if this message is newer than our last known state
         if hasattr(self, 'last_turn_timestamp') and timestamp <= self.last_turn_timestamp:
             print(f"{role_prefix}Ignoring outdated turn message")
             return
-        
+
         # Store timestamp for future reference
         self.last_turn_timestamp = timestamp
-        
+
         print(f"{role_prefix}Processing turn message: active={active_color}")
-        
+
         # Update active player and turn flags
         if active_color == self.local_player.color:
             # It's now local player's turn
@@ -1888,24 +1888,24 @@ class Multiplayer(State):
             self.remote_player.is_turn = True
             self.local_player.is_turn = False
             print(f"{role_prefix}It's now OPPONENT'S turn")
-        
+
         # Update condition
         self.condition = condition
-        
+
         # Force a sync to ensure board state matches turn state
         if self.is_host:
             self.force_sync()
-        
+
         self.immediate_render = True
 
     # -------------------------------------------------------------------------
     # Game State Transitions
     # -------------------------------------------------------------------------
-    
+
     def transition_to_settings(self):
         """Transition to settings selection phase"""
         self.game_phase = multiplayer.GamePhase.SETTINGS
-        
+
         if self.is_host:
             print("Host entering settings phase")
             # Host selects settings first
@@ -1917,7 +1917,7 @@ class Multiplayer(State):
     def transition_to_host_swap(self):
         """Transition to host horse swap phase"""
         self.game_phase = multiplayer.GamePhase.HOST_HORSE_SWAP
-        
+
         if self.is_host:
             print("Host beginning horse swap")
             self.opening_turn = True
@@ -1931,7 +1931,7 @@ class Multiplayer(State):
     def transition_to_client_swap(self):
         """Transition to client horse swap phase"""
         self.game_phase = multiplayer.GamePhase.CLIENT_HORSE_SWAP
-        
+
         if self.is_host:
             print("Host waiting for client's horse swap")
             self.waiting_for_opponent_swap = True
@@ -1946,56 +1946,56 @@ class Multiplayer(State):
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
         self.game_phase = multiplayer.GamePhase.GAMEPLAY
         print(f"{role_prefix}Transitioning to gameplay phase")
-        
+
         # Set active and waiting players based on Cho/Han assignment
         # Cho player always goes first in Janggi
         self.active_player = self.cho_player
         self.waiting_player = self.han_player
-        
+
         # Debug before setting turn flags
         print(f"{role_prefix}BEFORE: Cho player ({self.cho_player.color}) turn flag: {self.cho_player.is_turn}")
         print(f"{role_prefix}BEFORE: Han player ({self.han_player.color}) turn flag: {self.han_player.is_turn}")
         print(f"{role_prefix}BEFORE: Local player ({self.local_player.color}) turn flag: {self.local_player.is_turn}")
         print(f"{role_prefix}BEFORE: Remote player ({self.remote_player.color}) turn flag: {self.remote_player.is_turn}")
-        
+
         # Explicit turn flag setting
         self.cho_player.is_turn = True
         self.han_player.is_turn = False
-        
+
         # Make sure local_player and remote_player have correct is_turn
         self.local_player.is_turn = (self.local_player == self.cho_player)
         self.remote_player.is_turn = (self.remote_player == self.cho_player)
-        
+
         # Debug after setting turn flags
         print(f"{role_prefix}AFTER: Cho player ({self.cho_player.color}) turn flag: {self.cho_player.is_turn}")
         print(f"{role_prefix}AFTER: Han player ({self.han_player.color}) turn flag: {self.han_player.is_turn}")
         print(f"{role_prefix}AFTER: Local player ({self.local_player.color}) turn flag: {self.local_player.is_turn}")
         print(f"{role_prefix}AFTER: Remote player ({self.remote_player.color}) turn flag: {self.remote_player.is_turn}")
-        
+
         # Debug who should move first
         print(f"{role_prefix}Active player: {self.active_player.color}, Local player: {self.local_player.color}")
         print(f"{role_prefix}Is it my turn to move? {self.local_player.is_turn}")
-        
+
         # Update flags
         self.opening_turn = False
         self.waiting_for_opponent_swap = False
         self.bikjang = False
         self.check = False
         self.condition = "None"
-        
+
         # Set a grace period after swap to prevent immediate game over
         self.post_swap_grace = True
-        
+
         # Realign all collision rectangles before gameplay
         self.realign_piece_collisions(self.host)
         self.realign_piece_collisions(self.guest)
-        
+
         #Create new piece state backup after all swaps are complete
         self.backup_pieces()
-        
+
         # Make sure all pieces are present
         self.validate_board_state()
-        
+
         # Send turn update to notify opponent about gameplay phase and active player
         turn_data = {
             "active_player": self.active_player.color,
@@ -2003,7 +2003,7 @@ class Multiplayer(State):
             "game_phase": multiplayer.GamePhase.GAMEPLAY.value
         }
         self.send_message(multiplayer.MessageType.TURN, turn_data)
-        
+
         # Send full sync to ensure consistency
         self.force_sync()  # Use force sync instead of normal sync to ensure immediate sync
 
@@ -2011,20 +2011,20 @@ class Multiplayer(State):
     # -------------------------------------------------------------------------
     # Game Logic Methods
     # -------------------------------------------------------------------------
-    
+
     def handle_event(self, event):
         """Handle input events based on game phase"""
         # Get mouse position for click detection
         mouse_pos = pygame.mouse.get_pos()
-        
+
         # Check for incoming messages
         self.check_for_messages()
-        
+
         # Handle escape key to exit
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.handle_exit()
             return
-            
+
         # Process clicks based on game phase
         if self.is_left_click(event):
             if self.game_phase == multiplayer.GamePhase.SETTINGS:
@@ -2041,11 +2041,11 @@ class Multiplayer(State):
             elif self.game_phase == multiplayer.GamePhase.GAME_OVER:
                 # Handle clicks in game over state (e.g., "Play Again" button)
                 pass
-                
+
         # Handle right-click for passing turn
         elif self.is_right_click(event):
             if (self.game_phase == multiplayer.GamePhase.GAMEPLAY and
-                not self.game_over and 
+                not self.game_over and
                 self.active_player == self.local_player):
                 self.handle_pass_turn(mouse_pos)
 
@@ -2054,25 +2054,25 @@ class Multiplayer(State):
         if not self.is_host:
             # Client can't change settings
             return
-            
+
         # Handle color selection
         if hasattr(self, 'cho_side_button') and self.cho_side_button.is_clicked():
             self.host.color = "Cho"
             self.guest.color = "Han"
-            
+
         elif hasattr(self, 'han_side_button') and self.han_side_button.is_clicked():
             self.host.color = "Han"
             self.guest.color = "Cho"
-            
+
         # Handle piece convention selection
         elif hasattr(self, 'standard_piece_convention_button') and self.standard_piece_convention_button.is_clicked():
             self.host.piece_convention = "Standard"
             self.guest.piece_convention = "Standard"
-            
+
         elif hasattr(self, 'internat_piece_convention_button') and self.internat_piece_convention_button.is_clicked():
             self.host.piece_convention = "International"
             self.guest.piece_convention = "International"
-            
+
         # Handle play button
         elif hasattr(self, 'play_button') and self.play_button.is_clicked():
             # Send settings to client
@@ -2080,11 +2080,11 @@ class Multiplayer(State):
                 "host_color": self.host.color,
                 "piece_convention": self.host.piece_convention
             })
-            
+
             # Update han/cho player references
             self.han_player = self.host if self.host.color == "Han" else self.guest
             self.cho_player = self.guest if self.guest.color == "Cho" else self.host
-            
+
             # Transition to host swap phase
             self.transition_to_host_swap()
 
@@ -2095,7 +2095,7 @@ class Multiplayer(State):
         left_horse = None
         right_elephant = None
         right_horse = None
-        
+
         # Get pieces based on type and relative position
         for piece in self.local_player.pieces:
             if piece.piece_type.value == "Elephant":
@@ -2108,37 +2108,37 @@ class Multiplayer(State):
                     right_horse, left_horse = left_horse, piece
                 else:
                     right_horse = piece
-        
+
         # Handle left horse swap
-        if (hasattr(self, 'swap_left_horse_button') and 
-            self.swap_left_horse_button.is_clicked() and 
+        if (hasattr(self, 'swap_left_horse_button') and
+            self.swap_left_horse_button.is_clicked() and
             left_horse and left_elephant):
-            
+
             helper_funcs.swap_pieces(self.local_player, left_horse, left_elephant)
             print(f"Player swapped left horse and elephant")
-            
+
             # Send swap message to opponent
             self.send_message(multiplayer.MessageType.SWAP, {
                 "side": "left"
             })
-            
+
         # Handle right horse swap
-        elif (hasattr(self, 'swap_right_horse_button') and 
-            self.swap_right_horse_button.is_clicked() and 
+        elif (hasattr(self, 'swap_right_horse_button') and
+            self.swap_right_horse_button.is_clicked() and
             right_horse and right_elephant):
-            
+
             helper_funcs.swap_pieces(self.local_player, right_horse, right_elephant)
             print(f"Player swapped right horse and elephant")
-            
+
             # Send swap message to opponent
             self.send_message(multiplayer.MessageType.SWAP, {
                 "side": "right"
             })
-            
+
         # Handle confirm button
         elif hasattr(self, 'confirm_swap_button') and self.confirm_swap_button.is_clicked():
             print(f"{'CLIENT' if not self.is_host else 'HOST'}: Confirming swap, current phase: {self.game_phase.value}")
-            
+
             # Prepare detailed message with debug info
             swap_done_data = {
                 "phase": self.game_phase.value,
@@ -2147,21 +2147,21 @@ class Multiplayer(State):
                 "player_color": self.local_player.color,
                 "timestamp": time.time()
             }
-            
+
             # Send swap done message with detailed info
             success = self.send_message(multiplayer.MessageType.SWAP_DONE, swap_done_data)
             print(f"{'CLIENT' if not self.is_host else 'HOST'}: SWAP_DONE message sent successfully: {success}")
             print(f"{'CLIENT' if not self.is_host else 'HOST'}: Message content: {swap_done_data}")
-            
+
             # Send full board sync
             self.send_sync()
-            
+
             # Update state based on role and phase
             if self.is_host and self.game_phase == multiplayer.GamePhase.HOST_HORSE_SWAP:
                 # Host done with swap, wait for client
                 print("HOST: Done with swap, transitioning to client swap phase")
                 self.transition_to_client_swap()
-                
+
             elif not self.is_host and self.game_phase == multiplayer.GamePhase.CLIENT_HORSE_SWAP:
                 # Client done with swap, game starts
                 print("CLIENT: Done with swap, transitioning to gameplay phase")
@@ -2173,7 +2173,7 @@ class Multiplayer(State):
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
         local_player = self.local_player
         remote_player = self.remote_player
-        
+
         # debug output
         print(f"{role_prefix}CLICK AT {mouse_pos}")
         print(f"{role_prefix}Current Game Phase: {self.game_phase}")
@@ -2181,16 +2181,16 @@ class Multiplayer(State):
         print(f"{role_prefix}Local player: {local_player.color}, Remote player: {remote_player.color}")
         print(f"{role_prefix}Local player turn? {local_player.is_turn}, Remote player turn? {remote_player.is_turn}")
         print(f"{role_prefix}Active == Local? {self.active_player == local_player}")
-        
+
         # Check if it's this player's turn
         if not local_player.is_turn:
             print(f"{role_prefix}Not your turn (is_turn flag is False)")
             return
-        
+
         # Convert click to grid position
         click_grid_pos = self.Position.from_pixel(mouse_pos)
         print(f"{role_prefix}Click at grid position: {click_grid_pos}")
-        
+
         # Debug: Check if any piece is at the click location
         piece_found = False
         for p in local_player.pieces:
@@ -2200,33 +2200,33 @@ class Multiplayer(State):
                 break
         if not piece_found:
             print(f"{role_prefix}No piece found at click position")
-        
+
         # CASE 1: Player has a piece selected and is attempting to move
         if local_player.is_clicked:
             # Track the piece's original position
             clicked_piece = None
             from_pos = None
-            
+
             for p in local_player.pieces:
                 if p.is_clicked:
                     clicked_piece = p
                     from_pos = self.Position(p.position.file, p.position.rank)
                     from_pixel = p.location
                     break
-                    
+
             if clicked_piece and helper_funcs.attempt_move(
                 local_player, remote_player, self.board, mouse_pos, self.condition
             ):
                 # Successful move made
                 to_pos = self.Position(clicked_piece.position.file, clicked_piece.position.rank)
                 to_pixel = clicked_piece.location
-                
+
                 print(f"{role_prefix}Move successful: {clicked_piece.piece_type.value} from {from_pos} to {to_pos}")
-                
+
                 # Realign collision rectangles after move
                 self.realign_piece_collisions(local_player)
                 self.realign_piece_collisions(remote_player)
-                
+
                 # Create move data with grid positions and piece ID
                 move_data = {
                     'piece_type': clicked_piece.piece_type.value,
@@ -2235,13 +2235,13 @@ class Multiplayer(State):
                     'to_pos': {'file': to_pos.file, 'rank': to_pos.rank},
                     'timestamp': time.time()
                 }
-                
+
                 print(f"{role_prefix}Sending move: {move_data}")
                 self.send_message(multiplayer.MessageType.MOVE, move_data)
-                
+
                 # Reset clicked piece state
                 helper_funcs.player_piece_unclick(local_player)
-                
+
                 # Check if we captured a piece using both grid position and pixel location
                 captured = False
                 for piece in list(remote_player.pieces):  # Use a copy of the list
@@ -2251,7 +2251,7 @@ class Multiplayer(State):
                         print(f"{role_prefix}Captured {piece.piece_type.value}")
                         captured = True
                         break
-                
+
                 # Check for game conditions if not in grace period
                 if not self.post_swap_grace:
                     if helper_funcs.detect_bikjang(local_player, remote_player):
@@ -2260,7 +2260,7 @@ class Multiplayer(State):
                         self.winner = local_player
                         self.game_over = True
                         self.game_phase = multiplayer.GamePhase.GAME_OVER
-                        
+
                     elif helper_funcs.detect_check(remote_player, local_player, self.board):
                         self.check = True
                         self.condition = "Check"
@@ -2268,20 +2268,20 @@ class Multiplayer(State):
                 else:
                     # We've made our first move after swaps, disable grace period
                     self.post_swap_grace = False
-                
+
                 # Only swap turns ONCE
                 self.swap_turn()  # This will send the TURN message
-                
+
                 # Force a sync to ensure both sides have same state
                 self.force_sync()
-                
+
                 self.immediate_render = True
-                
+
             else:
                 # If move was invalid, just unselect the piece
                 print(f"{role_prefix}Move invalid or aborted")
                 helper_funcs.player_piece_unclick(local_player)
-                
+
         # CASE 2: Player clicked on one of their pieces (piece selection)
         elif helper_funcs.player_piece_clicked(local_player, mouse_pos):
             print(f"{role_prefix}Piece clicked: {mouse_pos}")
@@ -2292,12 +2292,12 @@ class Multiplayer(State):
                     # No need to sync here - just a local selection
                     self.immediate_render = True
                     break
-        
+
         # CASE 3: Player clicked on an empty space or opponent's piece without having a piece selected
         else:
             print(f"{role_prefix}Clicked on empty space or opponent's piece with no selection")
             # Nothing to do here
-                    
+
     def handle_pass_turn(self, mouse_pos):
         """Handle passing the turn"""
         # Check if player clicked on the king
@@ -2306,14 +2306,14 @@ class Multiplayer(State):
             if piece.piece_type.value == "King":
                 king_piece = piece
                 break
-                
+
         if king_piece and king_piece.collision_rect.collidepoint(mouse_pos):
             # Reset any clicked piece
             helper_funcs.player_piece_unclick(self.local_player)
-            
+
             # Send pass turn message
             self.send_message(multiplayer.MessageType.PASS, {"passing": True})
-            
+
             # Swap turns locally
             self.swap_turn()
             self.immediate_render = True
@@ -2323,36 +2323,36 @@ class Multiplayer(State):
         # Send exit message
         if self.connection:
             self.send_message(multiplayer.MessageType.EXIT, {"exiting": True})
-            
+
             # Close connection
             try:
                 self.connection.close()
             except:
                 pass
-                
+
         # Return to main menu
         self.next_state = "Main Menu"
 
     def swap_turn(self):
         """Swap active and waiting players with proper synchronization"""
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
-        
+
         # Log current state
         print(f"{role_prefix}BEFORE SWAP - Active: {self.active_player.color}, Local turn: {self.local_player.is_turn}")
-        
+
         # 1. Update is_turn flags
         self.active_player.is_turn = False
         self.waiting_player.is_turn = True
-        
+
         # 2. Swap active and waiting players
         temp = self.active_player
         self.active_player = self.waiting_player
         self.waiting_player = temp
-        
+
         # Log new state
         print(f"{role_prefix}AFTER SWAP - Active: {self.active_player.color}, Local turn: {self.local_player.is_turn}")
-        
-        # 3. Send turn update message 
+
+        # 3. Send turn update message
         self.send_message(multiplayer.MessageType.TURN, {
             "active_player": self.active_player.color,
             "condition": self.condition,
@@ -2365,19 +2365,19 @@ class Multiplayer(State):
         current_time = time.time()
         if current_time - self.last_sync_time < self.sync_interval:
             return
-            
+
         self.last_sync_time = current_time
-        
+
         # Create board state with proper perspective
-        perspective = (multiplayer.Perspective.HOST if self.is_host 
+        perspective = (multiplayer.Perspective.HOST if self.is_host
                       else multiplayer.Perspective.CLIENT)
-        
+
         board_state = multiplayer.serialize_board_state(
-            self.host.pieces, 
-            self.guest.pieces, 
+            self.host.pieces,
+            self.guest.pieces,
             perspective
         )
-        
+
         # Send sync message
         self.send_message(multiplayer.MessageType.SYNC, board_state)
 
@@ -2390,7 +2390,7 @@ class Multiplayer(State):
         # Find the pieces to swap
         left_elephant = None
         left_horse = None
-        
+
         for piece in self.remote_player.pieces:
             if piece.piece_type.value == "Elephant":
                 if not left_elephant or piece.location[0] < left_elephant.location[0]:
@@ -2398,7 +2398,7 @@ class Multiplayer(State):
             elif piece.piece_type.value == "Horse":
                 if not left_horse or piece.location[0] < left_horse.location[0]:
                     left_horse = piece
-        
+
         # Perform the swap
         if left_elephant and left_horse:
             helper_funcs.swap_pieces(self.remote_player, left_horse, left_elephant)
@@ -2409,7 +2409,7 @@ class Multiplayer(State):
         # Find the pieces to swap
         right_elephant = None
         right_horse = None
-        
+
         for piece in self.remote_player.pieces:
             if piece.piece_type.value == "Elephant":
                 if not right_elephant or piece.location[0] > right_elephant.location[0]:
@@ -2417,7 +2417,7 @@ class Multiplayer(State):
             elif piece.piece_type.value == "Horse":
                 if not right_horse or piece.location[0] > right_horse.location[0]:
                     right_horse = piece
-        
+
         # Perform the swap
         if right_elephant and right_horse:
             helper_funcs.swap_pieces(self.remote_player, right_horse, right_elephant)
@@ -2427,26 +2427,26 @@ class Multiplayer(State):
         """Realign all piece collision rectangles and update grid positions"""
         if not player or not player.pieces:
             return
-            
+
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
         print(f"{role_prefix}Realigning collision rectangles for {player.color}'s {len(player.pieces)} pieces")
-        
+
         for piece in player.pieces:
             if piece and piece.location:
                 # Store original rect and position for debugging
                 old_rect = pygame.Rect(piece.collision_rect)
                 old_pos = piece.position if hasattr(piece, 'position') else None
-                
+
                 # Reformat collision rectangle to match current pixel location
                 piece.collision_rect = helper_funcs.reformat_piece_collision(
                     piece.location, piece.collision_rect)
-                
+
                 # Make sure grid position matches pixel location
                 piece.position = self.Position.from_pixel(piece.location)
-                
+
                 # Make sure image location matches location
                 piece.image_location = piece.location
-                
+
                 # Debug output for significant changes
                 if (abs(old_rect.x - piece.collision_rect.x) > 10 or
                     abs(old_rect.y - piece.collision_rect.y) > 10):
@@ -2457,40 +2457,40 @@ class Multiplayer(State):
     def force_sync(self):
         """Force an immediate board sync"""
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
-        
+
         # Create board state with proper perspective
-        perspective = (multiplayer.Perspective.HOST if self.is_host 
+        perspective = (multiplayer.Perspective.HOST if self.is_host
                     else multiplayer.Perspective.CLIENT)
-        
+
         # Make backup copies before syncing
         if self.is_host:
             self.host_pieces_backup = []
             for p in self.host.pieces:
                 from piece import Piece
                 new_piece = Piece(
-                    p.piece_type, 
-                    p.location, 
+                    p.piece_type,
+                    p.location,
                     p.image_location,
-                    pygame.Rect(p.collision_rect), 
+                    pygame.Rect(p.collision_rect),
                     p.point_value
                 )
                 if hasattr(p, 'position'):
                     new_piece.position = self.Position(p.position.file, p.position.rank)
                 self.host_pieces_backup.append(new_piece)
-        
+
         # Serialize the current state
         board_state = multiplayer.serialize_board_state(
-            self.host.pieces, 
-            self.guest.pieces, 
+            self.host.pieces,
+            self.guest.pieces,
             perspective
         )
-        
+
         # Send sync message
         self.send_message(multiplayer.MessageType.SYNC, board_state)
-        
+
         # Update the last sync time
         self.last_sync_time = time.time()
-        
+
     def verify_piece_data(self, piece_data, pieces):
         """Verify piece data before applying it"""
         # Group existing pieces by type for comparison
@@ -2500,40 +2500,40 @@ class Multiplayer(State):
             if piece_type not in piece_map:
                 piece_map[piece_type] = []
             piece_map[piece_type].append(piece)
-        
+
         # Basic checks for each piece type
         for piece_type, positions in piece_data.items():
             # Skip verification during gameplay (due to captures)
             if self.game_phase == multiplayer.GamePhase.GAMEPLAY:
                 continue
-                
+
             # During setup, ensure we have the right piece counts
             if piece_type not in piece_map:
                 print(f"Missing piece type: {piece_type}")
                 return False
-                
+
             # During setup we expect exact match
             if len(piece_map[piece_type]) != len(positions):
                 print(f"Piece count mismatch for {piece_type}: expected {len(piece_map[piece_type])}, got {len(positions)}")
                 return False
-        
+
         return True
-    
+
     def log_board_state(self):
         """Log current board state for debugging"""
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
         print(f"\n{role_prefix} CURRENT BOARD STATE:")
-        
+
         # Log host pieces
         print(f"{role_prefix} Host pieces ({len(self.host.pieces)}):")
         for p in self.host.pieces:
             print(f"{role_prefix}   {p.piece_type.value}: grid=({p.position.file}, {p.position.rank}), pixel={p.location}")
-        
+
         # Log guest pieces
         print(f"{role_prefix} Guest pieces ({len(self.guest.pieces)}):")
         for p in self.guest.pieces:
             print(f"{role_prefix}   {p.piece_type.value}: grid=({p.position.file}, {p.position.rank}), pixel={p.location}")
-        
+
         print(f"{role_prefix} Game phase: {self.game_phase}")
         print(f"{role_prefix} Active player: {self.active_player.color if self.active_player else 'None'}")
 
@@ -2541,7 +2541,7 @@ class Multiplayer(State):
         """Perform regular game updates"""
         # Check for incoming messages
         self.check_for_messages()
-        
+
         # Check if we need to perform a validation
         current_time = time.time()
         if hasattr(self, 'validation_interval') and hasattr(self, 'last_validation_time'):
@@ -2550,16 +2550,16 @@ class Multiplayer(State):
                 host_count = len(self.host.pieces)
                 guest_count = len(self.guest.pieces)
                 print(f"{'HOST' if self.is_host else 'CLIENT'}: Piece count check - Host: {host_count}, Guest: {guest_count}")
-                
+
                 # Verify all pieces have valid positions
                 for p in self.host.pieces + self.guest.pieces:
                     if not hasattr(p, 'position') or not hasattr(p.position, 'file') or not hasattr(p.position, 'rank'):
                         print(f"Invalid piece detected: {p.piece_type.value} - restoring from backup")
                         self.restore_pieces_from_backup()
                         break
-                
+
                 self.last_validation_time = current_time
-                
+
         # If hosting, perform occasional full syncs during gameplay
         if self.is_host and self.game_phase == multiplayer.GamePhase.GAMEPLAY:
             if current_time - self.last_sync_time > self.sync_interval * 5:  # Every 2.5 seconds
@@ -2583,7 +2583,7 @@ class Multiplayer(State):
             background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["background_color"]
             hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["hover_color"]
             self.cho_side_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-            
+
             # han button
             x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["location"]
             width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["size"]
@@ -2593,7 +2593,7 @@ class Multiplayer(State):
             background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["background_color"]
             hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["hover_color"]
             self.han_side_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-            
+
             # standard piece convention button
             x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["location"]
             width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["size"]
@@ -2603,7 +2603,7 @@ class Multiplayer(State):
             background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["background_color"]
             hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["hover_color"]
             self.standard_piece_convention_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-            
+
             # international piece convention button
             x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["location"]
             width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["size"]
@@ -2613,7 +2613,7 @@ class Multiplayer(State):
             background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["background_color"]
             hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["hover_color"]
             self.internat_piece_convention_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-            
+
             # play button
             x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["location"]
             width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["size"]
@@ -2623,53 +2623,53 @@ class Multiplayer(State):
             background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["background_color"]
             hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["hover_color"]
             self.play_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-    
+
     def load_swap_menu(self):
         """Load UI elements for horse swap phase"""
         # Swap buttons
-        x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_left_horse_button"]["location"]
-        width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_left_horse_button"]["size"]
-        font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_left_horse_button"]["text"]["font"]
-        text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_left_horse_button"]["text"]["string"]
-        fg_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_left_horse_button"]["text"]["foreground_color"]
-        bg_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_left_horse_button"]["text"]["background_color"]
-        hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_left_horse_button"]["text"]["hover_color"]
+        x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["location"]
+        width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["size"]
+        font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["text"]["font"]
+        text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["text"]["string"]
+        fg_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["text"]["foreground_color"]
+        bg_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["text"]["background_color"]
+        hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_left_horse_button"]["text"]["hover_color"]
         self.swap_left_horse_button = button.Button(x, y, width, height, font, text, fg_color, bg_color, hover_color)
 
         # Right horse swap button
-        x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_right_horse_button"]["location"]
-        width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_right_horse_button"]["size"]
-        font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_right_horse_button"]["text"]["font"]
-        text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_right_horse_button"]["text"]["string"]
-        fg_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_right_horse_button"]["text"]["foreground_color"]
-        bg_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_right_horse_button"]["text"]["background_color"]
-        hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["swap_right_horse_button"]["text"]["hover_color"]
+        x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["location"]
+        width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["size"]
+        font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["text"]["font"]
+        text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["text"]["string"]
+        fg_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["text"]["foreground_color"]
+        bg_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["text"]["background_color"]
+        hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_swap_right_horse_button"]["text"]["hover_color"]
         self.swap_right_horse_button = button.Button(x, y, width, height, font, text, fg_color, bg_color, hover_color)
 
         # Confirm button
-        x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["confirm_swap_button"]["location"]
-        width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["confirm_swap_button"]["size"]
-        font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["confirm_swap_button"]["text"]["font"]
-        text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["confirm_swap_button"]["text"]["string"]
-        fg_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["confirm_swap_button"]["text"]["foreground_color"]
-        bg_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["confirm_swap_button"]["text"]["background_color"]
-        hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["single_player"]["confirm_swap_button"]["text"]["hover_color"]
+        x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["location"]
+        width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["size"]
+        font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["text"]["font"]
+        text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["text"]["string"]
+        fg_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["text"]["foreground_color"]
+        bg_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["text"]["background_color"]
+        hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["host_confirm_swap_button"]["text"]["hover_color"]
         self.confirm_swap_button = button.Button(x, y, width, height, font, text, fg_color, bg_color, hover_color)
 
         # Button backgrounds
         self.swap_left_horse_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
         self.swap_left_horse_background = pygame.transform.rotate(self.swap_left_horse_background, 180)
         self.swap_left_horse_background = pygame.transform.scale(self.swap_left_horse_background,
-                constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["swap_left_horse"]["size"])
+                constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["host_swap_left_horse"]["size"])
 
         self.swap_right_horse_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
         self.swap_right_horse_background = pygame.transform.rotate(self.swap_right_horse_background, 180)
         self.swap_right_horse_background = pygame.transform.scale(self.swap_right_horse_background,
-                constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["swap_right_horse"]["size"])
+                constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["host_swap_right_horse"]["size"])
 
         self.confirm_swap_button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
         self.confirm_swap_button_background = pygame.transform.scale(self.confirm_swap_button_background,
-                constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["confirm_swap"]["size"])
+                constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["host_confirm_swap"]["size"])
 
     def load_game_state_elements(self):
         """Load UI elements for game state display"""
@@ -2677,18 +2677,18 @@ class Multiplayer(State):
         self.game_state_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
         self.game_state_background = pygame.transform.scale(self.game_state_background,
                 constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_state"]["size"])
-        
+
         # Game over background
         self.game_over_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
         self.game_over_background = pygame.transform.scale(self.game_over_background,
                 constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["size"])
-        
+
 
     def render(self, window):
             """Render the game based on current phase"""
             # Render board
             self.render_board(window)
-            
+
             # Render phase-specific elements
             if self.game_phase == multiplayer.GamePhase.SETTINGS:
                 self.render_settings(window)
@@ -2700,7 +2700,7 @@ class Multiplayer(State):
                 self.render_gameplay(window)
             elif self.game_phase == multiplayer.GamePhase.GAME_OVER:
                 self.render_game_over(window)
-                
+
             # Always show connection status
             self.render_connection_status(window)
 
@@ -2711,7 +2711,7 @@ class Multiplayer(State):
                 self.render_settings_ui(window)
             else:
                 # Client waits for settings from host
-                self.draw_text(window, "Waiting for host to select settings...", 
+                self.draw_text(window, "Waiting for host to select settings...",
                             constants.screen_width//2 - 200, constants.screen_height//2, 30)
 
     def render_settings_ui(self, window):
@@ -2719,46 +2719,46 @@ class Multiplayer(State):
         # Check if UI elements are initialized
         if not hasattr(self, 'play_as_background') or not self.play_as_background:
             # Skip rendering if elements aren't initialized yet
-            self.draw_text(window, "Loading settings UI...", 
+            self.draw_text(window, "Loading settings UI...",
                           constants.screen_width//2 - 200, constants.screen_height//2, 30)
             return
-            
+
         # Play as selector
-        window.blit(self.play_as_background, 
+        window.blit(self.play_as_background,
                constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["location"])
         text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["string"]
         x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["location"]
         font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["font_size"]
         self.draw_text(window, text, x, y, font_size)
-        
+
         # Draw color buttons
         self.cho_side_button.draw_button(window)
         self.han_side_button.draw_button(window)
-        
+
         # Show selected color
         selected_color = "Cho" if self.host.color == "Cho" else "Han"
         self.draw_text(window, f"Selected: {selected_color}", x, y + 40, font_size - 10)
-        
+
         # Piece convention selector
-        window.blit(self.piece_convention_background, 
+        window.blit(self.piece_convention_background,
                constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["location"])
         text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["string"]
         x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["location"]
         font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["font_size"]
         self.draw_text(window, text, x, y, font_size)
-        
+
         # Draw piece convention buttons
         self.standard_piece_convention_button.draw_button(window)
         self.internat_piece_convention_button.draw_button(window)
-        
+
         # Show selected convention
         self.draw_text(window, f"Selected: {self.host.piece_convention}", x, y + 40, font_size - 10)
-        
+
         # Play button
-        window.blit(self.play_button_background, 
+        window.blit(self.play_button_background,
                constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play"]["location"])
         self.play_button.draw_button(window)
-        
+
         # Piece preview
         self.render_piece_preview(window)
 
@@ -2768,12 +2768,12 @@ class Multiplayer(State):
             # Host is swapping horses
             self.render_swap_ui(window)
             self.render_pieces(self.host, self.guest, window)
-            self.draw_text(window, "Host's Horse Swap Phase", 
+            self.draw_text(window, "Host's Horse Swap Phase",
                           constants.screen_width//2 - 150, 30, 30)
         else:
             # Client is waiting for host to swap
             self.render_pieces(self.host, self.guest, window)
-            self.draw_text(window, "Waiting for host to complete horse swap...", 
+            self.draw_text(window, "Waiting for host to complete horse swap...",
                           constants.screen_width//2 - 220, constants.screen_height//2, 30)
 
     def render_client_swap(self, window):
@@ -2782,24 +2782,24 @@ class Multiplayer(State):
             # Client is swapping horses
             self.render_swap_ui(window)
             self.render_pieces(self.host, self.guest, window)
-            self.draw_text(window, "Client's Horse Swap Phase", 
+            self.draw_text(window, "Client's Horse Swap Phase",
                           constants.screen_width//2 - 150, 30, 30)
         else:
             # Host is waiting for client to swap
             self.render_pieces(self.host, self.guest, window)
-            self.draw_text(window, "Waiting for client to complete horse swap...", 
+            self.draw_text(window, "Waiting for client to complete horse swap...",
                           constants.screen_width//2 - 220, constants.screen_height//2, 30)
 
     def render_gameplay(self, window):
         """Render regular gameplay phase"""
         # Render pieces
         self.render_pieces(self.local_player, self.remote_player, window)
-        
+
         # If player has a piece clicked, render possible moves
         if self.local_player.is_clicked:
-            render_funcs.render_possible_spots(self.local_player, self.remote_player, 
+            render_funcs.render_possible_spots(self.local_player, self.remote_player,
                                               self.board, window, self.condition)
-            
+
         # Render special conditions
         if self.bikjang:
             render_funcs.render_bikjang_highlight(self.active_player, self.waiting_player, window)
@@ -2808,20 +2808,20 @@ class Multiplayer(State):
                 render_funcs.render_check_highlight(self.guest, window)
             else:
                 render_funcs.render_check_highlight(self.host, window)
-                
+
         # Render turn indicator
         turn_text = "Your Turn" if self.active_player == self.local_player else "Opponent's Turn"
         self.draw_text(window, turn_text, constants.screen_width - 200, 80, 25)
-        
+
         # Render condition indicator if any
         if self.condition != "None":
             self.draw_text(window, f"Condition: {self.condition}", constants.screen_width - 200, 110, 25)
-            
+
     def render_game_over(self, window):
         """Render game over state"""
         # Render pieces in final position
         self.render_pieces(self.local_player, self.remote_player, window)
-        
+
         # Render special conditions
         if self.bikjang:
             self.render_bikjang_ending(window)
@@ -2831,18 +2831,18 @@ class Multiplayer(State):
     def render_swap_ui(self, window):
         """Render horse swap UI"""
         # Left horse swap button
-        window.blit(self.swap_left_horse_background, 
-            constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["swap_left_horse"]["location"])
+        window.blit(self.swap_left_horse_background,
+            constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["host_swap_left_horse"]["location"])
         self.swap_left_horse_button.draw_button(window)
 
         # Right horse swap button
         window.blit(self.swap_right_horse_background,
-            constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["swap_right_horse"]["location"])
+            constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["host_swap_right_horse"]["location"])
         self.swap_right_horse_button.draw_button(window)
 
         # Confirm button
         window.blit(self.confirm_swap_button_background,
-            constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["confirm_swap"]["location"])
+            constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["host_confirm_swap"]["location"])
         self.confirm_swap_button.draw_button(window)
 
     def render_piece_preview(self, window):
@@ -2850,26 +2850,26 @@ class Multiplayer(State):
         # Check if UI elements are initialized
         if not hasattr(self, 'player_piece_display_background') or not self.player_piece_display_background:
             return
-            
+
         # Player piece display
-        window.blit(self.player_piece_display_background, 
+        window.blit(self.player_piece_display_background,
             constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["location"])
-        
+
         # Player header
-        window.blit(self.player_header_background, 
+        window.blit(self.player_header_background,
             constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]
             ["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["player_header"]["location"])
-        
+
         # Player header text
         text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["text"]["string"]
         x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["text"]["location"]
         font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["text"]["font_size"]
         self.draw_text(window, text, x, y, font_size)
-        
+
         # Opponent piece display
-        window.blit(self.opponent_piece_display_background, 
+        window.blit(self.opponent_piece_display_background,
             constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["opponent_piece_display"]["location"])
-        
+
         # Render pieces
         render_funcs.PreGame_render_piece_display(window, self.host, self.guest)
 
@@ -2880,21 +2880,21 @@ class Multiplayer(State):
         status_y = 20
         role = "Host" if self.is_host else "Client"
         phase = self.game_phase.value
-        
+
         # Display connection info
         self.draw_text(window, f"Connected as: {role}", status_x, status_y, 20)
         self.draw_text(window, f"Game Phase: {phase}", status_x, status_y + 25, 20)
-        
+
         # Display color info
         your_color = self.local_player.color
         self.draw_text(window, f"Your color: {your_color}", status_x, status_y + 50, 20)
-        
+
         # Display player counts to help debug
-        self.draw_text(window, f"Your pieces: {len(self.local_player.pieces)}", 
+        self.draw_text(window, f"Your pieces: {len(self.local_player.pieces)}",
                       status_x, status_y + 75, 20)
-        self.draw_text(window, f"Opponent pieces: {len(self.remote_player.pieces)}", 
+        self.draw_text(window, f"Opponent pieces: {len(self.remote_player.pieces)}",
                       status_x, status_y + 100, 20)
-                      
+
     def render_pieces(self, local_player, remote_player, window):
         """Render pieces with correct perspective"""
         render_funcs.render_pieces(local_player, remote_player, window)
@@ -2902,34 +2902,33 @@ class Multiplayer(State):
     def load_button_background(self):
         """Load button backgrounds for settings UI"""
         super().load_button_background()
-        
+
         # Player piece display background
         self.player_piece_display_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
         self.player_piece_display_background = pygame.transform.rotate(self.player_piece_display_background, 90)
         self.player_piece_display_background = pygame.transform.scale(self.player_piece_display_background,
                 constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["size"])
-        
+
         # Player header background
         self.player_header_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
         self.player_header_background = pygame.transform.scale(self.player_header_background,
                 constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["player_piece_display"]["player_header"]["size"])
-        
+
         # Opponent piece display background
         self.opponent_piece_display_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
         self.opponent_piece_display_background = pygame.transform.rotate(self.opponent_piece_display_background, 270)
         self.opponent_piece_display_background = pygame.transform.scale(self.opponent_piece_display_background,
                 constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["opponent_piece_display"]["size"])
-        
+
         # Play button background
         self.play_button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
         self.play_button_background = pygame.transform.scale(self.play_button_background,
                 constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play"]["size"])
-        
+
         # Play as background
         self.play_as_background = pygame.transform.scale(self.button_background,
                 constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["size"])
-        
+
         # Piece convention background
         self.piece_convention_background = pygame.transform.scale(self.button_background,
                 constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["size"])
-    
