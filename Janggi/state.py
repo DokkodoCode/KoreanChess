@@ -1182,7 +1182,6 @@ class Multiplayer(PreGameSettings):
         
         # Initialize UI elements for horse swap phase
         self.load_game_state_elements()
-        self.load_swap_menu()
         
         # Start the game state machine
         self.transition_to_settings()
