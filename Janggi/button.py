@@ -24,7 +24,7 @@ class Button:
     #       background_color: button color
     #       hover_color: button color change when mouse collides with button
 	# OUTPUT: button is created 
-    def __init__(self, x, y, width, height, font, text="", foreground_color=constants.WHITE, background_color=constants.BLACK, hover_color=constants.LIGHT_GREEN):
+    def __init__(self, x, y, width, height, font, text="", foreground_color=constants.WHITE, background_color=constants.BLACK, hover_color=constants.LIGHT_GREEN, border_radius=12):
         self.x = x
         self.y = y
         self.width = width
@@ -34,6 +34,7 @@ class Button:
         self.foreground_color = foreground_color
         self.background_color = background_color
         self.hover_color = hover_color
+        self.border_radius = border_radius
         self.rect = pygame.Rect(x, y, width, height) # collision rect
         self.clicked = False # event trigger
 
@@ -56,7 +57,8 @@ class Button:
             newx = self.rect.centerx
             center = True
 
-        pygame.draw.rect(window, color, self.rect)
+        #draw the button with rounded corners
+        pygame.draw.rect(window, color, self.rect, border_radius=self.border_radius)
 
         # dont display text in the button if button has no text
         if self.text !="":
