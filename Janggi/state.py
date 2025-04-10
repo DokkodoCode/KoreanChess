@@ -27,258 +27,263 @@ from piece import Position
 # Parent State to act as a base class to be inherited by 
 #--------------------------------------------------------------------------------
 class State():
-	# initializer
-	def __init__(self):
-		self.next_state = None
+    # initializer
+    def __init__(self):
+        self.next_state = None
 
-		# game state variables
-		# only used in:
-		#   SinglePlayerGame()
-		#   LocalSinglePlayerGame()
-		#   Multiplayer()
-		self.opening_turn = True  # check to see if its the first turn of the game
-		self.bikjang = False      # When both generals face each other unobstructed
-		self.check = False        # When a general is in threat of being captured
-		self.condition = "None"   # this is being set between either Check, Bikjang, and None. But there's aleady checks for that?
-		self.game_over = False
-		self.winner = None        # set to a player object, used to display what player won
+        # game state variables
+        # only used in:
+        #   SinglePlayerGame()
+        #   LocalSinglePlayerGame()
+        #   Multiplayer()
+        self.opening_turn = True  # check to see if its the first turn of the game
+        self.bikjang = False      # When both generals face each other unobstructed
+        self.check = False        # When a general is in threat of being captured
+        self.condition = "None"   # this is being set between either Check, Bikjang, and None. But there's aleady checks for that?
+        self.game_over = False
+        self.winner = None        # set to a player object, used to display what player won
 
-	def handle_event(self, event):
-		pass
+    def handle_event(self, event):
+        pass
 
-	def render(self, window):
-		pass
+    def render(self, window):
+        pass
 
-	def update(self):
-		pass
+    def update(self):
+        pass
 
-	# functions to detect the type of user input
-	def is_left_click(self, event):
-		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-			return True
-		return False
-	
-	def is_middle_click(self, event):
-		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 2:
-			return True
-		return False
-	
-	def is_right_click(self, event):
-		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
-			return True
-		return False
+    # functions to detect the type of user input
+    def is_left_click(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            return True
+        return False
 
-	# function that will load the board boarder image into memory
-	def load_board_boarder(self, window):
-		self.menu_background = pygame.image.load("Board/Janggi_Board_Border.png").convert_alpha()
-		if constants.screen_height == 796:
-			self.menu_background = pygame.transform.scale(self.menu_background, (796, 796))
-		else:
-			self.menu_background = pygame.transform.scale(self.menu_background, (1080, 1080))
-		self.center = window.get_rect().center
+    def is_middle_click(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 2:
+            return True
+        return False
 
-	#  function that will load board into memory
-	def load_board(self):
-		self.playboard = pygame.image.load("Board/Janggi_Board.png").convert_alpha()
-		if constants.screen_height == 796:
-			self.playboard = pygame.transform.scale(self.playboard, (676, 676))
-		else:
-			self.playboard = pygame.transform.scale(self.playboard, (917, 917))
-		self.playboard_center = self.menu_background.get_rect().center
+    def is_right_click(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+            return True
+        return False
 
-	# Method to draw text information out to the window
-	# INPUT: window object, text to be displayed, (x,y) of where to write on, font size
-	# OUTPUT: Window contains the text to be displayed
-	def draw_text(self, window, text, x=0, y=0, font_size=30):
-		font = pygame.font.SysFont("Arial", font_size)
-		text_surface = font.render(text, True, constants.WHITE)
-		window.blit(text_surface, (x, y))
+    # function that will load the board boarder image into memory
+    def load_board_boarder(self, window):
+        self.menu_background = pygame.image.load("Board/Janggi_Board_Border.png").convert_alpha()
+        if constants.screen_height == 796:
+            self.menu_background = pygame.transform.scale(self.menu_background, (796, 796))
+        else:
+            self.menu_background = pygame.transform.scale(self.menu_background, (1080, 1080))
+        self.center = window.get_rect().center
 
-	# Checks flags to see if the game is over by check
-	def is_game_over(self):
-		if (not helper_funcs.resolve_condition(self.active_player, self.waiting_player, self.board, self.condition) and
-	  		self.condition == "Check"):
-			return True
-		return False
+    #  function that will load board into memory
+    def load_board(self):
+        self.playboard = pygame.image.load("Board/Janggi_Board.png").convert_alpha()
+        if constants.screen_height == 796:
+            self.playboard = pygame.transform.scale(self.playboard, (676, 676))
+        else:
+            self.playboard = pygame.transform.scale(self.playboard, (917, 917))
+        self.playboard_center = self.menu_background.get_rect().center
 
-	# render functions for elements of menus
-	def render_check_ending(self, window):
-		# DRAW THE BACKGROUND FOR DISPLAYING GAME OVER TEXT
-		window.blit(self.game_over_background,
-			constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["location"])
-			
-		# DISPLAY GAME OVER TEXT
-		text = "Game Over!"
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["location"]
-		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["font_size"]
-		self.draw_text(window, text, x, y, font_size)
-		
-		# DISPLAY THE WINNER
-		text = f"{self.winner.color} wins!"
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["location"]
-		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["font_size"]
-		self.draw_text(window, text, x, y, font_size)
+    # Method to draw text information out to the window
+    # INPUT: window object, text to be displayed, (x,y) of where to write on, font size
+    # OUTPUT: Window contains the text to be displayed
+    def draw_text(self, window, text, x=0, y=0, font_size=30):
+        font = pygame.font.SysFont("Arial", font_size)
+        text_surface = font.render(text, True, constants.WHITE)
+        window.blit(text_surface, (x, y))
 
-		# DISPLAY REASONING
-		text = f"Check initiated by {self.winner.color} was unresolvable."
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
-		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
-		self.draw_text(window, text, x, y, font_size)
+    def render_message(self, window, message:str, pos:tuple[int,int], size:tuple[int,int]=(100,100)):
+        # window.blit(self.game_over_background, pos[0], pos[1])
+        pygame.draw.rect(window, 'black', (pos[0]-(size[0]/2), pos[1]-(size[1]/2), size[0], size[1]))
+        self.draw_text(window, message, pos[0]-(size[0]/2), pos[1]-(size[1]/2), 33)
 
-	def render_bikjang_ending(self, window):
-		# DRAW THE BACKGROUND FOR DISPLAYING GAME OVER TEXT
-		window.blit(self.game_over_background,
-		constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["location"])
-		
-		# DISPLAY GAME OVER TEXT
-		text = "Game Over!"
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["location"]
-		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["font_size"]
-		self.draw_text(window, text, x, y, font_size)
+    # Checks flags to see if the game is over by check
+    def is_game_over(self):
+        if (not helper_funcs.resolve_condition(self.active_player, self.waiting_player, self.board, self.condition) and
+            self.condition == "Check"):
+            return True
+        return False
 
-		# DISPLAY ANY RESULT-AFFECTING CONDITIONS
-		text = f"Bikjang was initiated by {self.winner.color}."
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
-		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
-		self.draw_text(window, text, x, y, font_size)
+    # render functions for elements of menus
+    def render_check_ending(self, window):
+        # DRAW THE BACKGROUND FOR DISPLAYING GAME OVER TEXT
+        window.blit(self.game_over_background,
+            constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["location"])
+            
+        # DISPLAY GAME OVER TEXT
+        text = "Game Over!"
+        x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["location"]
+        font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["font_size"]
+        self.draw_text(window, text, x, y, font_size)
+        
+        # DISPLAY THE WINNER
+        text = f"{self.winner.color} wins!"
+        x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["location"]
+        font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["font_size"]
+        self.draw_text(window, text, x, y, font_size)
 
-		# DISPLAY THE FINAL RESULT
-		text = "Draw..."
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["location"]
-		font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["font_size"]
-		self.draw_text(window, text, x, y, font_size)
+        # DISPLAY REASONING
+        text = f"Check initiated by {self.winner.color} was unresolvable."
+        x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
+        font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
+        self.draw_text(window, text, x, y, font_size)
 
-	def render_board(self, window):
-		window.blit(self.menu_background, self.menu_background.get_rect(center = window.get_rect().center))
-		window.blit(self.playboard, self.playboard.get_rect(center = window.get_rect().center))
+    def render_bikjang_ending(self, window):
+        # DRAW THE BACKGROUND FOR DISPLAYING GAME OVER TEXT
+        window.blit(self.game_over_background,
+        constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["location"])
+        
+        # DISPLAY GAME OVER TEXT
+        text = "Game Over!"
+        x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["location"]
+        font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["notify_text"]["font_size"]
+        self.draw_text(window, text, x, y, font_size)
 
-	def handle_piece_move(self, host, guest, mouse_pos):
-		# finds possible spots for piece to move, if player clicks avaiable spot, returns true
-		if helper_funcs.attempt_move(host, guest, self.board, mouse_pos, self.condition):
+        # DISPLAY ANY RESULT-AFFECTING CONDITIONS
+        text = f"Bikjang was initiated by {self.winner.color}."
+        x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["location"]
+        font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["condition_text"]["font_size"]
+        self.draw_text(window, text, x, y, font_size)
 
-			# reset is_clicked flags for player and piece
-			helper_funcs.player_piece_unclick(host)
-			
-			# if bikjang occurs, set appropriate flags
-			if helper_funcs.detect_bikjang(host, guest):
-				self.bikjang = True
-				self.condition = "Bikjang"
-				self.winner = host
-				self.game_over = True
+        # DISPLAY THE FINAL RESULT
+        text = "Draw..."
+        x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["location"]
+        font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["game_over"]["result_text"]["font_size"]
+        self.draw_text(window, text, x, y, font_size)
 
-			# if check occurs, set appropriate flags
-			elif helper_funcs.detect_check(guest, host, self.board):
-				self.check = True
-				self.condition = "Check"
-				self.guest.is_checked = True
-												
-			self.swap_turn()
-			self.immediate_render = True
+    def render_board(self, window):
+        window.blit(self.menu_background, self.menu_background.get_rect(center = window.get_rect().center))
+        window.blit(self.playboard, self.playboard.get_rect(center = window.get_rect().center))
 
-		# otherwise the player is clicking another piece or invalid spot
-		else:
-			# reset click state
-			helper_funcs.player_piece_unclick(host)
-			# update click to new piece if valid clicked
-			helper_funcs.player_piece_clicked(host, mouse_pos)
-	
-	def load_button_background(self):
-		# load button backgrounds
-		self.button_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
-		self.button_background = (
-			pygame.transform.scale(self.button_background,
-				constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["size"]))
+    def handle_piece_move(self, host, guest, mouse_pos):
+        # finds possible spots for piece to move, if player clicks avaiable spot, returns true
+        if helper_funcs.attempt_move(host, guest, self.board, mouse_pos, self.condition):
+
+            # reset is_clicked flags for player and piece
+            helper_funcs.player_piece_unclick(host)
+            
+            # if bikjang occurs, set appropriate flags
+            if helper_funcs.detect_bikjang(host, guest):
+                self.bikjang = True
+                self.condition = "Bikjang"
+                self.winner = host
+                self.game_over = True
+
+            # if check occurs, set appropriate flags
+            elif helper_funcs.detect_check(guest, host, self.board):
+                self.check = True
+                self.condition = "Check"
+                self.guest.is_checked = True
+                                                
+            self.swap_turn()
+            self.immediate_render = True
+
+        # otherwise the player is clicking another piece or invalid spot
+        else:
+            # reset click state
+            helper_funcs.player_piece_unclick(host)
+            # update click to new piece if valid clicked
+            helper_funcs.player_piece_clicked(host, mouse_pos)
+
+    def load_button_background(self):
+        # load button backgrounds
+        self.button_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
+        self.button_background = (
+            pygame.transform.scale(self.button_background,
+                constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["size"]))
 
 #--------------------------------------------------------------------------------
 # MAIN MENU TO TRANSITION INTO SINGLEPLAYER/MULTIPLAYER/ETC...
 #--------------------------------------------------------------------------------
 class MainMenu(State):
-	# initialize the settings for the game
-	# INPUT: No Input
-	# OUTPUT: Main menu is ready to be interacted with by player
-	def __init__(self, window):
-		super().__init__() # inherit the parent initializer
-		self.next_state = None
-		self.font = pygame.font.SysFont("Arial",size=50)
+    # initialize the settings for the game
+    # INPUT: No Input
+    # OUTPUT: Main menu is ready to be interacted with by player
+    def __init__(self, window):
+        super().__init__() # inherit the parent initializer
+        self.next_state = None
+        self.font = pygame.font.SysFont("Arial",size=50)
 
-		# button for single player
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["text"]["hover_color"]
-		self.singleplayer_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+        # button for single player
+        x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["location"]
+        width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["size"]
+        font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["text"]["font"]
+        text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["text"]["string"]
+        foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["text"]["foreground_color"]
+        background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["text"]["background_color"]
+        hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["single_player_button"]["text"]["hover_color"]
+        self.singleplayer_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
 
-		# button for local-mulyiplayer player
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["text"]["hover_color"]
-		self.local_multiplayer_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+        # button for local-mulyiplayer player
+        x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["location"]
+        width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["size"]
+        font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["text"]["font"]
+        text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["text"]["string"]
+        foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["text"]["foreground_color"]
+        background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["text"]["background_color"]
+        hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["local_multiplayer_button"]["text"]["hover_color"]
+        self.local_multiplayer_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
 
-		# button for multiplayer
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["hover_color"]
-		self.multiplayer_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+        # button for multiplayer
+        x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["location"]
+        width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["size"]
+        font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["font"]
+        text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["string"]
+        foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["foreground_color"]
+        background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["background_color"]
+        hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["multiplayer_button"]["text"]["hover_color"]
+        self.multiplayer_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
 
-		# button for exiting application
-		x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["location"]
-		width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["size"]
-		font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["text"]["font"]
-		text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["text"]["string"]
-		foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["text"]["foreground_color"]
-		background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["text"]["background_color"]
-		hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["text"]["hover_color"]
-		self.exit_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
+        # button for exiting application
+        x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["location"]
+        width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["size"]
+        font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["text"]["font"]
+        text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["text"]["string"]
+        foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["text"]["foreground_color"]
+        background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["text"]["background_color"]
+        hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["main_menu"]["close_button"]["text"]["hover_color"]
+        self.exit_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
 
-		self.load_board_boarder(window)
-		self.load_board()
-		self.button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
-		self.button_background = pygame.transform.scale(self.button_background,
-									constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["main_menu"]["menu_background_size"])
+        self.load_board_boarder(window)
+        self.load_board()
+        self.button_background = pygame.image.load("UI/Button_Background_Poly.png").convert_alpha()
+        self.button_background = pygame.transform.scale(self.button_background,
+                                    constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["main_menu"]["menu_background_size"])
 
-	# Listen for and handle any event ticks (clicks/buttons)
-	# INPUT: pygame event object
-	# OUTPUT: Menu transitions are set accordingly
-	def handle_event(self, event):
-		if self.is_left_click(event):
-			if self.singleplayer_button.is_clicked():
-				self.next_state = "Single Player Pre-Game Settings"
+    # Listen for and handle any event ticks (clicks/buttons)
+    # INPUT: pygame event object
+    # OUTPUT: Menu transitions are set accordingly
+    def handle_event(self, event):
+        if self.is_left_click(event):
+            if self.singleplayer_button.is_clicked():
+                self.next_state = "Single Player Pre-Game Settings"
 
-			if self.local_multiplayer_button.is_clicked():
-				self.next_state = "Local Single Player Pre-Game Settings"
+            if self.local_multiplayer_button.is_clicked():
+                self.next_state = "Local Single Player Pre-Game Settings"
 
-			elif self.multiplayer_button.is_clicked():
-				self.next_state = "Multi Player Game"
+            elif self.multiplayer_button.is_clicked():
+                self.next_state = "Multi Player Game"
 
-			if self.exit_button.is_clicked():
-				constants.running = False
+            if self.exit_button.is_clicked():
+                constants.running = False
 
-	# Handle any rendering that needs to be done
-	# INPUT: pygame surface object (window to display to)
-	# OUTPUT: All menu attributes/actions are rendered
-	def render(self, window):
-		# background
-		window.blit(self.menu_background, self.menu_background.get_rect(center = window.get_rect().center))
-		window.blit(self.playboard, self.playboard.get_rect(center = window.get_rect().center))
-		window.blit(self.button_background, 
-					self.button_background.get_rect(center = window.get_rect().center))
-		
-		# draw buttons to window
-		self.singleplayer_button.draw_button(window)
-		self.local_multiplayer_button.draw_button(window)
-		self.multiplayer_button.draw_button(window)
-		self.exit_button.draw_button(window)
+    # Handle any rendering that needs to be done
+    # INPUT: pygame surface object (window to display to)
+    # OUTPUT: All menu attributes/actions are rendered
+    def render(self, window):
+        # background
+        window.blit(self.menu_background, self.menu_background.get_rect(center = window.get_rect().center))
+        window.blit(self.playboard, self.playboard.get_rect(center = window.get_rect().center))
+        window.blit(self.button_background, 
+                    self.button_background.get_rect(center = window.get_rect().center))
+        
+        # draw buttons to window
+        self.singleplayer_button.draw_button(window)
+        self.local_multiplayer_button.draw_button(window)
+        self.multiplayer_button.draw_button(window)
+        self.exit_button.draw_button(window)
 
 # SUBCLASS for pregame settings
 # What does it contain?
@@ -1128,9 +1133,12 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 from socket import gethostbyname, gethostname
 HOST, PORT = gethostbyname(gethostname()), 5000
 
-class Multiplayer(State):    
+class Multiplayer(PreGameSettings):    
     def __init__(self, window):
-        super().__init__()  
+        self.host = player.Player(is_host=True, board_perspective="Bottom")
+        self.guest = player.Player(is_host=False, board_perspective="Top")
+
+        super().__init__(window)  
         from piece import Position
         self.Position = Position
         
@@ -1156,22 +1164,10 @@ class Multiplayer(State):
         self.validation_interval = 3.0  # seconds between validations
         self.post_swap_grace = False  # Prevents immediate game end after swap phase
         self.waiting_for_opponent_swap = False
-        
-        # Game conditions
-        self.opening_turn = True
-        self.bikjang = False
-        self.check = False
-        self.condition = "None"
-        self.game_over = False
-        self.winner = None
-        
+                
         # Initialize connection
         self.establish_connection()
-        
-        # Initialize players
-        self.host = player.Player(is_host=True, board_perspective="Bottom")
-        self.guest = player.Player(is_host=False, board_perspective="Top")
-        
+                
         # Setup player perspectives based on role
         self.initialize_perspectives()
         
@@ -1183,8 +1179,6 @@ class Multiplayer(State):
         
         # Initialize UI elements for horse swap phase
         self.load_swap_menu()
-        self.load_game_state_elements()
-        self.__load_settings_ui()  
         
         # Start the game state machine
         self.transition_to_settings()
@@ -1234,7 +1228,7 @@ class Multiplayer(State):
         elif choice == 'c':
             # Creating a client
             print("Starting as client. Connecting to host...")
-            host = input("enter IP of host: ")
+            host = '10.1.154.181' # input("enter IP of host: ")
             
             self.connection = multiplayer.Client(host, PORT)
             if self.connection.connect(timeout=5):
@@ -2167,7 +2161,6 @@ class Multiplayer(State):
                 print("CLIENT: Done with swap, transitioning to gameplay phase")
                 self.transition_to_gameplay()
 
-
     def handle_gameplay_click(self, mouse_pos):
         """Handle clicks during regular gameplay using grid coordinates"""
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
@@ -2570,60 +2563,6 @@ class Multiplayer(State):
     # -------------------------------------------------------------------------
     # UI Initialization and Rendering
     # -------------------------------------------------------------------------
-    def __load_settings_ui(self):
-        """Load UI elements for settings phase"""
-        # Load settings UI elements only if host
-        if self.is_host:
-            # cho button
-            x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["location"]
-            width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["size"]
-            font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["font"]
-            text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["string"]
-            foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["foreground_color"]
-            background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["background_color"]
-            hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["cho_button"]["text"]["hover_color"]
-            self.cho_side_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-            
-            # han button
-            x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["location"]
-            width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["size"]
-            font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["font"]
-            text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["string"]
-            foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["foreground_color"]
-            background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["background_color"]
-            hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["han_button"]["text"]["hover_color"]
-            self.han_side_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-            
-            # standard piece convention button
-            x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["location"]
-            width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["size"]
-            font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["font"]
-            text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["string"]
-            foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["foreground_color"]
-            background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["background_color"]
-            hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["standard_piece_convention_button"]["text"]["hover_color"]
-            self.standard_piece_convention_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-            
-            # international piece convention button
-            x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["location"]
-            width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["size"]
-            font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["font"]
-            text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["string"]
-            foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["foreground_color"]
-            background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["background_color"]
-            hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["internat_piece_convention_button"]["text"]["hover_color"]
-            self.internat_piece_convention_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-            
-            # play button
-            x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["location"]
-            width, height = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["size"]
-            font = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["font"]
-            text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["string"]
-            foreground_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["foreground_color"]
-            background_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["background_color"]
-            hover_color = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["buttons"]["local_MP"]["play_button"]["text"]["hover_color"]
-            self.play_button = (button.Button(x, y, width, height, font, text, foreground_color, background_color, hover_color))
-    
     def load_swap_menu(self):
         """Load UI elements for horse swap phase"""
         # Swap buttons
@@ -2671,19 +2610,6 @@ class Multiplayer(State):
         self.confirm_swap_button_background = pygame.transform.scale(self.confirm_swap_button_background,
                 constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["confirm_swap"]["size"])
 
-    def load_game_state_elements(self):
-        """Load UI elements for game state display"""
-        # Game state background
-        self.game_state_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
-        self.game_state_background = pygame.transform.scale(self.game_state_background,
-                constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_state"]["size"])
-        
-        # Game over background
-        self.game_over_background = pygame.image.load("UI/Button_Background.png").convert_alpha()
-        self.game_over_background = pygame.transform.scale(self.game_over_background,
-                constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["single_player"]["button_background"]["game_over"]["size"])
-        
-
     def render(self, window):
             """Render the game based on current phase"""
             # Render board
@@ -2711,8 +2637,8 @@ class Multiplayer(State):
                 self.render_settings_ui(window)
             else:
                 # Client waits for settings from host
-                self.draw_text(window, "Waiting for host to select settings...", 
-                            constants.screen_width//2 - 200, constants.screen_height//2, 30)
+                self.render_message(window, "Waiting for host to select settings...",
+                                    (constants.screen_width//2 - 200, constants.screen_height//2), (500, 100))
 
     def render_settings_ui(self, window):
         """Render settings UI for host"""
@@ -2722,73 +2648,52 @@ class Multiplayer(State):
             self.draw_text(window, "Loading settings UI...", 
                           constants.screen_width//2 - 200, constants.screen_height//2, 30)
             return
-            
+
+        super().render(window)
+
         # Play as selector
-        window.blit(self.play_as_background, 
-               constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["location"])
         text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["string"]
         x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["location"]
         font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play_as"]["text"]["font_size"]
         self.draw_text(window, text, x, y, font_size)
-        
-        # Draw color buttons
-        self.cho_side_button.draw_button(window)
-        self.han_side_button.draw_button(window)
         
         # Show selected color
         selected_color = "Cho" if self.host.color == "Cho" else "Han"
         self.draw_text(window, f"Selected: {selected_color}", x, y + 40, font_size - 10)
         
         # Piece convention selector
-        window.blit(self.piece_convention_background, 
-               constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["location"])
         text = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["string"]
         x, y = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["location"]
         font_size = constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["text"]["font_size"]
         self.draw_text(window, text, x, y, font_size)
         
-        # Draw piece convention buttons
-        self.standard_piece_convention_button.draw_button(window)
-        self.internat_piece_convention_button.draw_button(window)
-        
         # Show selected convention
         self.draw_text(window, f"Selected: {self.host.piece_convention}", x, y + 40, font_size - 10)
         
-        # Play button
-        window.blit(self.play_button_background, 
-               constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["play"]["location"])
-        self.play_button.draw_button(window)
-        
-        # Piece preview
-        self.render_piece_preview(window)
-
     def render_host_swap(self, window):
         """Render host horse swap phase"""
         if self.is_host and not self.waiting_for_opponent_swap:
             # Host is swapping horses
             self.render_swap_ui(window)
-            self.render_pieces(self.host, self.guest, window)
-            self.draw_text(window, "Host's Horse Swap Phase", 
-                          constants.screen_width//2 - 150, 30, 30)
+            message = "Host's Horse Swap Phase"
+
         else:
             # Client is waiting for host to swap
-            self.render_pieces(self.host, self.guest, window)
-            self.draw_text(window, "Waiting for host to complete horse swap...", 
-                          constants.screen_width//2 - 220, constants.screen_height//2, 30)
+            message = 'Waiting for host to complete horse swap...'
+        self.render_pieces(self.host, self.guest, window)
+        # self.draw_text(window, message, constants.screen_width//2 - 220, constants.screen_height//2, 30)
+        self.render_message(window, message, (constants.screen_width//2 - 220, constants.screen_height//2), (200, 100))
 
     def render_client_swap(self, window):
         """Render client horse swap phase"""
         if not self.is_host and not self.waiting_for_opponent_swap:
-            # Client is swapping horses
             self.render_swap_ui(window)
-            self.render_pieces(self.host, self.guest, window)
-            self.draw_text(window, "Client's Horse Swap Phase", 
-                          constants.screen_width//2 - 150, 30, 30)
+            message = "Client's Horse Swap Phase", 
         else:
-            # Host is waiting for client to swap
-            self.render_pieces(self.host, self.guest, window)
-            self.draw_text(window, "Waiting for client to complete horse swap...", 
-                          constants.screen_width//2 - 220, constants.screen_height//2, 30)
+            message = "Waiting for client to complete horse swap..."
+        self.render_pieces(self.host, self.guest, window)
+        # self.draw_text(window, message, constants.screen_width//2 - 220, constants.screen_height//2, 30)
+        self.render_message(window, message, (constants.screen_width//2 - 220, constants.screen_height//2), (200, 100))
 
     def render_gameplay(self, window):
         """Render regular gameplay phase"""
