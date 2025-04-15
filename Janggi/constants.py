@@ -57,8 +57,9 @@ resolutions = {
                                     "size": (400, 80),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=40),
-                                            "string": "Play Against an AI",
+                                            
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf", size=30),
+                                            "string": "PLAY AGAINST AN AI",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
                                             "hover_color": LIGHT_GREEN
@@ -71,7 +72,7 @@ resolutions = {
                                     "size": (400, 80),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=40),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
                                             "string": "Play by Yourself",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -85,7 +86,7 @@ resolutions = {
                                     "size": (400, 80),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=40),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
                                             "string": "Play Against a Friend",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -99,7 +100,7 @@ resolutions = {
                                     "size": (400, 80),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=40),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
                                             "string": "Close The Application",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -116,7 +117,7 @@ resolutions = {
                                     "size": (100, 40),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=25),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
                                             "string": "Easy",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -130,7 +131,7 @@ resolutions = {
                                     "size": (100, 40),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=25),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=25),
                                             "string": "Medium",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -144,7 +145,7 @@ resolutions = {
                                     "size": (100, 40),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=25),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=25),
                                             "string": "Hard",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -161,7 +162,7 @@ resolutions = {
                                     "size": (80, 35),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=30),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=30),
                                             "string": "Cho",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -175,7 +176,7 @@ resolutions = {
                                     "size": (80, 35),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=30),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=30),
                                             "string": "Han",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -189,7 +190,7 @@ resolutions = {
                                     "size": (140, 40),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=25),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=18),
                                             "string": "Standard",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -203,7 +204,7 @@ resolutions = {
                                     "size": (140, 40),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=25),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=18),
                                             "string": "International",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -218,7 +219,7 @@ resolutions = {
                                     "size": (90, 40),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=25),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=25),
                                             "string": "Play",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -232,7 +233,7 @@ resolutions = {
                                     "size": (70, 35),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=25),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=25),
                                             "string": "Swap",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -246,7 +247,7 @@ resolutions = {
                                     "size": (70, 35),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=25),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=25),
                                             "string": "Swap",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -260,7 +261,7 @@ resolutions = {
                                     "size": (96, 40),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=25),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=23),
                                             "string": "Confirm",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -274,7 +275,7 @@ resolutions = {
                                     "size": (70, 35),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=25),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=25),
                                             "string": "Swap",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -288,7 +289,7 @@ resolutions = {
                                     "size": (70, 35),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=25),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=25),
                                             "string": "Swap",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -302,7 +303,7 @@ resolutions = {
                                     "size": (96, 40),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=25),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=25),
                                             "string": "Confirm",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -507,7 +508,7 @@ resolutions = {
                                     "size": (500, 100),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=50),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=50),
                                             "string": "Play Against an AI",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -521,7 +522,7 @@ resolutions = {
                                     "size": (500, 100),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=50),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=50),
                                             "string": "Play by Yourself",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -535,7 +536,7 @@ resolutions = {
                                     "size": (500, 100),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=50),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=50),
                                             "string": "Play Against a Friend",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -566,7 +567,7 @@ resolutions = {
                                     "size": (125, 50),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=35),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
                                             "string": "Easy",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -580,7 +581,7 @@ resolutions = {
                                     "size": (125, 50),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=35),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
                                             "string": "Medium",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -594,7 +595,7 @@ resolutions = {
                                     "size": (125, 50),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=35),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
                                             "string": "Hard",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -611,7 +612,7 @@ resolutions = {
                                     "size": (100, 40),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=35),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
                                             "string": "Cho",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -625,7 +626,7 @@ resolutions = {
                                     "size": (100, 40),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=35),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
                                             "string": "Han",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -639,7 +640,7 @@ resolutions = {
                                     "size": (175, 50),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=35),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
                                             "string": "Standard",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -653,7 +654,7 @@ resolutions = {
                                     "size": (175, 50),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=30),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=30),
                                             "string": "International",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -668,7 +669,7 @@ resolutions = {
                                     "size": (125, 50),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=35),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
                                             "string": "Play",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -682,7 +683,7 @@ resolutions = {
                                     "size": (100, 50),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=35),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
                                             "string": "Swap",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -697,7 +698,7 @@ resolutions = {
                                     "size": (100, 50),
                                     "text":
                                         {
-                                            "font": pygame.font.SysFont("Arial", size=35),
+                                            "font": pygame.font.Font("UI/HIROMISAKE.ttf", size=35),
                                             "string": "Swap",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -711,7 +712,7 @@ resolutions = {
                                     "size": (130, 50),
                                     "text":
                                         {
-                                            "font": pygame.font.SysFont("Arial", size=35),
+                                            "font": pygame.font.Font("UI/HIROMISAKE.ttf", size=35),
                                             "string": "Confirm",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -725,7 +726,7 @@ resolutions = {
                                     "size": (100, 50),
                                     "text":
                                         {
-                                            "font": pygame.font.SysFont("Arial", size=35),
+                                            "font": pygame.font.Font("UI/HIROMISAKE.ttf", size=35),
                                             "string": "Swap",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -740,7 +741,7 @@ resolutions = {
                                     "size": (100, 50),
                                     "text":
                                         {
-                                            "font": pygame.font.SysFont("Arial", size=35),
+                                            "font": pygame.font.Font("UI/HIROMISAKE.ttf", size=35),
                                             "string": "Swap",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -754,7 +755,7 @@ resolutions = {
                                     "size": (130, 50),
                                     "text":
                                         {
-                                            "font": pygame.font.SysFont("Arial", size=35),
+                                            "font": pygame.font.Font("UI/HIROMISAKE.ttf", size=35),
                                             "string": "Confirm",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
