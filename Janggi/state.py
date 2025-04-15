@@ -1231,7 +1231,7 @@ class Multiplayer(PreGameSettings):
         elif choice == 'c':
             # Creating a client
             print("Starting as client. Connecting to host...")
-            host = '10.1.154.181' # input("enter IP of host: ")
+            host = input("enter IP of host: ")
             
             self.connection = multiplayer.Client(host, PORT)
             if self.connection.connect(timeout=5):
@@ -1282,7 +1282,6 @@ class Multiplayer(PreGameSettings):
         from piece import Piece
         
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
-        print(f"{role_prefix}Creating new piece backups")
         
         # Create backup copies of pieces for validation
         self.host_pieces_backup = []
@@ -1321,16 +1320,12 @@ class Multiplayer(PreGameSettings):
             new_piece.position = self.Position(p.position.file, p.position.rank)
             new_piece.is_clicked = p.is_clicked
             self.guest_pieces_backup.append(new_piece)
-            
-        print(f"{role_prefix}Created backups - Host: {len(self.host_pieces_backup)} pieces, "
-            f"Guest: {len(self.guest_pieces_backup)} pieces")
 
     def restore_pieces_from_backup(self):
         """Restore pieces from backup if validation fails"""
         from piece import Piece
         
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
-        print(f"{role_prefix}Restoring pieces from backup")
         
         # Make sure we have backups to restore from
         if not hasattr(self, 'host_pieces_backup') or not hasattr(self, 'guest_pieces_backup'):
@@ -1497,15 +1492,11 @@ class Multiplayer(PreGameSettings):
                 return
                 
             try:
-                # Parse message with debugging
                 role_prefix = "HOST: " if self.is_host else "CLIENT: "
-                print(f"{role_prefix}Raw message received: {message}")
                 
                 msg_data = json.loads(message)
                 msg_type = msg_data.get("type")
                 data = msg_data.get("data", {})
-                
-                print(f"{role_prefix}Processed message - Type: {msg_type}, Data: {data}")
                 
                 # Process based on message type
                 if msg_type == multiplayer.MessageType.CONNECT.value:
@@ -1515,7 +1506,6 @@ class Multiplayer(PreGameSettings):
                 elif msg_type == multiplayer.MessageType.SWAP.value:
                     self.process_swap_message(data)
                 elif msg_type == multiplayer.MessageType.SWAP_DONE.value:
-                    print(f"{role_prefix}Processing SWAP_DONE message with data: {data}")
                     self.process_swap_done_message(data)
                 elif msg_type == multiplayer.MessageType.MOVE.value:
                     self.process_move_message(data)
@@ -1712,6 +1702,7 @@ class Multiplayer(PreGameSettings):
         piece_id = data.get("piece_id")
         from_pos_data = data.get("from_pos", {})
         to_pos_data = data.get("to_pos", {})
+        local_perspective = data.get("local_perspective", False)
         
         # Create Position objects
         from_file = from_pos_data.get('file', 0)
@@ -1719,10 +1710,18 @@ class Multiplayer(PreGameSettings):
         to_file = to_pos_data.get('file', 0)
         to_rank = to_pos_data.get('rank', 0)
         
-        # Transform if client perspective
-        if not self.is_host:
-            from_file, from_rank = 8 - from_file, 9 - from_rank
-            to_file, to_rank = 8 - to_file, 9 - to_rank
+        # Only transform coordinates if receiving as client FROM host
+        # If host received from client, coordinates are already canonical
+        # If client received from host, need to transform from canonical to client view
+        if self.is_host:
+            # Don't transform - coordinates from client are already canonical
+            pass
+        else:
+            # Transform from canonical to client perspective
+            from_file = 8 - from_file  # Flip horizontally
+            from_rank = 9 - from_rank  # Flip vertically
+            to_file = 8 - to_file
+            to_rank = 9 - to_rank
         
         # Find the piece to move
         found_piece = None
@@ -1758,7 +1757,11 @@ class Multiplayer(PreGameSettings):
                 
                 found_piece = closest_piece
         
-        if found_piece:
+        if found_piece:       
+            # Store original position for debugging
+            orig_file = found_piece.position.file
+            orig_rank = found_piece.position.rank
+            
             # Update grid position
             found_piece.position = self.Position(to_file, to_rank)
             
@@ -1770,12 +1773,26 @@ class Multiplayer(PreGameSettings):
             # Update collision rectangle
             found_piece.collision_rect = helper_funcs.reformat_piece_collision(pixel_loc, found_piece.collision_rect)
             
-            # Check for captures
-            for p in list(self.local_player.pieces):
-                if (p.position.file == to_file and p.position.rank == to_rank):
-                    self.local_player.pieces.remove(p)
-                    print(f"{role_prefix}My piece captured: {p.piece_type.value}")
-                    break
+            # Check if this move resolves a check (if remote player was in check)
+            if self.check and self.remote_player.is_checked:
+                print(f"{role_prefix}Checking if opponent's move resolves their check...")
+                still_in_check = helper_funcs.detect_check(self.remote_player, self.local_player, self.board)
+                print(f"{role_prefix}Opponent still in check? {still_in_check}")
+                if not still_in_check:
+                    print(f"{role_prefix}Check resolved by opponent's move")
+                    self.check = False
+                    self.condition = "None"
+                    self.remote_player.is_checked = False
+            
+            # Only check for captures using grid position
+            pieces_to_remove = []
+            for p in self.local_player.pieces:
+                if p.position.file == to_file and p.position.rank == to_rank:
+                    pieces_to_remove.append(p)
+            
+            # Remove captured pieces
+            for p in pieces_to_remove:
+                self.local_player.pieces.remove(p)
             
             # Check game conditions
             if helper_funcs.detect_bikjang(self.remote_player, self.local_player):
@@ -1787,10 +1804,10 @@ class Multiplayer(PreGameSettings):
                 self.check = True
                 self.condition = "Check"
                 self.local_player.is_checked = True
+
             
             self.immediate_render = True
         else:
-            print(f"{role_prefix}ERROR: Could not find piece {piece_type} to move")
             # Request a full sync 
             self.request_sync()
 
@@ -1805,6 +1822,7 @@ class Multiplayer(PreGameSettings):
         # Extract host and guest piece data
         host_data = data.get("host", {})
         guest_data = data.get("guest", {})
+        timestamp = data.get("timestamp", 0)
         
         # Save piece counts before sync for verification
         host_count_before = len(self.host.pieces)
@@ -1814,12 +1832,22 @@ class Multiplayer(PreGameSettings):
         perspective = (multiplayer.Perspective.HOST if self.is_host 
                     else multiplayer.Perspective.CLIENT)
         
-        # Update pieces using standard deserialization
+        # Track recently moved pieces to prevent them from being overwritten
+        moved_pieces = {}
+        
+        # If client, identify pieces that were moved locally in the last 2 seconds
+        if not self.is_host:
+            current_time = time.time()
+            for piece in self.local_player.pieces:
+                if hasattr(piece, 'last_moved_time') and current_time - piece.last_moved_time < 2.0:
+                    moved_pieces[piece.id] = piece
+        
+        # Update pieces using modified deserialization to respect recently moved pieces
         if host_data:
-            multiplayer.deserialize_piece_positions(host_data, self.host.pieces, perspective)
+            multiplayer.deserialize_piece_positions(host_data, self.host.pieces, perspective, moved_pieces)
         
         if guest_data:
-            multiplayer.deserialize_piece_positions(guest_data, self.guest.pieces, perspective)
+            multiplayer.deserialize_piece_positions(guest_data, self.guest.pieces, perspective, moved_pieces)
         
         # Verify we didn't lose any pieces unexpectedly
         host_count_after = len(self.host.pieces)
@@ -1845,6 +1873,8 @@ class Multiplayer(PreGameSettings):
                     )
                     if hasattr(p, 'position'):
                         new_piece.position = self.Position(p.position.file, p.position.rank)
+                    if hasattr(p, 'id'):
+                        new_piece.id = p.id
                     self.host.pieces.append(new_piece)
         
         # Realign collision rectangles after sync
@@ -1862,13 +1892,12 @@ class Multiplayer(PreGameSettings):
         
         # Only process if this message is newer than our last known state
         if hasattr(self, 'last_turn_timestamp') and timestamp <= self.last_turn_timestamp:
-            print(f"{role_prefix}Ignoring outdated turn message")
             return
         
         # Store timestamp for future reference
         self.last_turn_timestamp = timestamp
         
-        print(f"{role_prefix}Processing turn message: active={active_color}")
+        print(f"{role_prefix}Processing turn message: active={active_color}, condition={condition}")
         
         # Update active player and turn flags
         if active_color == self.local_player.color:
@@ -1877,17 +1906,31 @@ class Multiplayer(PreGameSettings):
             self.waiting_player = self.remote_player
             self.local_player.is_turn = True
             self.remote_player.is_turn = False
-            print(f"{role_prefix}It's now YOUR turn")
         else:
             # It's now remote player's turn
             self.active_player = self.remote_player
             self.waiting_player = self.local_player
             self.remote_player.is_turn = True
             self.local_player.is_turn = False
-            print(f"{role_prefix}It's now OPPONENT'S turn")
         
         # Update condition
         self.condition = condition
+        
+        # Update check state based on condition
+        if condition == "Check":
+            self.check = True
+            # We need to check which player is in check - the active player is making the move,
+            # so the waiting player is the one in check
+            if self.active_player == self.local_player:
+                self.remote_player.is_checked = True
+                self.local_player.is_checked = False
+            else:
+                self.local_player.is_checked = True
+                self.remote_player.is_checked = False
+        elif condition == "None":
+            self.check = False
+            self.local_player.is_checked = False
+            self.remote_player.is_checked = False
         
         # Force a sync to ensure board state matches turn state
         if self.is_host:
@@ -1949,12 +1992,6 @@ class Multiplayer(PreGameSettings):
         self.active_player = self.cho_player
         self.waiting_player = self.han_player
         
-        # Debug before setting turn flags
-        print(f"{role_prefix}BEFORE: Cho player ({self.cho_player.color}) turn flag: {self.cho_player.is_turn}")
-        print(f"{role_prefix}BEFORE: Han player ({self.han_player.color}) turn flag: {self.han_player.is_turn}")
-        print(f"{role_prefix}BEFORE: Local player ({self.local_player.color}) turn flag: {self.local_player.is_turn}")
-        print(f"{role_prefix}BEFORE: Remote player ({self.remote_player.color}) turn flag: {self.remote_player.is_turn}")
-        
         # Explicit turn flag setting
         self.cho_player.is_turn = True
         self.han_player.is_turn = False
@@ -1962,16 +1999,6 @@ class Multiplayer(PreGameSettings):
         # Make sure local_player and remote_player have correct is_turn
         self.local_player.is_turn = (self.local_player == self.cho_player)
         self.remote_player.is_turn = (self.remote_player == self.cho_player)
-        
-        # Debug after setting turn flags
-        print(f"{role_prefix}AFTER: Cho player ({self.cho_player.color}) turn flag: {self.cho_player.is_turn}")
-        print(f"{role_prefix}AFTER: Han player ({self.han_player.color}) turn flag: {self.han_player.is_turn}")
-        print(f"{role_prefix}AFTER: Local player ({self.local_player.color}) turn flag: {self.local_player.is_turn}")
-        print(f"{role_prefix}AFTER: Remote player ({self.remote_player.color}) turn flag: {self.remote_player.is_turn}")
-        
-        # Debug who should move first
-        print(f"{role_prefix}Active player: {self.active_player.color}, Local player: {self.local_player.color}")
-        print(f"{role_prefix}Is it my turn to move? {self.local_player.is_turn}")
         
         # Update flags
         self.opening_turn = False
@@ -2145,10 +2172,7 @@ class Multiplayer(PreGameSettings):
                 "timestamp": time.time()
             }
             
-            # Send swap done message with detailed info
             success = self.send_message(multiplayer.MessageType.SWAP_DONE, swap_done_data)
-            print(f"{'CLIENT' if not self.is_host else 'HOST'}: SWAP_DONE message sent successfully: {success}")
-            print(f"{'CLIENT' if not self.is_host else 'HOST'}: Message content: {swap_done_data}")
             
             # Send full board sync
             self.send_sync()
@@ -2170,32 +2194,9 @@ class Multiplayer(PreGameSettings):
         local_player = self.local_player
         remote_player = self.remote_player
         
-        # debug output
-        print(f"{role_prefix}CLICK AT {mouse_pos}")
-        print(f"{role_prefix}Current Game Phase: {self.game_phase}")
-        print(f"{role_prefix}Active player: {self.active_player.color}, Waiting player: {self.waiting_player.color}")
-        print(f"{role_prefix}Local player: {local_player.color}, Remote player: {remote_player.color}")
-        print(f"{role_prefix}Local player turn? {local_player.is_turn}, Remote player turn? {remote_player.is_turn}")
-        print(f"{role_prefix}Active == Local? {self.active_player == local_player}")
-        
         # Check if it's this player's turn
         if not local_player.is_turn:
-            print(f"{role_prefix}Not your turn (is_turn flag is False)")
             return
-        
-        # Convert click to grid position
-        click_grid_pos = self.Position.from_pixel(mouse_pos)
-        print(f"{role_prefix}Click at grid position: {click_grid_pos}")
-        
-        # Debug: Check if any piece is at the click location
-        piece_found = False
-        for p in local_player.pieces:
-            if p.collision_rect.collidepoint(mouse_pos):
-                piece_found = True
-                print(f"{role_prefix}Found piece {p.piece_type.value} at {p.location}, rect: {p.collision_rect}")
-                break
-        if not piece_found:
-            print(f"{role_prefix}No piece found at click position")
         
         # CASE 1: Player has a piece selected and is attempting to move
         if local_player.is_clicked:
@@ -2213,38 +2214,57 @@ class Multiplayer(PreGameSettings):
             if clicked_piece and helper_funcs.attempt_move(
                 local_player, remote_player, self.board, mouse_pos, self.condition
             ):
-                # Successful move made
+                # Successful move made - get new position AFTER the move
                 to_pos = self.Position(clicked_piece.position.file, clicked_piece.position.rank)
                 to_pixel = clicked_piece.location
                 
-                print(f"{role_prefix}Move successful: {clicked_piece.piece_type.value} from {from_pos} to {to_pos}")
+                # Mark the piece as recently moved and timestamp it
+                clicked_piece.last_moved_time = time.time()
                 
                 # Realign collision rectangles after move
                 self.realign_piece_collisions(local_player)
-                self.realign_piece_collisions(remote_player)
+                
+                # Check if this move resolves a check (if local player was in check)
+                if self.check and local_player.is_checked:
+                    still_in_check = helper_funcs.detect_check(local_player, remote_player, self.board)
+                    if not still_in_check:
+                        self.check = False
+                        self.condition = "None"
+                        local_player.is_checked = False
                 
                 # Create move data with grid positions and piece ID
+                # Transform coordinates to canonical perspective for the host
+                from_file = from_pos.file
+                from_rank = from_pos.rank
+                to_file = to_pos.file
+                to_rank = to_pos.rank
+                
+                # If client, convert to canonical coordinates (flipped)
+                if not self.is_host:
+                    from_file = 8 - from_file  # Flip horizontally
+                    from_rank = 9 - from_rank  # Flip vertically
+                    to_file = 8 - to_file
+                    to_rank = 9 - to_rank
+                
                 move_data = {
                     'piece_type': clicked_piece.piece_type.value,
                     'piece_id': clicked_piece.id if hasattr(clicked_piece, 'id') else None,
-                    'from_pos': {'file': from_pos.file, 'rank': from_pos.rank},
-                    'to_pos': {'file': to_pos.file, 'rank': to_pos.rank},
+                    'from_pos': {'file': from_file, 'rank': from_rank},
+                    'to_pos': {'file': to_file, 'rank': to_rank},
+                    'local_perspective': not self.is_host,  # Flag to indicate if coordinates are from client perspective
                     'timestamp': time.time()
                 }
                 
-                print(f"{role_prefix}Sending move: {move_data}")
                 self.send_message(multiplayer.MessageType.MOVE, move_data)
                 
                 # Reset clicked piece state
                 helper_funcs.player_piece_unclick(local_player)
                 
-                # Check if we captured a piece using both grid position and pixel location
+                # Check if we captured a piece using grid position only (more reliable than pixel)
                 captured = False
                 for piece in list(remote_player.pieces):  # Use a copy of the list
-                    if ((piece.position.file == to_pos.file and piece.position.rank == to_pos.rank) or
-                        piece.location == to_pixel):
+                    if piece.position.file == to_pos.file and piece.position.rank == to_pos.rank:
                         remote_player.pieces.remove(piece)
-                        print(f"{role_prefix}Captured {piece.piece_type.value}")
                         captured = True
                         break
                 
@@ -2269,30 +2289,30 @@ class Multiplayer(PreGameSettings):
                 self.swap_turn()  # This will send the TURN message
                 
                 # Force a sync to ensure both sides have same state
+                # INCREASED DELAY from 0.1s to 0.5s to ensure move is processed first
+                if not self.is_host:
+                    # Client should wait longer before syncing
+                    time.sleep(0.5)
+                else:
+                    # Host can use shorter delay
+                    time.sleep(0.1)
+                
                 self.force_sync()
                 
                 self.immediate_render = True
                 
             else:
                 # If move was invalid, just unselect the piece
-                print(f"{role_prefix}Move invalid or aborted")
                 helper_funcs.player_piece_unclick(local_player)
                 
         # CASE 2: Player clicked on one of their pieces (piece selection)
         elif helper_funcs.player_piece_clicked(local_player, mouse_pos):
-            print(f"{role_prefix}Piece clicked: {mouse_pos}")
             # The piece clicked state is set by helper_funcs.player_piece_clicked
             for p in local_player.pieces:
                 if p.is_clicked:
-                    print(f"{role_prefix}Selected piece: {p.piece_type.value} at {p.location}")
                     # No need to sync here - just a local selection
                     self.immediate_render = True
                     break
-        
-        # CASE 3: Player clicked on an empty space or opponent's piece without having a piece selected
-        else:
-            print(f"{role_prefix}Clicked on empty space or opponent's piece with no selection")
-            # Nothing to do here
                     
     def handle_pass_turn(self, mouse_pos):
         """Handle passing the turn"""
@@ -2333,9 +2353,6 @@ class Multiplayer(PreGameSettings):
         """Swap active and waiting players with proper synchronization"""
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
         
-        # Log current state
-        print(f"{role_prefix}BEFORE SWAP - Active: {self.active_player.color}, Local turn: {self.local_player.is_turn}")
-        
         # 1. Update is_turn flags
         self.active_player.is_turn = False
         self.waiting_player.is_turn = True
@@ -2344,9 +2361,6 @@ class Multiplayer(PreGameSettings):
         temp = self.active_player
         self.active_player = self.waiting_player
         self.waiting_player = temp
-        
-        # Log new state
-        print(f"{role_prefix}AFTER SWAP - Active: {self.active_player.color}, Local turn: {self.local_player.is_turn}")
         
         # 3. Send turn update message 
         self.send_message(multiplayer.MessageType.TURN, {
@@ -2398,7 +2412,6 @@ class Multiplayer(PreGameSettings):
         # Perform the swap
         if left_elephant and left_horse:
             helper_funcs.swap_pieces(self.remote_player, left_horse, left_elephant)
-            print(f"Swapped opponent's left horse and elephant")
 
     def swap_right_pieces_for_remote(self):
         """Swap right horse and elephant for remote player"""
@@ -2417,7 +2430,6 @@ class Multiplayer(PreGameSettings):
         # Perform the swap
         if right_elephant and right_horse:
             helper_funcs.swap_pieces(self.remote_player, right_horse, right_elephant)
-            print(f"Swapped opponent's right horse and elephant")
 
     def realign_piece_collisions(self, player):
         """Realign all piece collision rectangles and update grid positions"""
@@ -2425,7 +2437,6 @@ class Multiplayer(PreGameSettings):
             return
             
         role_prefix = "HOST: " if self.is_host else "CLIENT: "
-        print(f"{role_prefix}Realigning collision rectangles for {player.color}'s {len(player.pieces)} pieces")
         
         for piece in player.pieces:
             if piece and piece.location:
@@ -2442,13 +2453,6 @@ class Multiplayer(PreGameSettings):
                 
                 # Make sure image location matches location
                 piece.image_location = piece.location
-                
-                # Debug output for significant changes
-                if (abs(old_rect.x - piece.collision_rect.x) > 10 or
-                    abs(old_rect.y - piece.collision_rect.y) > 10):
-                    print(f"{role_prefix}  Adjusted {piece.piece_type.value} rect: {old_rect} -> {piece.collision_rect}")
-                    if old_pos:
-                        print(f"{role_prefix}  Updated grid position from {old_pos} to {piece.position}")
 
     def force_sync(self):
         """Force an immediate board sync"""
@@ -2472,7 +2476,13 @@ class Multiplayer(PreGameSettings):
                 )
                 if hasattr(p, 'position'):
                     new_piece.position = self.Position(p.position.file, p.position.rank)
+                if hasattr(p, 'id'):
+                    new_piece.id = p.id
                 self.host_pieces_backup.append(new_piece)
+        
+        # Ensure collision rectangles are properly aligned before serializing
+        self.realign_piece_collisions(self.host)
+        self.realign_piece_collisions(self.guest)
         
         # Serialize the current state
         board_state = multiplayer.serialize_board_state(
@@ -2481,11 +2491,15 @@ class Multiplayer(PreGameSettings):
             perspective
         )
         
+        # Add timestamp to track sync sequence
+        board_state['timestamp'] = time.time()
+        
         # Send sync message
         self.send_message(multiplayer.MessageType.SYNC, board_state)
         
         # Update the last sync time
         self.last_sync_time = time.time()
+        
         
     def verify_piece_data(self, piece_data, pieces):
         """Verify piece data before applying it"""
@@ -2505,33 +2519,12 @@ class Multiplayer(PreGameSettings):
                 
             # During setup, ensure we have the right piece counts
             if piece_type not in piece_map:
-                print(f"Missing piece type: {piece_type}")
                 return False
                 
             # During setup we expect exact match
             if len(piece_map[piece_type]) != len(positions):
-                print(f"Piece count mismatch for {piece_type}: expected {len(piece_map[piece_type])}, got {len(positions)}")
-                return False
-        
+                return False        
         return True
-    
-    def log_board_state(self):
-        """Log current board state for debugging"""
-        role_prefix = "HOST: " if self.is_host else "CLIENT: "
-        print(f"\n{role_prefix} CURRENT BOARD STATE:")
-        
-        # Log host pieces
-        print(f"{role_prefix} Host pieces ({len(self.host.pieces)}):")
-        for p in self.host.pieces:
-            print(f"{role_prefix}   {p.piece_type.value}: grid=({p.position.file}, {p.position.rank}), pixel={p.location}")
-        
-        # Log guest pieces
-        print(f"{role_prefix} Guest pieces ({len(self.guest.pieces)}):")
-        for p in self.guest.pieces:
-            print(f"{role_prefix}   {p.piece_type.value}: grid=({p.position.file}, {p.position.rank}), pixel={p.location}")
-        
-        print(f"{role_prefix} Game phase: {self.game_phase}")
-        print(f"{role_prefix} Active player: {self.active_player.color if self.active_player else 'None'}")
 
     def update(self):
         """Perform regular game updates"""
@@ -2542,15 +2535,9 @@ class Multiplayer(PreGameSettings):
         current_time = time.time()
         if hasattr(self, 'validation_interval') and hasattr(self, 'last_validation_time'):
             if current_time - self.last_validation_time > self.validation_interval:
-                # Count pieces and verify integrity
-                host_count = len(self.host.pieces)
-                guest_count = len(self.guest.pieces)
-                print(f"{'HOST' if self.is_host else 'CLIENT'}: Piece count check - Host: {host_count}, Guest: {guest_count}")
-                
                 # Verify all pieces have valid positions
                 for p in self.host.pieces + self.guest.pieces:
                     if not hasattr(p, 'position') or not hasattr(p.position, 'file') or not hasattr(p.position, 'rank'):
-                        print(f"Invalid piece detected: {p.piece_type.value} - restoring from backup")
                         self.restore_pieces_from_backup()
                         break
                 
@@ -2559,7 +2546,6 @@ class Multiplayer(PreGameSettings):
         # If hosting, perform occasional full syncs during gameplay
         if self.is_host and self.game_phase == multiplayer.GamePhase.GAMEPLAY:
             if current_time - self.last_sync_time > self.sync_interval * 5:  # Every 2.5 seconds
-                print("HOST: Performing periodic full sync")
                 self.force_sync()
 
 
@@ -2715,7 +2701,12 @@ class Multiplayer(PreGameSettings):
         status_x = 20
         status_y = 20
         role = "Host" if self.is_host else "Client"
-        phase = self.game_phase.value
+        
+        # Format the phase name to be more readable
+        phase_raw = self.game_phase.value
+        # Split by underscore and capitalize each word
+        phase_words = phase_raw.split('_')
+        phase = ' '.join(word.capitalize() for word in phase_words)
         
         # Display connection info
         self.draw_text(window, f"Connected as: {role}", status_x, status_y, 20)
@@ -2724,12 +2715,6 @@ class Multiplayer(PreGameSettings):
         # Display color info
         your_color = self.local_player.color
         self.draw_text(window, f"Your color: {your_color}", status_x, status_y + 50, 20)
-        
-        # Display player counts to help debug
-        self.draw_text(window, f"Your pieces: {len(self.local_player.pieces)}", 
-                      status_x, status_y + 75, 20)
-        self.draw_text(window, f"Opponent pieces: {len(self.remote_player.pieces)}", 
-                      status_x, status_y + 100, 20)
                       
     def render_pieces(self, local_player, remote_player, window):
         """Render pieces with correct perspective"""
