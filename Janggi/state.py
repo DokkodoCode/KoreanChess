@@ -1137,8 +1137,15 @@ class Multiplayer(PreGameSettings):
     def __init__(self, window):
         self.guest = player.Player(is_host=False, board_perspective="Top")
         self.host = player.Player(is_host=True, board_perspective="Bottom")
+        self.font = pygame.font.SysFont("Arial",size=35)
 
-        super().__init__(window) 
+        super().__init__(window)
+
+        self.host_button = button.Button(constants.screen_width * (1/3), constants.screen_height/2, 100, 100, self.font, 'host')
+        self.client_button = button.Button(constants.screen_width * (2/3), constants.screen_height/2, 100, 100, self.font, 'client')
+        self.choice = None # for choosing betwenn host and client
+
+        self.ip_prompt = TextBox((constants.screen_width/2, constants.screen_height/2), (500, 100))
 
         self.load_host_side_swap_menu()
 
@@ -1169,7 +1176,7 @@ class Multiplayer(PreGameSettings):
         self.waiting_for_opponent_swap = False
                 
         # Initialize connection
-        self.establish_connection()
+        # self.establish_connection()
                 
         # Setup player perspectives based on role
         self.initialize_perspectives()
@@ -1184,65 +1191,32 @@ class Multiplayer(PreGameSettings):
         self.load_game_state_elements()
         
         # Start the game state machine
-        self.transition_to_settings()
+        # self.transition_to_settings()
+        print('switching to create_join_game')
+        self.game_phase = multiplayer.GamePhase.CREATE_JOIN_GAME
 
-    def establish_connection(self):
+    def handle_host_client_choice(self):
         """Establish connection as host or client"""
         if hasattr(self, 'connection') and self.connection is not None:
             print("Using existing connection")
             return
             
-        print("Establishing new connection...")
-        choice = input("Do you want to be a host (h) or client (c)? ").lower()
+        # print("Establishing new connection...")
+        # choice = input("Do you want to be a host (h) or client (c)? ").lower()
+        if self.host_button.is_clicked():
+             choice = 'h'
+        elif self.client_button.is_clicked():
+             choice = 'c'
         
         if choice == 'h':
-            # Creating a server (host)
-            print("Starting as host. Waiting for client to connect...")
-            print(HOST)
-            
-            self.connection = multiplayer.Server(HOST, PORT)
-            if not self.connection.create_socket():
-                print("Failed to create server socket")
-                return
-                
-            if not self.connection.bind_socket():
-                print("Failed to bind server socket")
-                return
-                
-            if not self.connection.listen():
-                print("Failed to listen on server socket")
-                return
-            
-            # Accept client connection with timeout
-            print("Waiting for client connection...")
-            if not self.connection.accept_client(timeout=60):
-                print("No client connected within timeout period")
-                return
-                
-            print("Client connected!")
-            self.is_host = True
-            
-            # Set socket to non-blocking for game loop
-            self.connection.set_client_non_blocking(True)
-            
-            # Send initial connection confirmation
-            self.send_message(multiplayer.MessageType.CONNECT, {"status": "connected"})
+            self.game_phase = multiplayer.GamePhase.CREATE_GAME            
             
         elif choice == 'c':
-            # Creating a client
-            print("Starting as client. Connecting to host...")
-            host = input("enter IP of host: ")
-            
-            self.connection = multiplayer.Client(host, PORT)
-            if self.connection.connect(timeout=5):
-                print("Connected to host!")
-                self.is_host = False
-                
-                # Set socket to non-blocking
-                self.connection.set_non_blocking(True)
-            else:
-                print("Failed to connect to host")
-                self.connection = None
+            self.game_phase = multiplayer.GamePhase.JOIN_GAME
+
+        else:
+            print('choice not initalized')
+            exit()
 
     def initialize_perspectives(self):
         """Initialize player perspectives based on host/client role"""
@@ -2051,6 +2025,8 @@ class Multiplayer(PreGameSettings):
             
         # Process clicks based on game phase
         if self.is_left_click(event):
+            if self.game_phase == multiplayer.GamePhase.CREATE_JOIN_GAME:
+                 self.handle_host_client_choice()
             if self.game_phase == multiplayer.GamePhase.SETTINGS:
                 self.handle_settings_click(mouse_pos)
             elif self.game_phase == multiplayer.GamePhase.HOST_HORSE_SWAP:
@@ -2072,6 +2048,41 @@ class Multiplayer(PreGameSettings):
                 not self.game_over and 
                 self.active_player == self.local_player):
                 self.handle_pass_turn(mouse_pos)
+
+    def handle_host_init(self):
+        print("Starting as host. Waiting for client to connect...")
+        print(HOST)
+        
+        try:
+            self.connection = multiplayer.Server(HOST, PORT)
+            print("Waiting for client connection...")
+            self.connection.accept_client(timeout=60)
+        except Exception as e:
+                print(f'error: {e}')
+                exit()
+
+        print("Client connected!")
+        self.is_host = True
+        
+        # Set socket to non-blocking for game loop
+        self.connection.set_client_non_blocking(True)
+        
+        # Send initial connection confirmation
+        self.send_message(multiplayer.MessageType.CONNECT, {"status": "connected"})
+    
+    def handle_client_init(self):
+        print("Starting as client. Connecting to host...")
+        host = input("enter IP of host: ")
+        
+        try:
+            self.connection = multiplayer.Client(host, PORT)
+            self.connection.connect(timeout=60)
+            print("Connected to host!")
+            self.is_host = False                
+            self.connection.set_non_blocking(True)
+        except Exception as e:
+            print(f"Failed to connect to host: {e}")
+            self.connection = None
 
     def handle_settings_click(self, mouse_pos):
         """Handle clicks in settings selection phase"""
@@ -2571,6 +2582,10 @@ class Multiplayer(PreGameSettings):
             self.render_board(window)
             
             # Render phase-specific elements
+            if self.game_phase == multiplayer.GamePhase.CREATE_JOIN_GAME:
+                self.render_create_join_game(window)
+            if self.game_phase == multiplayer.GamePhase.JOIN_GAME:
+                 self.render_join_game(window)
             if self.game_phase == multiplayer.GamePhase.SETTINGS:
                 self.render_settings(window)
             elif self.game_phase == multiplayer.GamePhase.HOST_HORSE_SWAP:
@@ -2585,6 +2600,15 @@ class Multiplayer(PreGameSettings):
             # Always show connection status
             self.render_connection_status(window)
 
+    def render_create_join_game(self, window):
+        self.render_message(window, 'Host or Client?',
+                            (constants.screen_width/2, constants.screen_height/2), (200, 100))
+        self.host_button.draw_button(window)
+        self.client_button.draw_button(window)
+
+    def render_join_game(self, window):
+         self.ip_prompt.render(window)
+
     def render_settings(self, window):
             """Render settings selection phase"""
             if self.is_host:
@@ -2593,7 +2617,7 @@ class Multiplayer(PreGameSettings):
             else:
                 # Client waits for settings from host
                 self.render_message(window, "Waiting for host to select settings...",
-                                    (constants.screen_width//2 - 200, constants.screen_height//2), (500, 100))
+                                    (constants.screen_width//2, constants.screen_height//2), (500, 100))
 
     def render_settings_ui(self, window):
         """Render settings UI for host"""
@@ -2754,3 +2778,37 @@ class Multiplayer(PreGameSettings):
         self.piece_convention_background = pygame.transform.scale(self.button_background,
                 constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["size"])
     
+class TextBox:
+    def __init__(self, pos:tuple[float,float], size:tuple[float,float]):
+        self.font = pygame.font.Font(None, 36)
+        self.input_box = pygame.Rect(pos[0], pos[1], size[0], size[1])
+        self.color_inactive = pygame.Color('lightskyblue3')
+        self.color_active = pygame.Color('dodgerblue2')
+        self.color = self.color_inactive
+        self.active = False
+        self.text = ''
+
+    def process(self, event):
+        if self.is_clicked():
+            active = True
+        else:
+            active = False
+
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_BACKSPACE: 
+            self.text = self.text[:-1]
+        elif event.type == pygame.KEYDOWN:
+             self.text += event.unicode
+
+    def render(self, window):
+        pygame.draw.rect(window, 'white', self.input_box)
+        text_surface = self.font.render(self.text, True, (255, 255, 255))
+        window.blit(text_surface, (self.input_box.x+5, self.input_box.y+5))
+        # set width of textfield so that text cannot get 
+        # outside of user's text input 
+        self.input_box.w = max(100, text_surface.get_width()+10)
+    
+    def is_clicked(self):
+        mouse_pos = pygame.mouse.get_pos()
+        if self.rect.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0] == 1:
+            return True
+        return False

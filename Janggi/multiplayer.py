@@ -38,6 +38,9 @@ class GamePhase(Enum):
     CLIENT_HORSE_SWAP = "client_horse_swap"
     GAMEPLAY = "gameplay"
     GAME_OVER = "game_over"
+    CREATE_JOIN_GAME = 'create join game'
+    JOIN_GAME = 'join game'
+    CREATE_GAME = 'create game'
 
 # -------------------------------------------------------------------------
 # Coordinate Transformation Functions
@@ -412,19 +415,17 @@ class Server(SocketConnection):
         try:
             self.sock.bind((self.HOST, self.PORT))
             print(f"Server bound to {self.HOST}:{self.PORT}")
-            return True
         except Exception as e:
             print(f"Error binding socket: {e}")
-            return False
+            raise e
 
     def listen(self, backlog=1):
         try:
             self.sock.listen(backlog)
             print(f"Server listening with backlog {backlog}")
-            return True
         except Exception as e:
             print(f"Error listening: {e}")
-            return False
+            raise e
 
     def accept_client(self, timeout=None):
         try:
@@ -437,13 +438,12 @@ class Server(SocketConnection):
             if timeout:
                 self.sock.settimeout(None)  # Reset timeout
                 
-            return True
         except socket.timeout:
             print("Accept timed out, no client connected")
-            return False
+            raise e
         except Exception as e:
             print(f"Error accepting client: {e}")
-            return False
+            raise e
         
     def send(self, message):
         """Send a message to the connected client"""
