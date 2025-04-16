@@ -1126,8 +1126,8 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 	def swap_turn(self):
 		self.active_player, self. waiting_player = self.waiting_player, self.active_player
 
-from socket import gethostbyname, gethostname
-HOST, PORT = gethostbyname(gethostname()), 5000
+import socket
+HOST, PORT = socket.gethostbyname(socket.gethostname()), 5000
 
 class Multiplayer(PreGameSettings):    
     def __init__(self, window):
@@ -2029,7 +2029,6 @@ class Multiplayer(PreGameSettings):
                 self.active_player == self.local_player):
                 self.handle_pass_turn(mouse_pos)
 
-
     def handle_host_client_choice(self):
         """Establish connection as host or client"""
         if hasattr(self, 'connection') and self.connection is not None:
@@ -2042,45 +2041,49 @@ class Multiplayer(PreGameSettings):
         elif self.client_button.is_clicked():
             self.game_phase = multiplayer.GamePhase.JOIN_GAME
 
-
     def handle_host_init(self):
         print("Starting as host. Waiting for client to connect...")
         print(HOST)
         
+        # create server, wait for client, move to next game phase
         try:
             self.connection = multiplayer.Server(HOST, PORT)
+            self.connection.create_socket()
+            self.connection.bind_socket()
+            self.connection.listen()
             print("Waiting for client connection...")
             self.connection.accept_client(timeout=60)
+            print("Client connected!")
+            self.is_host = True        
+            self.connection.set_client_non_blocking(True)
+            self.send_message(multiplayer.MessageType.CONNECT, {"status": "connected"})
+            self.game_phase = multiplayer.GamePhase.SETTINGS
         except Exception as e:
                 print(f'error: {e}')
-                exit()
+                print('retrying')
 
-        print("Client connected!")
-        self.is_host = True
-        
-        # Set socket to non-blocking for game loop
-        self.connection.set_client_non_blocking(True)
-        
-        # Send initial connection confirmation
-        self.send_message(multiplayer.MessageType.CONNECT, {"status": "connected"})
     
     def handle_client_init(self, event):
-        # host = input("enter IP of host: ")
-        
-        # try:
-        #     self.connection = multiplayer.Client(host, PORT)
-        #     self.connection.connect(timeout=60)
-        #     print("Connected to host!")
-        #     self.is_host = False                
-        #     self.connection.set_non_blocking(True)
-        # except Exception as e:
-        #     print(f"Failed to connect to host: {e}")
-        #     self.connection = None
+        # text box for ip addr input        
         self.ip_prompt.handle_event(event)
         self.ip_prompt.update()
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-            print(self.ip_prompt.get_input())
 
+        # try to connect with given ip
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+            host = self.ip_prompt.get_input()
+            try:
+                socket.inet_aton(host)
+                self.connection = multiplayer.Client(host, PORT)
+                self.connection.connect(timeout=60)
+                self.is_host = False                
+                self.connection.set_non_blocking(True)
+                print("Connected to host!")
+                self.game_phase = multiplayer.GamePhase.SETTINGS
+            except socket.error as e:
+                print("not a valid ip")
+            except Exception as e:
+                print(f"Failed to connect to host: {e}")
+                self.connection = None
 
     def handle_settings_click(self, mouse_pos):
         """Handle clicks in settings selection phase"""
@@ -2781,39 +2784,6 @@ class Multiplayer(PreGameSettings):
         # Piece convention background
         self.piece_convention_background = pygame.transform.scale(self.button_background,
                 constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["size"])
-    
-# class TextBox:
-#     def __init__(self, pos:tuple[float,float], size:tuple[float,float]):
-#         self.font = pygame.font.Font(None, 36)
-#         self.input_box = pygame.Rect(pos[0], pos[1], size[0], size[1])
-#         self.color_inactive = pygame.Color('lightskyblue3')
-#         self.color_active = pygame.Color('dodgerblue2')
-#         self.color = self.color_inactive
-#         self.active = False
-#         self.text = ''
-
-#     def process(self, event):
-#         if self.is_clicked():
-#             active = True
-#         else:
-#             active = False
-
-#         if event.type == pygame.KEYDOWN and event.key == pygame.K_BACKSPACE: 
-#             self.text = self.text[:-1]
-#         elif event.type == pygame.KEYDOWN:
-#              self.text += event.unicode
-#         print(self.text)
-
-#     def render(self, window):
-#         pygame.draw.rect(window, 'black', self.input_box)
-#         text_surface = self.font.render(self.text, True, (255, 255, 255))
-#         window.blit(text_surface, (self.input_box.x+5, self.input_box.y+5))
-    
-#     def is_clicked(self):
-#         mouse_pos = pygame.mouse.get_pos()
-#         if self.input_box.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0] == 1:
-#             return True
-#         return False
 
 COLOR_INACTIVE = pygame.Color('lightskyblue3')
 COLOR_ACTIVE = pygame.Color('dodgerblue2')
@@ -2830,7 +2800,7 @@ class InputBox:
         self.active = False
 
     def get_input(self):
-         return self.text
+         return self.to_return
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -2845,7 +2815,7 @@ class InputBox:
         if event.type == pygame.KEYDOWN:
             if self.active:
                 if event.key == pygame.K_RETURN:
-                    print(self.text)
+                    self.to_return = self.text
                     self.text = ''
                 elif event.key == pygame.K_BACKSPACE:
                     self.text = self.text[:-1]

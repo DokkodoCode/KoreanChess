@@ -427,7 +427,7 @@ class Server(SocketConnection):
             print(f"Error listening: {e}")
             raise e
 
-    def accept_client(self, timeout=None):
+    def accept_client(self, timeout=60):
         try:
             if timeout:
                 self.sock.settimeout(timeout)
@@ -435,8 +435,8 @@ class Server(SocketConnection):
             self.client_sock, self.addr = self.sock.accept()
             print(f"Accepted client connection from {self.addr}")
             
-            if timeout:
-                self.sock.settimeout(None)  # Reset timeout
+            # if timeout:
+            #     self.sock.settimeout(None)  # Reset timeout
                 
         except socket.timeout:
             print("Accept timed out, no client connected")
@@ -532,11 +532,11 @@ class Client(SocketConnection):
             return True
         except socket.timeout:
             print(f"Connection attempt timed out after {timeout} seconds")
-            return False
+            raise TimeoutError
         except ConnectionRefusedError:
             print("Connection refused. Is the server running?")
-            return False
+            raise ConnectionRefusedError
         except Exception as e:
             print(f"Error connecting to server: {e}")
             traceback.print_exc()
-            return False
+            return Exception
