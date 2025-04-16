@@ -1998,32 +1998,32 @@ class Multiplayer(PreGameSettings):
             return
             
         # Process clicks based on game phase
-        if self.is_left_click(event):
-            match(self.game_phase):
-                case multiplayer.GamePhase.CREATE_JOIN_GAME:
-                    self.handle_host_client_choice()
-                case multiplayer.GamePhase.CREATE_GAME:
-                    self.handle_host_init()
-                case multiplayer.GamePhase.JOIN_GAME:
-                    self.handle_client_init(event)
-                case multiplayer.GamePhase.SETTINGS:
-                    self.handle_settings_click(mouse_pos)
-                case multiplayer.GamePhase.HOST_HORSE_SWAP:
-                    if self.is_host and not self.waiting_for_opponent_swap:
-                        self.handle_horse_swap_click(mouse_pos)
-                case multiplayer.GamePhase.CLIENT_HORSE_SWAP:
-                    if not self.is_host and not self.waiting_for_opponent_swap:
-                        self.handle_horse_swap_click(mouse_pos)
-                case multiplayer.GamePhase.GAMEPLAY:
-                    if not self.game_over and self.active_player == self.local_player:
-                        self.handle_gameplay_click(mouse_pos)
-                case multiplayer.GamePhase.GAME_OVER:
-                    pass
-                case _:
-                    print('HOW DID YOU GET HERE???')
-                    exit()
+        # if self.is_left_click(event):
+        match(self.game_phase):
+            case multiplayer.GamePhase.CREATE_JOIN_GAME:
+                self.handle_host_client_choice()
+            case multiplayer.GamePhase.CREATE_GAME:
+                self.handle_host_init()
+            case multiplayer.GamePhase.JOIN_GAME:
+                self.handle_client_init(event)
+            case multiplayer.GamePhase.SETTINGS:
+                self.handle_settings_click(mouse_pos)
+            case multiplayer.GamePhase.HOST_HORSE_SWAP:
+                if self.is_host and not self.waiting_for_opponent_swap:
+                    self.handle_horse_swap_click(mouse_pos)
+            case multiplayer.GamePhase.CLIENT_HORSE_SWAP:
+                if not self.is_host and not self.waiting_for_opponent_swap:
+                    self.handle_horse_swap_click(mouse_pos)
+            case multiplayer.GamePhase.GAMEPLAY:
+                if not self.game_over and self.active_player == self.local_player:
+                    self.handle_gameplay_click(mouse_pos)
+            case multiplayer.GamePhase.GAME_OVER:
+                pass
+            case _:
+                print('HOW DID YOU GET HERE???')
+                exit()
         # Handle right-click for passing turn
-        elif self.is_right_click(event):
+        if self.is_right_click(event):
             if (self.game_phase == multiplayer.GamePhase.GAMEPLAY and
                 not self.game_over and 
                 self.active_player == self.local_player):
@@ -2036,15 +2036,11 @@ class Multiplayer(PreGameSettings):
             print("Using existing connection")
             return
             
-        print("Establishing new connection...")        
         if self.host_button.is_clicked():
             self.game_phase = multiplayer.GamePhase.CREATE_GAME
             
         elif self.client_button.is_clicked():
             self.game_phase = multiplayer.GamePhase.JOIN_GAME
-        else:
-            print('choice not initalized')
-            exit()
 
 
     def handle_host_init(self):
@@ -2069,7 +2065,6 @@ class Multiplayer(PreGameSettings):
         self.send_message(multiplayer.MessageType.CONNECT, {"status": "connected"})
     
     def handle_client_init(self, event):
-        print("Starting as client. Connecting to host...")
         # host = input("enter IP of host: ")
         
         # try:
@@ -2081,7 +2076,11 @@ class Multiplayer(PreGameSettings):
         # except Exception as e:
         #     print(f"Failed to connect to host: {e}")
         #     self.connection = None
-        self.ip_prompt.process(event)
+        self.ip_prompt.handle_event(event)
+        self.ip_prompt.update()
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+            print(self.ip_prompt.get_input())
+
 
     def handle_settings_click(self, mouse_pos):
         """Handle clicks in settings selection phase"""
@@ -2826,8 +2825,12 @@ class InputBox:
         self.rect = pygame.Rect(x, y, w, h)
         self.color = COLOR_INACTIVE
         self.text = text
+        self.to_return = None
         self.txt_surface = FONT.render(text, True, self.color)
         self.active = False
+
+    def get_input(self):
+         return self.text
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
