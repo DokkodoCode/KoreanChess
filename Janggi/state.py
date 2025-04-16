@@ -286,10 +286,6 @@ class MainMenu(State):
         self.exit_button.draw_button(window)
 
 # SUBCLASS for pregame settings
-# What does it contain?
-#  - loads and renders board, color selection, piece style, piece preview, and play button
-#  - handles button presses for those menus
-#  - inits board
 class PreGameSettings(State):
     def __init__(self, window):
         super().__init__() # inherit the parent initializer
@@ -1145,7 +1141,8 @@ class Multiplayer(PreGameSettings):
         self.client_button = button.Button(constants.screen_width * (2/3), constants.screen_height/2, 100, 100, self.font, 'client')
         self.choice = None # for choosing betwenn host and client
 
-        self.ip_prompt = TextBox((constants.screen_width/2, constants.screen_height/2), (500, 100))
+        # self.ip_prompt = TextBox((constants.screen_width/2, constants.screen_height/2), (500, 100))
+        self.ip_prompt = InputBox(constants.screen_width/2, constants.screen_height/2, 500, 100)
 
         self.load_host_side_swap_menu()
 
@@ -1194,29 +1191,6 @@ class Multiplayer(PreGameSettings):
         # self.transition_to_settings()
         print('switching to create_join_game')
         self.game_phase = multiplayer.GamePhase.CREATE_JOIN_GAME
-
-    def handle_host_client_choice(self):
-        """Establish connection as host or client"""
-        if hasattr(self, 'connection') and self.connection is not None:
-            print("Using existing connection")
-            return
-            
-        # print("Establishing new connection...")
-        # choice = input("Do you want to be a host (h) or client (c)? ").lower()
-        if self.host_button.is_clicked():
-             choice = 'h'
-        elif self.client_button.is_clicked():
-             choice = 'c'
-        
-        if choice == 'h':
-            self.game_phase = multiplayer.GamePhase.CREATE_GAME            
-            
-        elif choice == 'c':
-            self.game_phase = multiplayer.GamePhase.JOIN_GAME
-
-        else:
-            print('choice not initalized')
-            exit()
 
     def initialize_perspectives(self):
         """Initialize player perspectives based on host/client role"""
@@ -2025,29 +1999,53 @@ class Multiplayer(PreGameSettings):
             
         # Process clicks based on game phase
         if self.is_left_click(event):
-            if self.game_phase == multiplayer.GamePhase.CREATE_JOIN_GAME:
-                 self.handle_host_client_choice()
-            if self.game_phase == multiplayer.GamePhase.SETTINGS:
-                self.handle_settings_click(mouse_pos)
-            elif self.game_phase == multiplayer.GamePhase.HOST_HORSE_SWAP:
-                if self.is_host and not self.waiting_for_opponent_swap:
-                    self.handle_horse_swap_click(mouse_pos)
-            elif self.game_phase == multiplayer.GamePhase.CLIENT_HORSE_SWAP:
-                if not self.is_host and not self.waiting_for_opponent_swap:
-                    self.handle_horse_swap_click(mouse_pos)
-            elif self.game_phase == multiplayer.GamePhase.GAMEPLAY:
-                if not self.game_over and self.active_player == self.local_player:
-                    self.handle_gameplay_click(mouse_pos)
-            elif self.game_phase == multiplayer.GamePhase.GAME_OVER:
-                # Handle clicks in game over state (e.g., "Play Again" button)
-                pass
-                
+            match(self.game_phase):
+                case multiplayer.GamePhase.CREATE_JOIN_GAME:
+                    self.handle_host_client_choice()
+                case multiplayer.GamePhase.CREATE_GAME:
+                    self.handle_host_init()
+                case multiplayer.GamePhase.JOIN_GAME:
+                    self.handle_client_init(event)
+                case multiplayer.GamePhase.SETTINGS:
+                    self.handle_settings_click(mouse_pos)
+                case multiplayer.GamePhase.HOST_HORSE_SWAP:
+                    if self.is_host and not self.waiting_for_opponent_swap:
+                        self.handle_horse_swap_click(mouse_pos)
+                case multiplayer.GamePhase.CLIENT_HORSE_SWAP:
+                    if not self.is_host and not self.waiting_for_opponent_swap:
+                        self.handle_horse_swap_click(mouse_pos)
+                case multiplayer.GamePhase.GAMEPLAY:
+                    if not self.game_over and self.active_player == self.local_player:
+                        self.handle_gameplay_click(mouse_pos)
+                case multiplayer.GamePhase.GAME_OVER:
+                    pass
+                case _:
+                    print('HOW DID YOU GET HERE???')
+                    exit()
         # Handle right-click for passing turn
         elif self.is_right_click(event):
             if (self.game_phase == multiplayer.GamePhase.GAMEPLAY and
                 not self.game_over and 
                 self.active_player == self.local_player):
                 self.handle_pass_turn(mouse_pos)
+
+
+    def handle_host_client_choice(self):
+        """Establish connection as host or client"""
+        if hasattr(self, 'connection') and self.connection is not None:
+            print("Using existing connection")
+            return
+            
+        print("Establishing new connection...")        
+        if self.host_button.is_clicked():
+            self.game_phase = multiplayer.GamePhase.CREATE_GAME
+            
+        elif self.client_button.is_clicked():
+            self.game_phase = multiplayer.GamePhase.JOIN_GAME
+        else:
+            print('choice not initalized')
+            exit()
+
 
     def handle_host_init(self):
         print("Starting as host. Waiting for client to connect...")
@@ -2070,19 +2068,20 @@ class Multiplayer(PreGameSettings):
         # Send initial connection confirmation
         self.send_message(multiplayer.MessageType.CONNECT, {"status": "connected"})
     
-    def handle_client_init(self):
+    def handle_client_init(self, event):
         print("Starting as client. Connecting to host...")
-        host = input("enter IP of host: ")
+        # host = input("enter IP of host: ")
         
-        try:
-            self.connection = multiplayer.Client(host, PORT)
-            self.connection.connect(timeout=60)
-            print("Connected to host!")
-            self.is_host = False                
-            self.connection.set_non_blocking(True)
-        except Exception as e:
-            print(f"Failed to connect to host: {e}")
-            self.connection = None
+        # try:
+        #     self.connection = multiplayer.Client(host, PORT)
+        #     self.connection.connect(timeout=60)
+        #     print("Connected to host!")
+        #     self.is_host = False                
+        #     self.connection.set_non_blocking(True)
+        # except Exception as e:
+        #     print(f"Failed to connect to host: {e}")
+        #     self.connection = None
+        self.ip_prompt.process(event)
 
     def handle_settings_click(self, mouse_pos):
         """Handle clicks in settings selection phase"""
@@ -2582,20 +2581,23 @@ class Multiplayer(PreGameSettings):
             self.render_board(window)
             
             # Render phase-specific elements
-            if self.game_phase == multiplayer.GamePhase.CREATE_JOIN_GAME:
-                self.render_create_join_game(window)
-            if self.game_phase == multiplayer.GamePhase.JOIN_GAME:
-                 self.render_join_game(window)
-            if self.game_phase == multiplayer.GamePhase.SETTINGS:
-                self.render_settings(window)
-            elif self.game_phase == multiplayer.GamePhase.HOST_HORSE_SWAP:
-                self.render_host_swap(window)
-            elif self.game_phase == multiplayer.GamePhase.CLIENT_HORSE_SWAP:
-                self.render_client_swap(window)
-            elif self.game_phase == multiplayer.GamePhase.GAMEPLAY:
-                self.render_gameplay(window)
-            elif self.game_phase == multiplayer.GamePhase.GAME_OVER:
-                self.render_game_over(window)
+            match(self.game_phase):
+                case multiplayer.GamePhase.CREATE_JOIN_GAME:
+                    self.render_create_join_game(window)
+                case multiplayer.GamePhase.JOIN_GAME:
+                    self.render_join_game(window)
+                case multiplayer.GamePhase.CREATE_GAME:
+                    self.render_create_game(window)
+                case multiplayer.GamePhase.SETTINGS:
+                    self.render_settings(window)
+                case multiplayer.GamePhase.HOST_HORSE_SWAP:
+                    self.render_host_swap(window)
+                case multiplayer.GamePhase.CLIENT_HORSE_SWAP:
+                    self.render_client_swap(window)
+                case multiplayer.GamePhase.GAMEPLAY:
+                    self.render_gameplay(window)
+                case multiplayer.GamePhase.GAME_OVER:
+                    self.render_game_over(window)
                 
             # Always show connection status
             self.render_connection_status(window)
@@ -2605,6 +2607,9 @@ class Multiplayer(PreGameSettings):
                             (constants.screen_width/2, constants.screen_height/2), (200, 100))
         self.host_button.draw_button(window)
         self.client_button.draw_button(window)
+
+    def render_create_game(self, window):
+        print('render create game')
 
     def render_join_game(self, window):
          self.ip_prompt.render(window)
@@ -2778,37 +2783,81 @@ class Multiplayer(PreGameSettings):
         self.piece_convention_background = pygame.transform.scale(self.button_background,
                 constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["size"])
     
-class TextBox:
-    def __init__(self, pos:tuple[float,float], size:tuple[float,float]):
-        self.font = pygame.font.Font(None, 36)
-        self.input_box = pygame.Rect(pos[0], pos[1], size[0], size[1])
-        self.color_inactive = pygame.Color('lightskyblue3')
-        self.color_active = pygame.Color('dodgerblue2')
-        self.color = self.color_inactive
-        self.active = False
-        self.text = ''
+# class TextBox:
+#     def __init__(self, pos:tuple[float,float], size:tuple[float,float]):
+#         self.font = pygame.font.Font(None, 36)
+#         self.input_box = pygame.Rect(pos[0], pos[1], size[0], size[1])
+#         self.color_inactive = pygame.Color('lightskyblue3')
+#         self.color_active = pygame.Color('dodgerblue2')
+#         self.color = self.color_inactive
+#         self.active = False
+#         self.text = ''
 
-    def process(self, event):
-        if self.is_clicked():
-            active = True
-        else:
-            active = False
+#     def process(self, event):
+#         if self.is_clicked():
+#             active = True
+#         else:
+#             active = False
 
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_BACKSPACE: 
-            self.text = self.text[:-1]
-        elif event.type == pygame.KEYDOWN:
-             self.text += event.unicode
+#         if event.type == pygame.KEYDOWN and event.key == pygame.K_BACKSPACE: 
+#             self.text = self.text[:-1]
+#         elif event.type == pygame.KEYDOWN:
+#              self.text += event.unicode
+#         print(self.text)
 
-    def render(self, window):
-        pygame.draw.rect(window, 'white', self.input_box)
-        text_surface = self.font.render(self.text, True, (255, 255, 255))
-        window.blit(text_surface, (self.input_box.x+5, self.input_box.y+5))
-        # set width of textfield so that text cannot get 
-        # outside of user's text input 
-        self.input_box.w = max(100, text_surface.get_width()+10)
+#     def render(self, window):
+#         pygame.draw.rect(window, 'black', self.input_box)
+#         text_surface = self.font.render(self.text, True, (255, 255, 255))
+#         window.blit(text_surface, (self.input_box.x+5, self.input_box.y+5))
     
-    def is_clicked(self):
-        mouse_pos = pygame.mouse.get_pos()
-        if self.rect.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0] == 1:
-            return True
-        return False
+#     def is_clicked(self):
+#         mouse_pos = pygame.mouse.get_pos()
+#         if self.input_box.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0] == 1:
+#             return True
+#         return False
+
+COLOR_INACTIVE = pygame.Color('lightskyblue3')
+COLOR_ACTIVE = pygame.Color('dodgerblue2')
+FONT = pygame.font.Font(None, 32)
+
+class InputBox:
+
+    def __init__(self, x, y, w, h, text=''):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = COLOR_INACTIVE
+        self.text = text
+        self.txt_surface = FONT.render(text, True, self.color)
+        self.active = False
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # If the user clicked on the input_box rect.
+            if self.rect.collidepoint(event.pos):
+                # Toggle the active variable.
+                self.active = not self.active
+            else:
+                self.active = False
+            # Change the current color of the input box.
+            self.color = COLOR_ACTIVE if self.active else COLOR_INACTIVE
+        if event.type == pygame.KEYDOWN:
+            if self.active:
+                if event.key == pygame.K_RETURN:
+                    print(self.text)
+                    self.text = ''
+                elif event.key == pygame.K_BACKSPACE:
+                    self.text = self.text[:-1]
+                else:
+                    self.text += event.unicode
+                # Re-render the text.
+                self.txt_surface = FONT.render(self.text, True, self.color)
+
+    def update(self):
+        # Resize the box if the text is too long.
+        width = max(200, self.txt_surface.get_width()+10)
+        self.rect.w = width
+
+    def render(self, screen):
+        # Blit the text.
+        screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
+        # Blit the rect.
+        pygame.draw.rect(screen, self.color, self.rect, 2)
