@@ -97,9 +97,11 @@ pip install numpy
 ## 🔧 Updates (Jan 2025 – May 2025)
 
 - Full **UI overhaul**
-  - See additional README files in `Resizing-Style1` and `Resizing-Style2`
+  - See additional README files in branches
 - **macOS Support**
   - Creation of a native Stockfish executable for Mac
 - **Multiplayer mode** added
 - General **documentation improvements**
+
+- Please note: Additional documention files are avaliable in branches. 
 
