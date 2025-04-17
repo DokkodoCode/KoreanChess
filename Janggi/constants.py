@@ -303,7 +303,7 @@ resolutions = {
                                     "size": (96, 40),
                                     "text":
                                         {
-                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=25),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=23),
                                             "string": "Confirm",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
