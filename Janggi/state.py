@@ -1142,7 +1142,7 @@ class Multiplayer(PreGameSettings):
         self.choice = None # for choosing betwenn host and client
 
         # self.ip_prompt = TextBox((constants.screen_width/2, constants.screen_height/2), (500, 100))
-        self.ip_prompt = InputBox(constants.screen_width/2, constants.screen_height/2, 500, 100)
+        self.ip_prompt = InputBox((constants.screen_width/2, constants.screen_height/2), (500, 100))
 
         self.load_host_side_swap_menu()
 
@@ -2066,7 +2066,7 @@ class Multiplayer(PreGameSettings):
     def handle_client_init(self, event):
         # text box for ip addr input        
         self.ip_prompt.handle_event(event)
-        self.ip_prompt.update()
+        # self.ip_prompt.update()
 
         # try to connect with given ip
         if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
@@ -2785,18 +2785,19 @@ class Multiplayer(PreGameSettings):
         self.piece_convention_background = pygame.transform.scale(self.button_background,
                 constants.resolutions[f"{constants.screen_width}x{constants.screen_height}"]["background_elements"]["local_MP"]["button_background"]["piece_convention"]["size"])
 
-COLOR_INACTIVE = pygame.Color('lightskyblue3')
-COLOR_ACTIVE = pygame.Color('dodgerblue2')
+COLOR_INACTIVE = pygame.Color('grey')
+COLOR_ACTIVE = pygame.Color('white')
 FONT = pygame.font.Font(None, 32)
 
 class InputBox:
 
-    def __init__(self, x, y, w, h, text=''):
-        self.rect = pygame.Rect(x, y, w, h)
-        self.color = COLOR_INACTIVE
+    def __init__(self, pos, size, text='', font=None, font_size=32):
+        pos = pos[0]-(size[0]/2), pos[1]-(size[1]/2)
+        self.rect = pygame.Rect(pos[0], pos[1], size[0], size[1])
+        self.color = 'white'
         self.text = text
         self.to_return = None
-        self.txt_surface = FONT.render(text, True, self.color)
+        self.txt_surface = FONT.render(text, True, 'black')
         self.active = False
 
     def get_input(self):
@@ -2822,7 +2823,7 @@ class InputBox:
                 else:
                     self.text += event.unicode
                 # Re-render the text.
-                self.txt_surface = FONT.render(self.text, True, self.color)
+                self.txt_surface = FONT.render(self.text, True, 'black')
 
     def update(self):
         # Resize the box if the text is too long.
@@ -2830,7 +2831,6 @@ class InputBox:
         self.rect.w = width
 
     def render(self, screen):
-        # Blit the text.
+        pygame.draw.rect(screen, self.color, self.rect)
+        pygame.draw.rect(screen, 'black', self.rect, 2)
         screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
-        # Blit the rect.
-        pygame.draw.rect(screen, self.color, self.rect, 2)
