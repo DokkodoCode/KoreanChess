@@ -98,11 +98,11 @@ class State():
 
     def render_message(self, window, message:str, pos:tuple[int,int]):
         # window.blit(self.game_over_background, pos[0], pos[1])
-        MARGIN = 10
+        MARGIN = 20
         size = self.get_text_size(window, message, 33)
         size = (size[0]+MARGIN, size[1]+MARGIN)
         rect = pygame.Rect(pos[0]-(size[0]/2), pos[1]-(size[1]/2), size[0], size[1])
-        pygame.draw.rect(window, 'black', rect)
+        pygame.draw.rect(window, 'black', rect, border_radius=12)
         self.draw_text(window, message,
                        pos[0]-(size[0]/2)+MARGIN/2, pos[1]-(size[1]/2)+MARGIN/2, 33)
 
@@ -2822,7 +2822,7 @@ FONT = pygame.font.Font("UI/HIROMISAKE.ttf", 25)
 
 class InputBox:
 
-    def __init__(self, pos, size, text='', font=None, font_size=32):
+    def __init__(self, pos, size, text='', font=None, font_size=32, border_radius=12):
         pos = pos[0]-(size[0]/2), pos[1]-(size[1]/2)
         self.rect = pygame.Rect(pos[0], pos[1], size[0], size[1])
         self.color = 'white'
@@ -2830,6 +2830,7 @@ class InputBox:
         self.to_return = None
         self.txt_surface = FONT.render(text, True, 'black')
         self.active = False
+        self.border_radius = border_radius
 
     def get_input(self):
          return self.to_return
@@ -2862,6 +2863,6 @@ class InputBox:
         self.rect.w = width
 
     def render(self, screen):
-        pygame.draw.rect(screen, self.color, self.rect)
-        pygame.draw.rect(screen, 'black', self.rect, 2)
+        pygame.draw.rect(screen, self.color, self.rect, border_radius=self.border_radius)
+        pygame.draw.rect(screen, 'black', self.rect, 2, border_radius=self.border_radius)
         screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
