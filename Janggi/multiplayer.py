@@ -14,6 +14,7 @@ import pygame
 from enum import Enum
 import time
 import traceback
+import requests
 
 # Define canonical coordinate system
 class Perspective(Enum):
@@ -347,6 +348,13 @@ class SocketConnection:
                 return False
         return True
 
+    def shutdown(self):
+        try:
+            self.sock.shutdown(socket.SHUT_RDWR)
+            print('socket shutdown')
+        except Exception as e:
+            raise e
+
     def send(self, message):
         """Send a message as JSON with newline delimiter"""
         try:
@@ -540,3 +548,12 @@ class Client(SocketConnection):
             print(f"Error connecting to server: {e}")
             traceback.print_exc()
             return Exception
+
+def get_public_ip():
+    try:
+        response = requests.get('https://api.ipify.org?format=json')
+        ip_info = response.json()
+        return ip_info['ip']
+    except requests.RequestException as e:
+        print(f"Error retrieving IP: {e}")
+        return None

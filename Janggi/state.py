@@ -1134,7 +1134,9 @@ class LocalSinglePlayerGame(LocalSinglePlayerPreGameSettings):
 		self.active_player, self. waiting_player = self.waiting_player, self.active_player
 
 import socket
-HOST, PORT = socket.gethostbyname(socket.gethostname()), 5000
+HOST = multiplayer.get_public_ip()
+PRIV_IP = socket.gethostbyname(socket.gethostname())
+PORT = 5000
 
 class Multiplayer(PreGameSettings):    
     def __init__(self, window):
@@ -2073,7 +2075,7 @@ class Multiplayer(PreGameSettings):
         except Exception as e:
             self.connection_error = True
             print(f'error: {e}')
-            print('retrying')
+            self.connection.close()
 
    
     def handle_client_init(self, event):
