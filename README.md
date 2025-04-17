@@ -1,4 +1,4 @@
-#Korean Chess (Janggi)
+# Korean Chess (Janggi)
 
 A digital version of the traditional Korean board game *Janggi*, featuring:
 - Local single-player mode
