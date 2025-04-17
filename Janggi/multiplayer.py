@@ -38,6 +38,9 @@ class GamePhase(Enum):
     CLIENT_HORSE_SWAP = "client_horse_swap"
     GAMEPLAY = "gameplay"
     GAME_OVER = "game_over"
+    CREATE_JOIN_GAME = 'create join game'
+    JOIN_GAME = 'join game'
+    CREATE_GAME = 'create game'
 
 # -------------------------------------------------------------------------
 # Coordinate Transformation Functions
@@ -165,16 +168,26 @@ def serialize_piece_positions(pieces, perspective=Perspective.HOST):
     
     return serialized
 
-def deserialize_piece_positions(serialized_data, pieces, perspective=Perspective.HOST):
+def deserialize_piece_positions(serialized_data, pieces, perspective=Perspective.HOST, protected_pieces=None):
     """Update piece positions from serialized data"""
     if not serialized_data or not pieces:
         return
     
+    if protected_pieces is None:
+        protected_pieces = {}
+    
     role_prefix = "HOST: " if perspective == Perspective.HOST else "CLIENT: "
     
-    # Use for reliable matching
+    # Group existing pieces by type and ID for more reliable matching
+    piece_by_id = {}
     piece_by_type = {}
+    
     for piece in pieces:
+        # Map by ID if available
+        if hasattr(piece, 'id') and piece.id:
+            piece_by_id[piece.id] = piece
+        
+        # Also group by type as fallback
         piece_type = piece.piece_type.value
         if piece_type not in piece_by_type:
             piece_by_type[piece_type] = []
@@ -183,11 +196,59 @@ def deserialize_piece_positions(serialized_data, pieces, perspective=Perspective
     # Process each piece type in the serialized data
     for piece_type, positions in serialized_data.items():
         if piece_type in piece_by_type:
-            # Find the best match for each position
+            # Track which pieces have been updated
+            updated_pieces = set()
+            
+            # First pass: try to match by ID (most reliable)
             for i, piece_data in enumerate(positions):
-                # Get the corresponding piece if available
-                if i < len(piece_by_type[piece_type]):
-                    piece = piece_by_type[piece_type][i]
+                piece_id = piece_data.get('id')
+                if piece_id and piece_id in piece_by_id:
+                    piece = piece_by_id[piece_id]
+                    
+                    # Skip protected pieces (recently moved by local player)
+                    if piece_id in protected_pieces:
+                        print(f"{role_prefix}Skipping update for protected piece: {piece.piece_type.value}")
+                        updated_pieces.add(piece)
+                        continue
+                    
+                    # Get grid position from serialized data
+                    grid_pos = piece_data.get('position', {})
+                    file = grid_pos.get('file', 0)
+                    rank = grid_pos.get('rank', 0)
+                    
+                    # Transform if necessary
+                    if perspective == Perspective.CLIENT:
+                        file = 8 - file  # Flip horizontally
+                        rank = 9 - rank  # Flip vertically
+                    
+                    # Update piece's grid position
+                    piece.position = Position(file, rank)
+                    
+                    # Update pixel locations for rendering
+                    location = constants.x_coordinates[file], constants.y_coordinates[rank]
+                    piece.location = location
+                    piece.image_location = location
+                    
+                    # Update collision rectangle
+                    piece.collision_rect = reformat_piece_collision(
+                        location, piece.collision_rect)
+                    
+                    updated_pieces.add(piece)
+            
+            # Second pass: match remaining pieces by index
+            type_pieces = [p for p in piece_by_type[piece_type] if p not in updated_pieces]
+            remaining_positions = [p for i, p in enumerate(positions) 
+                                  if not p.get('id') or p.get('id') not in piece_by_id]
+            
+            for i, piece_data in enumerate(remaining_positions):
+                if i < len(type_pieces):
+                    piece = type_pieces[i]
+                    
+                    # Skip protected pieces (recently moved by local player)
+                    piece_id = piece.id if hasattr(piece, 'id') else None
+                    if piece_id in protected_pieces:
+                        print(f"{role_prefix}Skipping update for protected piece: {piece.piece_type.value}")
+                        continue
                     
                     # Get grid position from serialized data
                     grid_pos = piece_data.get('position', {})
@@ -298,7 +359,6 @@ class SocketConnection:
                 
             message_bytes = message.encode()
             self.sock.sendall(message_bytes)
-            print(f"Sent {len(message_bytes)} bytes: {message.strip()}")
             return True
         except Exception as e:
             print(f"Error sending message: {e}")
@@ -355,21 +415,19 @@ class Server(SocketConnection):
         try:
             self.sock.bind((self.HOST, self.PORT))
             print(f"Server bound to {self.HOST}:{self.PORT}")
-            return True
         except Exception as e:
             print(f"Error binding socket: {e}")
-            return False
+            raise e
 
     def listen(self, backlog=1):
         try:
             self.sock.listen(backlog)
             print(f"Server listening with backlog {backlog}")
-            return True
         except Exception as e:
             print(f"Error listening: {e}")
-            return False
+            raise e
 
-    def accept_client(self, timeout=None):
+    def accept_client(self, timeout=60):
         try:
             if timeout:
                 self.sock.settimeout(timeout)
@@ -377,16 +435,15 @@ class Server(SocketConnection):
             self.client_sock, self.addr = self.sock.accept()
             print(f"Accepted client connection from {self.addr}")
             
-            if timeout:
-                self.sock.settimeout(None)  # Reset timeout
+            # if timeout:
+            #     self.sock.settimeout(None)  # Reset timeout
                 
-            return True
         except socket.timeout:
             print("Accept timed out, no client connected")
-            return False
+            raise e
         except Exception as e:
             print(f"Error accepting client: {e}")
-            return False
+            raise e
         
     def send(self, message):
         """Send a message to the connected client"""
@@ -401,7 +458,6 @@ class Server(SocketConnection):
                     
                 message_bytes = message.encode()
                 self.client_sock.sendall(message_bytes)
-                print(f"Sent to client {len(message_bytes)} bytes: {message.strip()}")
                 return True
             else:
                 print("No client connected")
@@ -476,11 +532,11 @@ class Client(SocketConnection):
             return True
         except socket.timeout:
             print(f"Connection attempt timed out after {timeout} seconds")
-            return False
+            raise TimeoutError
         except ConnectionRefusedError:
             print("Connection refused. Is the server running?")
-            return False
+            raise ConnectionRefusedError
         except Exception as e:
             print(f"Error connecting to server: {e}")
             traceback.print_exc()
-            return False
+            return Exception
