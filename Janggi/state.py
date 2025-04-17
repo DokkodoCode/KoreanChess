@@ -32,10 +32,6 @@ class State():
         self.next_state = None
 
         # game state variables
-        # only used in:
-        #   SinglePlayerGame()
-        #   LocalSinglePlayerGame()
-        #   Multiplayer()
         self.opening_turn = True  # check to see if its the first turn of the game
         self.bikjang = False      # When both generals face each other unobstructed
         self.check = False        # When a general is in threat of being captured
@@ -87,17 +83,28 @@ class State():
         self.playboard_center = self.menu_background.get_rect().center
 
     # Method to draw text information out to the window
-    # INPUT: window object, text to be displayed, (x,y) of where to write on, font size
-    # OUTPUT: Window contains the text to be displayed
+    # returns the size of the text surface
     def draw_text(self, window, text, x=0, y=0, font_size=30):
         font = pygame.font.SysFont("Arial", font_size)
         text_surface = font.render(text, True, constants.WHITE)
         window.blit(text_surface, (x, y))
+        return text_surface.get_width(), text_surface.get_height()
 
-    def render_message(self, window, message:str, pos:tuple[int,int], size:tuple[int,int]=(100,100)):
+    def get_text_size(self, window, text, font_size=30):
+        font = pygame.font.SysFont("Arial", font_size)
+        text_surface = font.render(text, True, constants.WHITE)
+        return text_surface.get_width(), text_surface.get_height()
+
+
+    def render_message(self, window, message:str, pos:tuple[int,int]):
         # window.blit(self.game_over_background, pos[0], pos[1])
-        pygame.draw.rect(window, 'black', (pos[0]-(size[0]/2), pos[1]-(size[1]/2), size[0], size[1]))
-        self.draw_text(window, message, pos[0]-(size[0]/2), pos[1]-(size[1]/2), 33)
+        MARGIN = 10
+        size = self.get_text_size(window, message, 33)
+        size = (size[0]+MARGIN, size[1]+MARGIN)
+        rect = pygame.Rect(pos[0]-(size[0]/2), pos[1]-(size[1]/2), size[0], size[1])
+        pygame.draw.rect(window, 'black', rect)
+        self.draw_text(window, message,
+                       pos[0]-(size[0]/2)+MARGIN/2, pos[1]-(size[1]/2)+MARGIN/2, 33)
 
     # Checks flags to see if the game is over by check
     def is_game_over(self):
@@ -1137,12 +1144,21 @@ class Multiplayer(PreGameSettings):
 
         super().__init__(window)
 
-        self.host_button = button.Button(constants.screen_width * (1/3), constants.screen_height/2, 100, 100, self.font, 'host')
-        self.client_button = button.Button(constants.screen_width * (2/3), constants.screen_height/2, 100, 100, self.font, 'client')
+        # positions have -50 to adjust for size of button
+        self.host_button = button.Button(constants.screen_width * (1/3)-50,
+                                         constants.screen_height/2-(75/2),
+                                         100, 75,
+                                         self.font, 'host')
+        self.client_button = button.Button(constants.screen_width * (2/3)-50,
+                                           constants.screen_height/2-(75/2),
+                                           100, 75,
+                                           self.font, 'client')
         self.choice = None # for choosing betwenn host and client
 
-        # self.ip_prompt = TextBox((constants.screen_width/2, constants.screen_height/2), (500, 100))
-        self.ip_prompt = InputBox((constants.screen_width/2, constants.screen_height/2), (500, 100))
+        self.ip_prompt = InputBox((constants.screen_width/2, constants.screen_height/2), (300, 50))
+        # vars for handling incorrect IP input
+        self.invalid_ip = False
+        self.connection_error = False
 
         self.load_host_side_swap_menu()
 
@@ -2059,10 +2075,11 @@ class Multiplayer(PreGameSettings):
             self.send_message(multiplayer.MessageType.CONNECT, {"status": "connected"})
             self.game_phase = multiplayer.GamePhase.SETTINGS
         except Exception as e:
-                print(f'error: {e}')
-                print('retrying')
+            self.connection_error = True
+            print(f'error: {e}')
+            print('retrying')
 
-    
+   
     def handle_client_init(self, event):
         # text box for ip addr input        
         self.ip_prompt.handle_event(event)
@@ -2075,15 +2092,17 @@ class Multiplayer(PreGameSettings):
                 socket.inet_aton(host)
                 self.connection = multiplayer.Client(host, PORT)
                 self.connection.connect(timeout=60)
-                self.is_host = False                
+                self.is_host = False
                 self.connection.set_non_blocking(True)
                 print("Connected to host!")
                 self.game_phase = multiplayer.GamePhase.SETTINGS
             except socket.error as e:
                 print("not a valid ip")
+                self.invalid_ip = True
             except Exception as e:
                 print(f"Failed to connect to host: {e}")
                 self.connection = None
+                self.connection_error = True
 
     def handle_settings_click(self, mouse_pos):
         """Handle clicks in settings selection phase"""
@@ -2606,15 +2625,26 @@ class Multiplayer(PreGameSettings):
 
     def render_create_join_game(self, window):
         self.render_message(window, 'Host or Client?',
-                            (constants.screen_width/2, constants.screen_height/2), (200, 100))
+                            (constants.screen_width/2, constants.screen_height/2))
         self.host_button.draw_button(window)
         self.client_button.draw_button(window)
 
     def render_create_game(self, window):
-        print('render create game')
+        self.render_message(window, f"Give IP to the other player: {HOST}",
+                                    (constants.screen_width//2, constants.screen_height//2))
+        if self.connection_error:
+            self.render_message(window, f"There was a problem connecting player. Press esc to retry",
+                                (constants.screen_width//2, constants.screen_height//2+100))
 
     def render_join_game(self, window):
-         self.ip_prompt.render(window)
+        self.render_message(window, 'enter IP of host', (constants.screen_width//2, constants.screen_height//2-100))
+        self.ip_prompt.render(window)
+        if self.connection_error:
+            self.render_message(window, f"There was a problem connecting player. Press esc to retry",
+                                (constants.screen_width//2, constants.screen_height//2+100))
+        if self.invalid_ip:
+            self.render_message(window, f"Invalid ip given, try again",
+                                (constants.screen_width//2, constants.screen_height//2+100))
 
     def render_settings(self, window):
             """Render settings selection phase"""
@@ -2624,7 +2654,7 @@ class Multiplayer(PreGameSettings):
             else:
                 # Client waits for settings from host
                 self.render_message(window, "Waiting for host to select settings...",
-                                    (constants.screen_width//2, constants.screen_height//2), (500, 100))
+                                    (constants.screen_width//2, constants.screen_height//2))
 
     def render_settings_ui(self, window):
         """Render settings UI for host"""
