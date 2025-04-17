@@ -1188,19 +1188,13 @@ class Multiplayer(PreGameSettings):
         self.post_swap_grace = False  # Prevents immediate game end after swap phase
         self.waiting_for_opponent_swap = False
                 
-        # Initialize connection
-        # self.establish_connection()
-                
-        # Setup player perspectives based on role
         self.initialize_perspectives()
         
         from piece import Position
         self.Position = Position
         
-        # Create piece backups for validation
         self.backup_pieces()
         
-        # Initialize UI elements for horse swap phase
         self.load_game_state_elements()
         
         # Start the game state machine
@@ -2660,8 +2654,8 @@ class Multiplayer(PreGameSettings):
         """Render settings UI for host"""
         # Skip rendering if elements aren't initialized yet
         if not hasattr(self, 'play_as_background') or not self.play_as_background:
-            self.draw_text(window, "Loading settings UI...", 
-                          constants.screen_width//2 - 200, constants.screen_height//2, 30)
+            self.render_message(window, "Loading settings UI...", 
+                                constants.screen_width//2 - 200, constants.screen_height//2)
             return
             
         font_size, x, y = self.render_player_color_menu(window)
