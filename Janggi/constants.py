@@ -117,7 +117,7 @@ resolutions = {
                                     "size": (100, 40),
                                     "text":
                                         {
-                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=30),
                                             "string": "Easy",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -327,10 +327,10 @@ resolutions = {
                                         {
                                             "text":
                                                 {
-                                                    "string" : "Selected AI Difficulty: ",
-                                                    "location": (525, 455),
-                                                    "font_size": 25,
-                                                    "chosen_diff_location": (770, 455)
+                                                    "string" : "Selected AI Difficulty : ",
+                                                    "location": (520, 455),
+                                                    "font_size": 22,
+                                                    "chosen_diff_location": (780, 455)
                                                 },
                                             "location": (455, 420),
                                         },
@@ -340,7 +340,7 @@ resolutions = {
                                                 {
                                                     "string" : "Your Pieces",
                                                     "location": (289, 175),
-                                                    "font_size": 25,
+                                                    "font_size": 22,
                                                 },
                                             "location": (278, 209),
                                             "player_header" :
@@ -385,7 +385,7 @@ resolutions = {
                                                 {
                                                     "string" : "Select Side to Play As",
                                                     "location": (557, 75),
-                                                    "font_size": 25,
+                                                    "font_size": 22,
                                                 },
                                             "location": (532, 60),
                                             "size": (300, 125)
@@ -459,17 +459,17 @@ resolutions = {
                                             "notify_text":
                                                 {
                                                     "location": (374, 335),
-                                                    "font_size": 60
+                                                    "font_size": 50
                                                 },
                                             "condition_text":
                                                 {
-                                                    "location": (534, 470),
-                                                    "font_size": 25
+                                                    "location": (480, 470),
+                                                    "font_size": 20
                                                 },
                                             "result_text":
                                                 {
                                                     "location": (784, 335),
-                                                    "font_size": 60
+                                                    "font_size": 50
                                                 }
                                         }
 
@@ -508,7 +508,7 @@ resolutions = {
                                     "size": (500, 100),
                                     "text":
                                         {
-                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=50),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=40),
                                             "string": "Play Against an AI",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -522,7 +522,7 @@ resolutions = {
                                     "size": (500, 100),
                                     "text":
                                         {
-                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=50),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=40),
                                             "string": "Play by Yourself",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -536,7 +536,7 @@ resolutions = {
                                     "size": (500, 100),
                                     "text":
                                         {
-                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=50),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=40),
                                             "string": "Play Against a Friend",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -550,7 +550,7 @@ resolutions = {
                                     "size": (500, 100),
                                     "text":
                                         {
-                                            "font" : pygame.font.SysFont("Arial",size=50),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=40),
                                             "string": "Close The Application",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -567,7 +567,7 @@ resolutions = {
                                     "size": (125, 50),
                                     "text":
                                         {
-                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=30),
                                             "string": "Easy",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -581,7 +581,7 @@ resolutions = {
                                     "size": (125, 50),
                                     "text":
                                         {
-                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=30),
                                             "string": "Medium",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -595,7 +595,7 @@ resolutions = {
                                     "size": (125, 50),
                                     "text":
                                         {
-                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=30),
                                             "string": "Hard",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -640,7 +640,7 @@ resolutions = {
                                     "size": (175, 50),
                                     "text":
                                         {
-                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=35),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=22),
                                             "string": "Standard",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -654,7 +654,7 @@ resolutions = {
                                     "size": (175, 50),
                                     "text":
                                         {
-                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=30),
+                                            "font" : pygame.font.Font("UI/HIROMISAKE.ttf",size=22),
                                             "string": "International",
                                             "foreground_color": BLACK,
                                             "background_color": WHITE,
@@ -779,10 +779,10 @@ resolutions = {
                                         {
                                             "text":
                                                 {
-                                                    "string": "Selected AI Difficulty:",
-                                                    "location": (735, 615),
-                                                    "font_size": 35,
-                                                    "chosen_diff_location": (1075, 615)
+                                                    "string": "Selected AI Difficulty :",
+                                                    "location": (730, 615),
+                                                    "font_size": 32,
+                                                    "chosen_diff_location": (1105, 615)
                                                 },
                                             "location": (660, 560)
                                         },
@@ -792,7 +792,7 @@ resolutions = {
                                                 {
                                                     "string": "Your Pieces",
                                                     "location": (420, 240),
-                                                    "font_size": 35,
+                                                    "font_size": 32,
                                                 },
                                             "location": (410, 285),
                                             "player_header":
@@ -837,7 +837,7 @@ resolutions = {
                                                 {
                                                     "string": "Select Side to Play As",
                                                     "location": (810, 100),
-                                                    "font_size": 30,
+                                                    "font_size": 25,
                                                 },
                                             "location": (780, 75),
                                             "size": (350, 175)
@@ -847,7 +847,7 @@ resolutions = {
                                             "text":
                                                 {
                                                     "string": "Select Piece Convention",
-                                                    "location": (775, 345),
+                                                    "location": (765, 345),
                                                     "font_size": 35,
                                                 },
                                             "location": (660, 290),
@@ -911,17 +911,17 @@ resolutions = {
                                             "notify_text":
                                                 {
                                                     "location": (655, 440),
-                                                    "font_size": 60
+                                                    "font_size": 45
                                                 },
                                             "condition_text":
                                                 {
-                                                    "location": (650, 560),
-                                                    "font_size": 45
+                                                    "location": (720, 570),
+                                                    "font_size": 25
                                                 },
                                             "result_text":
                                                 {
                                                     "location": (1040, 440),
-                                                    "font_size": 60
+                                                    "font_size": 45
                                                 }
                                         }
 

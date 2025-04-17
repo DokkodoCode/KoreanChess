@@ -90,7 +90,7 @@ class State():
 	# INPUT: window object, text to be displayed, (x,y) of where to write on, font size
 	# OUTPUT: Window contains the text to be displayed
 	def draw_text(self, window, text, x=0, y=0, font_size=30):
-		font = pygame.font.SysFont("Arial", font_size)
+		font = pygame.font.Font("UI/HIROMISAKE.ttf", font_size)
 		text_surface = font.render(text, True, constants.WHITE)
 		window.blit(text_surface, (x, y))
 
