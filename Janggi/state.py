@@ -2017,20 +2017,21 @@ class Multiplayer(PreGameSettings):
             case multiplayer.GamePhase.JOIN_GAME:
                 self.handle_client_init(event)
             case multiplayer.GamePhase.SETTINGS:
-                self.handle_settings_click(mouse_pos)
+                if self.is_left_click(event):
+                    self.handle_settings_click(mouse_pos)
             case multiplayer.GamePhase.HOST_HORSE_SWAP:
-                if self.is_host and not self.waiting_for_opponent_swap:
+                if self.is_host and not self.waiting_for_opponent_swap and self.is_left_click(event):
                     self.handle_horse_swap_click(mouse_pos)
             case multiplayer.GamePhase.CLIENT_HORSE_SWAP:
-                if not self.is_host and not self.waiting_for_opponent_swap:
+                if not self.is_host and not self.waiting_for_opponent_swap and self.is_left_click(event):
                     self.handle_horse_swap_click(mouse_pos)
             case multiplayer.GamePhase.GAMEPLAY:
-                if not self.game_over and self.active_player == self.local_player:
+                if not self.game_over and self.active_player == self.local_player and self.is_left_click(event):
                     self.handle_gameplay_click(mouse_pos)
             case multiplayer.GamePhase.GAME_OVER:
                 pass
             case _:
-                print('HOW DID YOU GET HERE???')
+                print('Game phase was not specified')
                 exit()
         # Handle right-click for passing turn
         if self.is_right_click(event):
@@ -2067,7 +2068,8 @@ class Multiplayer(PreGameSettings):
             self.is_host = True        
             self.connection.set_client_non_blocking(True)
             self.send_message(multiplayer.MessageType.CONNECT, {"status": "connected"})
-            self.game_phase = multiplayer.GamePhase.SETTINGS
+            self.transition_to_settings()
+            self.initialize_perspectives()
         except Exception as e:
             self.connection_error = True
             print(f'error: {e}')
@@ -2090,6 +2092,7 @@ class Multiplayer(PreGameSettings):
                 self.connection.set_non_blocking(True)
                 print("Connected to host!")
                 self.game_phase = multiplayer.GamePhase.SETTINGS
+                self.initialize_perspectives()
             except socket.error as e:
                 print("not a valid ip")
                 self.invalid_ip = True
@@ -2613,6 +2616,9 @@ class Multiplayer(PreGameSettings):
                     self.render_gameplay(window)
                 case multiplayer.GamePhase.GAME_OVER:
                     self.render_game_over(window)
+                case _:
+                      print('render game phase not found')
+                      exit()
                 
             # Always show connection status
             self.render_connection_status(window)
