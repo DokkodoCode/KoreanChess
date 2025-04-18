@@ -67,18 +67,24 @@ class OpponentAI:
         """
         Adjust the difficulty of the AI by modifying the engine's skill level or search depth.
         """
+
+        self.send_command("setoption name Ponder true") # Let AI ponder during opponent's move
+        
+        self.send_command("setoption name UCI_LimitStrength true") # Enables poor play
+        # Note: LimitStrength overrides the alternate difficulty setting, Skill Level
+        # Skill Level values range from -20 to 20,
+        # so it cannot be tuned as finely as Elo ratings which range from 500 to 2850.
+
+
         if difficulty == "easy":
             print("AI set to easy")
-            self.send_command("setoption name Skill_Level value 1")  # Lowest skill level
-            self.send_command("setoption name UCI_EnginesearchDepth value 5")  # Shallow search depth
+            self.send_command("setoption name UCI_Elo value 700")  # Low Elo
         elif difficulty == "medium":
             print("AI set to med")
-            self.send_command("setoption name Skill_Level value 4")  # Medium skill level
-            self.send_command("setoption name UCI_EnginesearchDepth value 10")  # Moderate search depth
+            self.send_command("setoption name UCI_Elo value 1400")  # Middle Elo
         elif difficulty == "hard":
             print("AI set to hard")
-            self.send_command("setoption name Skill_Level value 20")  # Highest skill level
-            self.send_command("setoption name UCI_EnginesearchDepth value 20")  # Deep search depth
+            self.send_command("setoption name UCI_Elo value 2850")  # Highest Elo
         else:
             raise ValueError(f"Unsupported difficulty level: {difficulty}")
 

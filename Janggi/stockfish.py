@@ -41,14 +41,18 @@ send_command("position startpos")
 # Set the difficulty of the engine
 def set_difficulty(difficulty="easy"):
     # Send the appropriate skill level and depth based on difficulty
+
+    send_command("setoption name Ponder true")
+    send_command("setoption name UCI_LimitStrength true") # Enables poor play from the AI
+
     if difficulty == "easy":
-        send_command("setoption name Skill_Level value 1")  # Easy difficulty
+        send_command("setoption name UCI_Elo value 700")  # Easy difficulty
         send_command("go depth 1")
     elif difficulty == "medium":
-        send_command("setoption name Skill_Level value 5")  # Medium difficulty
+        send_command("setoption name UCI_Elo value 1400")# Medium difficulty
         send_command("go depth 5")
     elif difficulty == "hard":
-        send_command("setoption name Skill_Level value 20")  # Hard difficulty
+        send_command("setoption name UCI_Elo value 2850")  # Hard difficulty
         send_command("go depth 20")
 
     # Allow the engine to process the options set
