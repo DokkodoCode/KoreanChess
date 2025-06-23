@@ -1,7 +1,7 @@
 """
 -----------------------piece.py-----------------------------------
 o This file is to hold the data for each piece in Janggi
-o Last Modified - October 31st 2024
+o Last Modified - April 8th 2025
 ------------------------------------------------------------------
 """
 

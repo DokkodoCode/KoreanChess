@@ -2,7 +2,7 @@
 ----------------------state.py----------------------------
 o This file is to manage the current game mode (state) the
 	program is in
-o Last Modified - November 19th 2024
+o Last Modified - April 8th 2025
 ----------------------------------------------------------
 """
 
@@ -867,9 +867,6 @@ class SinglePlayerGame(SinglePlayerPreGameSettings):
 		# GAME ENDING CHECK
 		if self.game_over and self.check:
 			self.render_check_ending(window)
-####################################################################################################
-
-####################################################################################################
 
 
 	# Prints out the fen string of the current board

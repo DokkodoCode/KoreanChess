@@ -2,7 +2,7 @@
 ----------------------constants.py--------------------------------
 o This file is to hold any global constants to be used by program
 o Place all global constants into here
-o Last Modified - November 19th 2024
+o Last Modified - April 8th 2025
 ------------------------------------------------------------------
 """
 import pygame
